@@ -4,6 +4,7 @@ const AutoIncrement = require('mongoose-sequence')(mongoose);
 const QuizzSchema = new mongoose.Schema({
     quizz_id: Number, 
     creator: Number,
+    title : String,
     mode: {
         type : String,
         enum : ['QCM', 'Free','all', 'list']

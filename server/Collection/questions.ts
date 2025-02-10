@@ -22,7 +22,7 @@ module.exports = model;*/
 
 
 
-enum Mode {
+export enum Mode {
     QCM = "QCM",
     FREE = "Free",
     DCC = "DCC",
@@ -32,6 +32,7 @@ interface IQuestionBase extends mongoose.Document {
     question_id: number;
     author: number;
     mode: Mode;
+    title : String;
     report?: { date: Date; reporter: number }[];
     played?: number;
     succeed?: number;
@@ -43,6 +44,7 @@ const QuestionSchema = new mongoose.Schema<IQuestionBase>({
     question_id: { type: Number, required: true },
     author: { type: Number, required: true },
     mode: { type: String, enum: Object.values(Mode), required: true },
+    title : {type : String, required: true},
     report: { type : [{ date: Date, reporter: Number }], default : []},
     played: {type : Number, default : 0},
     succeed: {type : Number, default : 0},
@@ -69,11 +71,11 @@ const QCMModel = QuestionModel.discriminator<IQCMQuestion>("QCM", QCMSchema);
 
 // 🔵 Discriminant pour "Free"
 interface IFreeQuestion extends IQuestionBase {
-    answer: string;
+    answers: string[];
 }
 
 const FreeSchema = new mongoose.Schema<IFreeQuestion>({
-answer: { type: String, required: true },
+    answers: { type: [String], required: true },
 });
 
 const FreeModel = QuestionModel.discriminator<IFreeQuestion>("Free", FreeSchema);
@@ -94,4 +96,4 @@ const DCCSchema = new mongoose.Schema<IDCCQuestion>({
 
 const DCCModel = QuestionModel.discriminator<IDCCQuestion>("Free", FreeSchema);
 
-export default {QuestionModel, QCMModel, FreeModel, DCCModel};
+export default {Mode, QuestionModel, QCMModel, FreeModel, DCCModel};

@@ -1,5 +1,9 @@
 import { Socket } from "socket.io";
 import mongoose from "./db";
+import "./function/getter";
+import dbfun from "./function/dbfun";
+import "./function/fun"
+
 
 //const action = require('./fun.js');
 //const database = require('./DbFun.js');
@@ -39,7 +43,9 @@ const io = new Server(server, {
 
 io.on('connection',(socket : Socket) => {
   console.log("Un utilisateur est connecté");
+  socket.data.id = 2;
   socket.data.nickname = "User_" + socket.id;
+  socket.on("createQuestion", (data) => dbfun.createQuestion(socket, data));
 })
 
 
