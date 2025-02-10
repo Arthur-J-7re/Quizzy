@@ -1,7 +1,8 @@
+import { Socket } from "socket.io";
 import mongoose from "./db";
 
-const action = require('./fun.js');
-const database = require('./DbFun.js');
+//const action = require('./fun.js');
+//const database = require('./DbFun.js');
 const express = require('express');
 const { createServer } = require('node:http');
 const { Server } = require('socket.io');
@@ -32,3 +33,16 @@ const io = new Server(server, {
       }
     }
   })();
+
+
+  
+
+io.on('connection',(socket : Socket) => {
+  console.log("Un utilisateur est connecté");
+  socket.data.nickname = "User_" + socket.id;
+})
+
+
+server.listen(3000, () => {
+  console.log('server running on port 3000.');
+});

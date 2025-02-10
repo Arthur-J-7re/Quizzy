@@ -1,7 +1,7 @@
 import mongoose from "../db";
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 
-const questionSchema = new mongoose.Schema({
+/*const questionSchema = new mongoose.Schema({
     question_id: Number, 
     creator: Number,
     mode: {
@@ -17,35 +17,36 @@ const questionSchema = new mongoose.Schema({
 
 const model = mongoose.model("questions",questionSchema);
 
-module.exports = model;
+module.exports = model;*/
 
 
 
 
 enum Mode {
-QCM = "QCM",
-FREE = "Free",
+    QCM = "QCM",
+    FREE = "Free",
+    DCC = "DCC",
 }
 
 interface IQuestionBase extends mongoose.Document {
-question_id: number;
-creator: number;
-mode: Mode;
-report?: { date: Date; reporter: number }[];
-played?: number;
-succeed?: number;
-tags?: string[];
+    question_id: number;
+    author: number;
+    mode: Mode;
+    report?: { date: Date; reporter: number }[];
+    played?: number;
+    succeed?: number;
+    tags?: string[];
 }
 
 // 🟢 Schéma de base (sans les champs spécifiques)
 const QuestionSchema = new mongoose.Schema<IQuestionBase>({
-question_id: { type: Number, required: true },
-creator: { type: Number, required: true },
-mode: { type: String, enum: Object.values(Mode), required: true },
-report: [{ date: Date, reporter: Number }],
-played: Number,
-succeed: Number,
-tags: [String],
+    question_id: { type: Number, required: true },
+    author: { type: Number, required: true },
+    mode: { type: String, enum: Object.values(Mode), required: true },
+    report: { type : [{ date: Date, reporter: Number }], default : []},
+    played: {type : Number, default : 0},
+    succeed: {type : Number, default : 0},
+    tags: [String],
 });
 
 QuestionSchema.plugin(AutoIncrement, { inc_field: 'question_id' });
@@ -77,4 +78,20 @@ answer: { type: String, required: true },
 
 const FreeModel = QuestionModel.discriminator<IFreeQuestion>("Free", FreeSchema);
 
-module.exports = {QuestionModel, QCMModel, FreeModel};
+
+// 🔵 Discriminant pour "Free"
+interface IDCCQuestion extends IQuestionBase {
+    Carre: string[];
+    Duo: [string];
+    Cash: [string]
+}
+
+const DCCSchema = new mongoose.Schema<IDCCQuestion>({
+    Carre: { type: [String], required: true },
+    Cash: { type: [String], required: true },
+    Duo: { type: [String], required: true },
+});
+
+const DCCModel = QuestionModel.discriminator<IDCCQuestion>("Free", FreeSchema);
+
+export default {QuestionModel, QCMModel, FreeModel, DCCModel};
