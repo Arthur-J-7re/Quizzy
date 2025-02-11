@@ -33,6 +33,7 @@ interface IQuestionBase extends mongoose.Document {
     author: number;
     mode: Mode;
     title : String;
+    private: boolean;
     report?: { date: Date; reporter: number }[];
     played?: number;
     succeed?: number;
@@ -41,10 +42,11 @@ interface IQuestionBase extends mongoose.Document {
 
 // 🟢 Schéma de base (sans les champs spécifiques)
 const QuestionSchema = new mongoose.Schema<IQuestionBase>({
-    question_id: { type: Number, required: true },
+    question_id: { type: Number},
     author: { type: Number, required: true },
     mode: { type: String, enum: Object.values(Mode), required: true },
     title : {type : String, required: true},
+    private: {type: Boolean, required: true},
     report: { type : [{ date: Date, reporter: Number }], default : []},
     played: {type : Number, default : 0},
     succeed: {type : Number, default : 0},
@@ -58,12 +60,12 @@ const QuestionModel = mongoose.model<IQuestionBase>("Question", QuestionSchema);
 
 // 🔵 Discriminant pour "QCM"
 interface IQCMQuestion extends IQuestionBase {
-    choices: {content : string; id : number}[];
+    choices: [{content : string, answer_num : string}];
     answer : number;
 }
 
 const QCMSchema = new mongoose.Schema<IQCMQuestion>({
-    choices: { type: [{String}], required: true },
+    choices: [{content: String, answer_num: String}],
     answer : {type : Number, required: true}
 });
 
@@ -83,17 +85,19 @@ const FreeModel = QuestionModel.discriminator<IFreeQuestion>("Free", FreeSchema)
 
 // 🔵 Discriminant pour "Free"
 interface IDCCQuestion extends IQuestionBase {
-    Carre: string[];
-    Duo: [string];
+    Carre: [{content : string, answer_num: String}];
+    Duo: number;
+    answer: number;
     Cash: [string]
 }
 
 const DCCSchema = new mongoose.Schema<IDCCQuestion>({
-    Carre: { type: [String], required: true },
+    Carre: { type: [{content: String, answer_num: String}], required: true },
     Cash: { type: [String], required: true },
-    Duo: { type: [String], required: true },
+    Duo: { type: Number, required: true },
+    answer: {type: Number, required: true}
 });
 
-const DCCModel = QuestionModel.discriminator<IDCCQuestion>("Free", FreeSchema);
+const DCCModel = QuestionModel.discriminator<IDCCQuestion>("DCC", DCCSchema);
 
 export default {Mode, QuestionModel, QCMModel, FreeModel, DCCModel};

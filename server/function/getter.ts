@@ -5,7 +5,6 @@ import Quest from '../Collection/questions';
 
 const { QuestionModel, QCMModel, FreeModel, DCCModel } = Quest;
 
-
 const getQuestsionByOwner =async (id : number) => {
     const retour = await QuestionModel.find().where('owner').equals(id);
     return retour;
@@ -18,4 +17,9 @@ const getQuesionsOfQuizz = async (id : number) => {
 
 const getQuizzByOwner = async (id : number) => {
     const retour = await Quizz.findOne().where("owner").equals(id);
-}
+};
+
+/*const getQuizzByTags = async (tags) => {
+    const retour;
+    for tag in tags
+}*/

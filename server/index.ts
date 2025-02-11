@@ -1,23 +1,24 @@
 import { Socket } from "socket.io";
 import mongoose from "./db";
 import "./function/getter";
-import dbfun from "./function/dbfun";
+import dbfun from "./function/dbAction";
 import "./function/fun"
 
 
 //const action = require('./fun.js');
 //const database = require('./DbFun.js');
-const express = require('express');
-const { createServer } = require('node:http');
-const { Server } = require('socket.io');
-const { MongoClient } = require('mongodb');
-require('dotenv').config();
+import express from 'express';
+import { createServer } from 'node:http';
+import { Server } from 'socket.io';
+import { MongoClient } from 'mongodb';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5174",
+        origin: "http://localhost:5180",
         methods: ["GET", "POST"],
     }
 });
@@ -45,7 +46,9 @@ io.on('connection',(socket : Socket) => {
   console.log("Un utilisateur est connecté");
   socket.data.id = 2;
   socket.data.nickname = "User_" + socket.id;
-  socket.on("createQuestion", (data) => dbfun.createQuestion(socket, data));
+  socket.on("createQCMQuestion", (data) => dbfun.createQCMQuestion(socket, data));
+  socket.on("createFreeQuestion", (data) => dbfun.createFreeQuestion(socket, data));
+  socket.on("createDCCQuestion", (data) => dbfun.createDCCQuestion(socket, data));
 })
 
 
