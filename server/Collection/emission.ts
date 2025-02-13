@@ -8,6 +8,7 @@ const EmissionSchema = new mongoose.Schema({
     stage : [Number],
     keepPoint : [Boolean],
     player : [Number],
+    ranking: [Number],
     winner : Number,
      
 });

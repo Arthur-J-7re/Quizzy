@@ -18,10 +18,10 @@ interface CreateQCMFormProps {
     qcmData: { title: string; tags: string[];private: boolean; choices: { ans1: string; ans2: string; ans3: string; ans4: string }; answer: number };
     setQcmData: React.Dispatch<React.SetStateAction<CreateQCMFormProps["qcmData"]>>;
     socket: Socket | null;
-  }
+}
   
 
-  export function CreateQCMForm({
+export function CreateQCMForm({
    
     setTitle,
   
@@ -41,21 +41,40 @@ interface CreateQCMFormProps {
     
     //const socket = useSocket();
 
+    const validateQcm = () => {
+        if (!qcmData.title.trim()) {
+            alert("Il faut un intitulé à la question !");
+            return false;
+        }
+    
+        if (!qcmData.choices.ans1.trim() || 
+            !qcmData.choices.ans2.trim() || 
+            !qcmData.choices.ans3.trim() || 
+            !qcmData.choices.ans4.trim()) {
+            alert("Toutes les réponses doivent être remplies !");
+            return false;
+        }
+    
+        return true;
+    };
+
     
 
     const sendQcm = async () => {
         if (socket instanceof Socket){
-            const formattedChoices = Object.entries(carre).map(([key, value], index) => ({
-                content: value, // Texte du choix
-                answer_num: (index + 1).toString() // ID de réponse sous forme de string
-            }));
-    
-            const formattedQcmData = {
-                ...qcmData,
-                choices: formattedChoices
-            };
-    
-            socket.emit("createQCMQuestion", formattedQcmData);
+            if (validateQcm()){
+                const formattedChoices = Object.entries(carre).map(([key, value], index) => ({
+                    content: value, // Texte du choix
+                    answer_num: (index + 1).toString() // ID de réponse sous forme de string
+                }));
+        
+                const formattedQcmData = {
+                    ...qcmData,
+                    choices: formattedChoices
+                };
+        
+                socket.emit("createQCMQuestion", formattedQcmData);
+            }   
         }
     };
     

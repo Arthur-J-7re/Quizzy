@@ -29,9 +29,9 @@ const createQCMQuestion = async (socket : Socket, questionObj : any) =>{
     } catch (error){
         if (error instanceof Error) {
             console.error(error.message);
-          } else {
+        } else {
             console.error("Une erreur inconnue est survenue", error);
-          }
+        }
     }
 };
 
@@ -76,9 +76,33 @@ const createDCCQuestion = async(socket : Socket, questionObj : any) => {
     } catch (error) {
         if (error instanceof Error) {
             console.error(error.message);
-            } else {
+        } else {
             console.error("Une erreur inconnue est survenue", error);
-            }
+        }
+    }
+
+};
+
+const createVFQuestion = async(socket : Socket, questionObj : any) => {
+    try {
+        let newQuest;
+                
+        newQuest = await DCCModel.create({
+            author: socket.data.id,
+            tags: questionObj.tags,
+            title: questionObj.title,
+            private: questionObj.private,
+            mode: Mode.VF,
+            truth: questionObj.truth,
+        });
+        
+            
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error(error.message);
+        } else {
+            console.error("Une erreur inconnue est survenue", error);
+        }
     }
 
 };
@@ -87,5 +111,4 @@ const createDCCQuestion = async(socket : Socket, questionObj : any) => {
 
 
 
-
-export default {createQCMQuestion, createFreeQuestion, createDCCQuestion};
+export default {createQCMQuestion, createFreeQuestion, createDCCQuestion, createVFQuestion};

@@ -1,4 +1,5 @@
 import mongoose from "../db";
+import questions from "./questions";
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const UserSchema = new mongoose.Schema({
@@ -18,7 +19,13 @@ const UserSchema = new mongoose.Schema({
             },
             message: props => `${props.value} n'est pas une adresse email valide !`
         }
-    }
+    },
+    currentRoom : String,
+    questions: [Number],
+    quizz:[Number],
+    emissions : [Number],
+    questPlayed: Number,
+    goodAnswer: Number
 });
 
 UserSchema.plugin(AutoIncrement, { inc_field: 'quizz_id' });

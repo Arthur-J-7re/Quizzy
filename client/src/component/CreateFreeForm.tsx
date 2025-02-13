@@ -38,10 +38,30 @@ export function CreateFreeForm({
     setFreeData,
     socket
   }: CreatefreeFormProps)  {
+
+    const validateFree = () => {
+
+        if (!freeData.title.trim()) {
+            alert("Il faut un intitulé à la question !");
+            return false;
+        }
+
+        if (freeData.answers.length === 0) {
+            alert("Il faut au moins une réponse !");
+            return false;
+        }
+    
+        if (freeData.answers.some(answer => answer.trim() === "")) {
+            alert("Toutes les réponses doivent être remplies !");
+            return false;
+        }
+    
+        return true;
+    }
     
 
     const sendFree = async () => {
-        if (socket instanceof Socket){
+        if (socket instanceof Socket && validateFree()){
             socket.emit("createFreeQuestion", freeData);
         }
     };

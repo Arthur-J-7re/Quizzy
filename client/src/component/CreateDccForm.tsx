@@ -49,9 +49,33 @@ export function CreateDCCForm({
     socket
   }: CreatefreeFormProps)   {
     
+    const validateDcc = () => {
+        if (!dccData.title.trim()) {
+            alert("Il faut un intitulé à la question !");
+            return false;
+        }
+
+        if (dccData.cash.length === 0) {
+            alert("Il faut au moins une réponse !");
+            return false;
+        }
+    
+        if (dccData.cash.some(answer => answer.trim() === "")) {
+            alert("Toutes les réponses Cash doivent être remplies !");
+            return false;
+        }
+
+        if (!dccData.carre.ans1.trim() || 
+            !dccData.carre.ans2.trim() || 
+            !dccData.carre.ans3.trim() || 
+            !dccData.carre.ans4.trim()) {
+            alert("Toutes les réponses Carre doivent être remplies !");
+            return false;
+        }
+    }
 
     const sendDcc = async () => {
-        if (socket instanceof Socket){
+        if (socket instanceof Socket && validateDcc()){
             socket.emit("createDCCQuestion", dccData);
         }
     };

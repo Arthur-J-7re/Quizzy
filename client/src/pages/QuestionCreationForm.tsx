@@ -4,6 +4,7 @@ import { useSocket } from '../context/socketContext';
 import { CreateQCMForm } from '../component/CreateQcmForm';
 import { CreateFreeForm } from '../component/CreateFreeForm';
 import { CreateDCCForm } from '../component/CreateDccForm';
+import {CreateVfForm} from '../component/CreateVfForm'
 import { private_createTypography } from '@mui/material';
 
 export function QuestionCreationForm () {
@@ -13,10 +14,12 @@ export function QuestionCreationForm () {
     const [isPrivate, setPrivate] = useState(true);
     const [carre, setCarre] = useState({ans1 : "", ans2 : "", ans3: "", ans4: ""});
     const [answers, setAnswers] = useState<string[]>([]);
+    const [truth, setTruth] = useState(true);
 
     const [freeData, setFreeData] = useState({title: title, tags: tags,private:isPrivate, answers: answers});
     const [dccData, setDccData] = useState({title: title, tags: tags,private: isPrivate ,carre: carre, duo:2, answer:1, cash:answers});
     const [qcmData, setQcmData] = useState({title: title,tags: tags,private: isPrivate, choices: carre, answer:1});
+    const [vfData, setVfData] = useState({title:title,tags: tags,private: isPrivate, truth:truth});
     //const socketRef = useRef(null);
     const socket = useSocket();
     useEffect(() => {
@@ -85,12 +88,18 @@ export function QuestionCreationForm () {
             answers:answers,
             private: isPrivate
         }));
-        setQcmData(prev => ({
+        setDccData(prev => ({
             ...prev,
             title: title,
             tags: tags,
             choices: carre,
             answers:answers,
+            private: isPrivate
+        }));
+        setVfData(prev => ({
+            ...prev,
+            title: title,
+            tags: tags,
             private: isPrivate
         }));
     }, [title, tags, carre, isPrivate, answers]);
@@ -111,6 +120,14 @@ export function QuestionCreationForm () {
         }
 
     }, [dccData])
+
+    useEffect(() => {
+        setVfData(prev => ({
+            ...prev,
+            truth:truth
+        }));
+
+    }, [truth]);
 
     const renderContent = () => {
         switch (mode) {
@@ -137,6 +154,13 @@ export function QuestionCreationForm () {
                 carre={carre} setCarre={setCarre} 
                 duoContain={duoContain} manageDuo={manageDuo} resetDuo={resetDuo}
                 dccData={dccData} setDccData={setDccData} socket={socket}/>;
+            case "VF":
+                return <CreateVfForm
+                title={title} setTitle={setTitle} 
+                isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
+                tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
+                truth={truth} setTruth={setTruth}
+                vfData={vfData} setVfData={setVfData} socket={socket}/>;
             default:
                 return <CreateQCMForm 
                 title={title} setTitle={setTitle} 
@@ -168,6 +192,11 @@ export function QuestionCreationForm () {
                 className = {(mode == "DCC")?"selectedMode":"notSelectedMode"}
                 onClick={() => setMode("DCC")}>
                 Duo/Carré/Cash
+                </Button>
+                <Button 
+                className = {(mode == "VF")?"selectedMode":"notSelectedMode"}
+                onClick={() => setMode("VF")}>
+                Vrai ou Faux
                 </Button>
             </div>
             {renderContent()}

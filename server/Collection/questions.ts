@@ -26,6 +26,7 @@ export enum Mode {
     QCM = "QCM",
     FREE = "Free",
     DCC = "DCC",
+    VF = "VF",
 }
 
 interface IQuestionBase extends mongoose.Document {
@@ -100,4 +101,17 @@ const DCCSchema = new mongoose.Schema<IDCCQuestion>({
 
 const DCCModel = QuestionModel.discriminator<IDCCQuestion>("DCC", DCCSchema);
 
-export default {Mode, QuestionModel, QCMModel, FreeModel, DCCModel};
+
+interface IVFQuestion extends IQuestionBase {
+    truth: boolean,
+}
+
+const VFSchema = new mongoose.Schema<IVFQuestion>({
+    truth : {type: Boolean, required : true}
+});
+
+const VFModel = QuestionModel.discriminator<IVFQuestion>("VF", DCCSchema);
+
+
+
+export default {Mode, QuestionModel, QCMModel, FreeModel, DCCModel, VFModel};
