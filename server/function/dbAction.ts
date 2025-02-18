@@ -2,9 +2,11 @@ import Quizz from '../Collection/quizz';
 import User from "../Collection/user";
 import Emission from "../Collection/emission";
 import Quest from '../Collection/questions';
+import getter from './getter';
 import { Socket } from 'socket.io';
 
 const {Mode, QuestionModel, QCMModel, FreeModel, DCCModel } = Quest;
+const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const createQCMQuestion = async (socket : Socket, questionObj : any) =>{
     console.log("tentative de création de question");
@@ -107,8 +109,45 @@ const createVFQuestion = async(socket : Socket, questionObj : any) => {
 
 };
 
+const match = async (accountname : string, password : string) => {
+    if (regexEmail.test(accountname)){
+        let expected = await getter.getPasswordByEmail(accountname);
+        
+        return (expected === password);
+    } else {
+        let expected = await getter.getPasswordByUsername(accountname);
+        return (expected === password);
+    }
+};
+
+const usernameExist = async (name : string) => {
+    try {
+        const retour = await User.findOne().where("username").equals(name);
+        if (retour) {
+            return true ;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error(error)
+    }
+};
+
+const emailExist = async (mail : string) => {
+    try {
+        const retour = await User.findOne().where("mail").equals(mail);
+        if (retour) {
+            return true ;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error(error)
+    }
+};
 
 
 
 
-export default {createQCMQuestion, createFreeQuestion, createDCCQuestion, createVFQuestion};
+
+export default {createQCMQuestion, createFreeQuestion, createDCCQuestion, createVFQuestion, match, usernameExist, emailExist};

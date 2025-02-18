@@ -1,11 +1,11 @@
 import { useState, useEffect} from 'react';
 import Button from '@mui/material/Button';
 import { useSocket } from '../context/socketContext';
-import { CreateQCMForm } from '../component/CreateQcmForm';
-import { CreateFreeForm } from '../component/CreateFreeForm';
-import { CreateDCCForm } from '../component/CreateDccForm';
-import {CreateVfForm} from '../component/CreateVfForm'
-import { private_createTypography } from '@mui/material';
+import { CreateQCMForm } from '../component/CreateQuestion/CreateQcmForm';
+import { CreateFreeForm } from '../component/CreateQuestion/CreateFreeForm';
+import { CreateDCCForm } from '../component/CreateQuestion/CreateDccForm';
+import {CreateVfForm} from '../component/CreateQuestion/CreateVfForm'
+import { Banner } from '../component/Banner/Banner';
 
 export function QuestionCreationForm () {
     const [mode , setMode] = useState("QCM");
@@ -16,10 +16,10 @@ export function QuestionCreationForm () {
     const [answers, setAnswers] = useState<string[]>([]);
     const [truth, setTruth] = useState(true);
 
-    const [freeData, setFreeData] = useState({title: title, tags: tags,private:isPrivate, answers: answers});
-    const [dccData, setDccData] = useState({title: title, tags: tags,private: isPrivate ,carre: carre, duo:2, answer:1, cash:answers});
-    const [qcmData, setQcmData] = useState({title: title,tags: tags,private: isPrivate, choices: carre, answer:1});
-    const [vfData, setVfData] = useState({title:title,tags: tags,private: isPrivate, truth:truth});
+    const [freeData, setFreeData] = useState({title: title, tags: tags, private:isPrivate, answers: answers});
+    const [dccData, setDccData] = useState({title: title, tags: tags, private: isPrivate, carre: carre, duo: 2, answer: 1, cash: answers});
+    const [qcmData, setQcmData] = useState({title: title, tags: tags, private: isPrivate, choices: carre, answer: 1});
+    const [vfData, setVfData] = useState({title: title, tags: tags, private: isPrivate, truth: truth});
     //const socketRef = useRef(null);
     const socket = useSocket();
     useEffect(() => {
@@ -92,7 +92,7 @@ export function QuestionCreationForm () {
             ...prev,
             title: title,
             tags: tags,
-            choices: carre,
+            carre: carre,
             answers:answers,
             private: isPrivate
         }));
@@ -173,6 +173,8 @@ export function QuestionCreationForm () {
 
 
     return (
+        <>
+        <Banner></Banner>
         <div className="Maincontainer">
             <div className="modeSelector">
                 <h3>Créer une question avec un format</h3>
@@ -203,6 +205,7 @@ export function QuestionCreationForm () {
             
             
         </div>
+        </>
 
         
     )

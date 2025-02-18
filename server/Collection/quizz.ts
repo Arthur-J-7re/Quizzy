@@ -9,14 +9,14 @@ const QuizzSchema = new mongoose.Schema({
         type : String,
         enum : ['QCM', 'Free','all', 'list']
     }, 
-    questions : [Number],
-    played : Number,
-    best_players : [Number],
-    tags : [String] 
+    questions : {type :[Number], default : []},
+    played :{type: Number, default : 0},
+    best_players : {type:[Number],default : []},
+    tags :{type : [String], default : []} 
 });
 
 QuizzSchema.plugin(AutoIncrement, { inc_field: 'quizz_id' });
 
-const model = mongoose.model("questions",QuizzSchema);
+const model = mongoose.model("quizz",QuizzSchema);
 
 export default model;

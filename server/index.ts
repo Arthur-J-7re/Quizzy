@@ -1,8 +1,8 @@
 import { Socket } from "socket.io";
 import mongoose from "./db";
-import "./function/getter";
+import getter from "./function/getter";
 import dbfun from "./function/dbAction";
-import "./function/fun"
+import fun from "./function/fun"
 
 
 //const action = require('./fun.js');
@@ -46,6 +46,8 @@ io.on('connection',(socket : Socket) => {
   console.log("Un utilisateur est connecté");
   socket.data.id = 2;
   socket.data.nickname = "User_" + socket.id;
+  socket.on("register", (data) => fun.register(socket, data));
+  socket.on("login", (data) => fun.login(socket, data))
   socket.on("createQCMQuestion", (data) => dbfun.createQCMQuestion(socket, data));
   socket.on("createFreeQuestion", (data) => dbfun.createFreeQuestion(socket, data));
   socket.on("createDCCQuestion", (data) => dbfun.createDCCQuestion(socket, data));

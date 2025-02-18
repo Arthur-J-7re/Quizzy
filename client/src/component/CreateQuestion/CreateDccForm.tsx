@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React from 'react';
 import Button from '@mui/material/Button';
 import { Switch } from '@mui/material';
-import { useSocket } from '../context/socketContext';
-import {Socket, io} from "socket.io-client";
+import {Socket} from "socket.io-client";
 
 interface CreatefreeFormProps {
     title: string;
@@ -23,7 +22,7 @@ interface CreatefreeFormProps {
     duoContain: (nombre: number) => boolean;
     manageDuo: (nombre: number) => void; 
     resetDuo: (nombre : number) => void;   
-    dccData: { title: string; tags: string[];private: boolean;carre: { ans1: string; ans2: string; ans3: string; ans4: string },duo:number,answer:number,  cash: string[] };
+    dccData:{ title: string; tags: string[];private: boolean; carre: { ans1: string; ans2: string; ans3: string; ans4: string };duo: number, answer: number; cash : string[] };
     setDccData: React.Dispatch<React.SetStateAction<CreatefreeFormProps["dccData"]>>;
     socket: Socket | null;
   }
@@ -36,14 +35,12 @@ export function CreateDCCForm({
     addTag,
     removeTag,
     answers,
-    setAnswers,
     addAnswer,
     removeAnswer,
     carre,
     setCarre,
     duoContain,
     manageDuo,
-    resetDuo,
     dccData,
     setDccData,
     socket

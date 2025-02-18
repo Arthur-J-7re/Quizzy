@@ -5,7 +5,6 @@ const AutoIncrement = require('mongoose-sequence')(mongoose);
 const UserSchema = new mongoose.Schema({
     username: String,
     user_id: Number, 
-    nickname: String, 
     password : String,  
     email: {
         type: String,
@@ -21,15 +20,15 @@ const UserSchema = new mongoose.Schema({
         }
     },
     currentRoom : String,
-    questions: [Number],
-    quizz:[Number],
-    emissions : [Number],
-    questPlayed: Number,
-    goodAnswer: Number
+    questions: {type : [Number],default :  []},
+    quizz: {type : [Number],default :  []},
+    emissions : {type : [Number],default :  []},
+    questPlayed: {type : Number, dafault : 0},
+    goodAnswer: {type :Number, default: 0}
 });
 
-UserSchema.plugin(AutoIncrement, { inc_field: 'quizz_id' });
+UserSchema.plugin(AutoIncrement, { inc_field: 'user_id' });
 
-const model = mongoose.model("questions", UserSchema);
+const model = mongoose.model("users", UserSchema);
 
 export default model;

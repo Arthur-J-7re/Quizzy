@@ -63,7 +63,7 @@ export function CreateQCMForm({
     const sendQcm = async () => {
         if (socket instanceof Socket){
             if (validateQcm()){
-                const formattedChoices = Object.entries(carre).map(([key, value], index) => ({
+                const formattedChoices = Object.entries(carre).map(([value], index) => ({
                     content: value, // Texte du choix
                     answer_num: (index + 1).toString() // ID de réponse sous forme de string
                 }));
@@ -102,7 +102,7 @@ export function CreateQCMForm({
             </div>
             <div className='Carre'>
                 <h3>Complétez les différentes propositions et cochez la bonne réponse</h3>
-                <div className='answerQcm'>
+                <div className='answerQcm'> 
                     <input 
                         type='checkbox' 
                         checked={qcmData.answer == 1}

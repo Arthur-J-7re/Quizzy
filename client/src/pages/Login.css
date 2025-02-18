@@ -1,0 +1,260 @@
+@font-face {
+    font-family: 'Montserrat';
+    src: url('../assets/font/Montserrat/Montserrat-VariableFont_wght.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Style pour la page avec un fond personnalisé */
+body.custom-background {
+    background-color: #66e33d;
+
+    min-height:100vh;
+    margin: 0;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center; /* Centre verticalement */
+}
+
+
+
+
+
+.login-container {
+    background-color: #FFF;
+    
+}
+
+.login-containerNight{
+    background-color: #515358;
+}
+
+.login-container,.login-containerNight{
+    
+    font-family: Montserrat;
+    font-size: 14px;
+    
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    align-items: center;
+    padding-bottom: 30px;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    
+    
+    width: 60vh;
+    height: 60vh;
+    width : 400px;
+    height : 400px;
+    gap : 10px;
+}
+
+.login-logo {
+    margin-top: 20px;
+    width: 125px;
+    height: auto;
+}
+
+.container {
+    background-color: #66e33d;
+}
+
+.containerNight{
+    background-color: #313338;
+}
+
+.container,.containerNight{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    
+}
+
+.loginsignup-header {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    align-items: center;
+    gap: 60px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+/*LOGIN*/
+
+.login-form,
+.signup-form {
+    display: none; /* Cache par défaut les deux formulaires */
+}
+
+.login-form.active,
+.signup-form.active {
+    display: block; /* Affiche le formulaire actif */
+
+}
+
+
+.login-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 250px;
+    margin-bottom: 30px;
+
+    font-size: 14px;
+}
+.signup-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 250px;
+    margin-bottom: 10px;
+
+    font-size: 14px;
+}
+
+.login-label {
+    display: block;
+    margin-bottom: 5px;
+    margin-right: auto; /* Repousse l'élément vers la droite */
+}
+
+.login-input, .login-inputNight {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.login-inputNight{
+    color: #fff;
+    background-color: #717378;
+}
+
+
+
+.login-input:focus {
+    outline: none;
+    border-color: #66e33d;
+    
+}
+
+.login-inputNight:focus {
+    outline: none;
+    border-color: #FC6EDA;
+    
+}
+.forgot-password {
+    text-align: center;
+    margin-top: 15px;
+
+}
+
+.submit-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    margin-top: 50px;
+}
+
+
+/*SIGN UP*/
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.signup-form-recruiter,
+.signup-form-candidate {
+    display: none; /* Cache par défaut les deux formulaires */
+}
+
+.signup-form-recruiter,
+.signup-form-candidate {
+    display: block; /* Affiche le formulaire actif */
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Deux colonnes égales */
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    margin: 5px;
+}
+
+
+/*modification mail*/
+.signup-input-mail, .sign-input-group {
+    grid-column: span 2;
+    width: 95%;
+}
+
+.signup-input-mail .sign-input {
+    width: 400px;
+}
+
+/*modification password*/
+.signup-input-password{
+    grid-column: span 2;
+    width: 95%;
+}
+.signup-input-password .sign-input, .sign-inputNight{
+    width: 400px;
+}
+
+.sign-label {
+    display: block;
+    padding-left:7px;
+    margin-bottom: 5px;
+
+}
+.sign-input, .sign-inputNight {
+    width: 180px;
+    padding: 8px;
+    border: 1px solid;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #000;
+    background-color: #ECEFF1;
+}
+
+.sign-input:focus{
+    outline: none;
+    background-color: #fff;
+
+}
+
+.greenBorder{
+    color: #000;
+    background-color: #ECEFF1;
+}
+
+.pinkBorder{
+    color: #fff;
+    background-color: #717378;
+}
+
+.greenBorder:focus{
+    border-color: #66e33d;
+    color: #000;
+    background-color: #ECEFF1;
+}
+
+.pinkBorder:focus{
+    border-color: #FC6EDA;
+    color: #fff;
+    background-color: #717378;
+}
+
+.sign-inputNight:focus{
+    outline: none;
+    background-color: #fff;
+
+}
+

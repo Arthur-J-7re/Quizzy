@@ -23,3 +23,46 @@ const getQuizzByOwner = async (id : number) => {
     const retour;
     for tag in tags
 }*/
+
+const getIdByEmail = async (mail : string) => {
+    try {
+        const retour = await User.findOne().select("user_id").where("email").equals(mail);
+        if (retour){
+            return retour.user_id;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const getIdByUsername = async (username : string) => {
+    try {
+        const retour = await User.findOne().select("user_id").where("username").equals(username);
+        if (retour){
+            return retour.user_id;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const getPasswordByEmail = async (mail: string) => {
+    try {
+        const retour = await User.findOne().select('password').where('email').equals(mail);
+        if (retour) {return retour.password};
+    } catch(error){
+        console.error(error);
+    }
+};
+
+const getPasswordByUsername = async (username : string) => {
+    try {
+        const retour = await User.findOne().select('password').where('username').equals(username);
+        if (retour) {return retour.password};
+    } catch(error){
+        console.error(error);
+    }
+
+};
+
+export default {getQuesionsOfQuizz, getQuestsionByOwner, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername}

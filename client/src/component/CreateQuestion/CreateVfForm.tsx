@@ -31,7 +31,6 @@ export function CreateVfForm({
     truth,
     setTruth,
     vfData,
-    setVfData,
     socket
   }: CreateVfFormProps) {
   

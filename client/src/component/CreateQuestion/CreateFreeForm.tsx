@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React from 'react';
 import Button from '@mui/material/Button';
 import { Switch } from '@mui/material';
-import { useSocket } from '../context/socketContext';
-import {Socket, io} from "socket.io-client";
+import {Socket} from "socket.io-client";
 
 interface CreatefreeFormProps {
     title: string;
@@ -31,11 +30,9 @@ export function CreateFreeForm({
     addTag,
     removeTag,
     answers,
-    setAnswers,
     addAnswer,
     removeAnswer,
     freeData,
-    setFreeData,
     socket
   }: CreatefreeFormProps)  {
 
