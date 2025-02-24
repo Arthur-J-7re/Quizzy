@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef} from 'react';
 import { useNavigate } from "react-router-dom";
 import { useSocket } from '../context/socketContext';
+import { AuthContext } from '../context/authentContext';
+import { useContext } from 'react';
 import { Socket } from 'socket.io-client';
 import Button from '@mui/material/Button';
 //import GreenSwitch from '@mui/material/Switch'
@@ -19,6 +21,7 @@ export function Login () {
     
     const socketRef = useRef<Socket | null>(null);
     const socket = useSocket();
+    const auth = useContext(AuthContext);
     
     const navigate = useNavigate();
     
@@ -43,7 +46,7 @@ export function Login () {
     // Référence pour garder l'instance du socket
     
     useEffect(() => {
-        
+         
     
         
         if (socket){
@@ -51,7 +54,13 @@ export function Login () {
                 alert(message);
             });
 
-            socket.on("success", () =>{
+            socket.on("success", (data) =>{
+                if (isLogin) {
+                    auth?.login({id : data.id, Username : loginData.username, currentRoom : "", token : data.token  })
+                } else {
+                    auth?.login({id : data.id, Username : signupData.username, currentRoom : "", token : data.token  })
+                }
+                
                 //localStorage.setItem("authToken", data.token);
                 navigate("/");
             });

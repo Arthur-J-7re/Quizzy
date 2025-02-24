@@ -1,9 +1,18 @@
 import { Socket } from "socket.io";
+import jwt from "jsonwebtoken";
 import dbAction from "./dbAction";
 import getter from "./getter"
 import User from "../Collection/user"
+import dotenv from 'dotenv';
+import { isUndefined } from "util";
+dotenv.config();
+
 
 const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+const SECRET_KEY : string= process.env.JWT_SECRET || "sferkfjdddfeofjgrjkjdkdpcdfkvfd";
+
+
 
 const login = async (socket : Socket, data : any) => {
     let name = data.username;
@@ -20,13 +29,19 @@ const loginEMail = async (socket: Socket, data : any) => {
         let match = await dbAction.match(data.username, data.password)
         console.log(match);
         if (match){
-            socket.data.id = await getter.getIdByEmail(data.username);
-            /*const token = jwt.sign(
+            let id;
+            try {
+                id = await getter.getIdByEmail(data.username);
+            } catch (error) {
+                console.error(error);
+            }
+            socket.data.id = id;
+            const token = jwt.sign(
                 { id: socket.data.id, nickname: socket.data.nickname },
-                process.env.JWT_SECRET,
+                SECRET_KEY,
                 { expiresIn: '1h' }
-            );*/
-            socket.emit("success");
+            );
+            socket.emit("success", {id: id, token: token});
         }
         else {
             socket.emit("alert", "Mauvais mot de passe.");
@@ -40,14 +55,20 @@ const loginUsername = async (socket : Socket, data : any) => {
     let cant = await dbAction.usernameExist(data.username);
     if (cant){
         if (await dbAction.match(data.username, data.password)){
-            socket.data.id = await getter.getIdByUsername(data.username);
-            /*const token = jwt.sign(
-                { id: socket.data.id, nickname: socket.data.nickname, checked : data.checked },
-                process.env.JWT_SECRET,
-                { expiresIn: '1h' }
-            );*/
+            let id;
+            try {
+                id = await getter.getIdByUsername(data.username);
+            } catch (error) {
+                console.error(error);
+            }
+            socket.data.id = id;
+            const token = jwt.sign(
+                { id: id },
+                SECRET_KEY,
+                { expiresIn: '2190h' }
+            );
             
-            socket.emit("success");
+            socket.emit("success", {id: id, token:token});
         }
         else {
             socket.emit("alert", "Mauvais mot de passe.");
@@ -64,7 +85,7 @@ const register = async (socket : Socket, data : any) => {
     console.log("entrer dans le register");
 
 
-    if (!cantEMail){
+    if (cantEMail){
         socket.emit("alert", "Cette adresse e-mail est déjà utilisée.");
         return false;
     } else if (cantUserName){
@@ -76,7 +97,20 @@ const register = async (socket : Socket, data : any) => {
                 email: data.email,
                 password: data.password,
             });
-            socket.data.id = await getter.getIdByUsername(data.username);
+            let id;
+            try {
+                id = await getter.getIdByUsername(data.username);
+            } catch (error) {
+                console.error(error);
+            }
+            socket.data.id = id;
+            const token = jwt.sign(
+                { id: id },
+                SECRET_KEY,
+                { expiresIn: '2190h' }
+            );
+            
+            socket.emit("success", {id: id, token:token});
             console.log("après le create user");
 
             /*const token = jwt.sign(
@@ -84,7 +118,7 @@ const register = async (socket : Socket, data : any) => {
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );*/
-            socket.emit("success");
+
             
             return true;
         } catch(error) {

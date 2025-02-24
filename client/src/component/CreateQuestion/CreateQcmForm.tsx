@@ -4,6 +4,8 @@ import { Switch } from '@mui/material';
 import {Socket} from "socket.io-client";
 
 interface CreateQCMFormProps {
+    setMessageInfo : (message : string) => void;
+    setShowMessage : (bool : boolean) => void;
     title: string;
     setTitle: React.Dispatch<React.SetStateAction<string>>;
     isPrivate : boolean;
@@ -15,20 +17,19 @@ interface CreateQCMFormProps {
     removeTag: (tag: string) => void;
     carre: { ans1: string; ans2: string; ans3: string; ans4: string };
     setCarre: React.Dispatch<React.SetStateAction<{ ans1: string; ans2: string; ans3: string; ans4: string }>>;
-    qcmData: { title: string; tags: string[];private: boolean; choices: { ans1: string; ans2: string; ans3: string; ans4: string }; answer: number };
+    qcmData: {user_id: string;title: string; tags: string[];private: boolean; choices: { ans1: string; ans2: string; ans3: string; ans4: string }; answer: number };
     setQcmData: React.Dispatch<React.SetStateAction<CreateQCMFormProps["qcmData"]>>;
     socket: Socket | null;
 }
   
 
 export function CreateQCMForm({
-   
+    setMessageInfo,
+    setShowMessage,
     setTitle,
-  
     setPrivate,
     changePrivate,
     tags,
-   
     addTag,
     removeTag,
     carre,
@@ -43,7 +44,8 @@ export function CreateQCMForm({
 
     const validateQcm = () => {
         if (!qcmData.title.trim()) {
-            alert("Il faut un intitulé à la question !");
+            setMessageInfo("Il faut un intitulé à la question !");
+            setShowMessage(true);
             return false;
         }
     
@@ -51,7 +53,8 @@ export function CreateQCMForm({
             !qcmData.choices.ans2.trim() || 
             !qcmData.choices.ans3.trim() || 
             !qcmData.choices.ans4.trim()) {
-            alert("Toutes les réponses doivent être remplies !");
+            setMessageInfo("Toutes les réponses doivent être remplies !");
+            setShowMessage(true);
             return false;
         }
     
@@ -63,7 +66,7 @@ export function CreateQCMForm({
     const sendQcm = async () => {
         if (socket instanceof Socket){
             if (validateQcm()){
-                const formattedChoices = Object.entries(carre).map(([value], index) => ({
+                const formattedChoices = Object.entries(carre).map(([key,value], index) => ({
                     content: value, // Texte du choix
                     answer_num: (index + 1).toString() // ID de réponse sous forme de string
                 }));
@@ -111,7 +114,7 @@ export function CreateQCMForm({
                     <label className='sign-label'>Réponse 1</label>
                     <input
                         type='text'
-                        id="answer1"
+                        id="answer1" 
                         value={qcmData.choices.ans1 || ''}
                         onChange={(e) => setCarre({...carre, ans1: e.target.value })}
                         required

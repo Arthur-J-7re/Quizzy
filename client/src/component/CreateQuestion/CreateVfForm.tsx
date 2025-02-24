@@ -4,6 +4,8 @@ import { Switch } from '@mui/material';
 import {Socket} from "socket.io-client";
 
 interface CreateVfFormProps {
+    setMessageInfo : (message : string) => void;
+    setShowMessage : (bool : boolean) => void;
     title: string;
     setTitle: React.Dispatch<React.SetStateAction<string>>;
     isPrivate : boolean;
@@ -13,15 +15,17 @@ interface CreateVfFormProps {
     setTags: React.Dispatch<React.SetStateAction<string[]>>;
     addTag: (tag: string) => void;
     removeTag: (tag: string) => void;
-    truth: boolean,
+    truth: boolean, 
     setTruth: (bool : boolean)=>void;
-    vfData: { title: string; tags: string[];private: boolean; truth: boolean };
+    vfData: { user_id: string;title: string; tags: string[];private: boolean; truth: boolean };
     setVfData: React.Dispatch<React.SetStateAction<CreateVfFormProps["vfData"]>>;
     socket: Socket | null;
   }
   
 
 export function CreateVfForm({
+    setMessageInfo,
+    setShowMessage,
     setTitle,
     setPrivate,
     changePrivate,
@@ -39,7 +43,8 @@ export function CreateVfForm({
 
     const validateVf = () => {
         if (!vfData.title.trim()) {
-            alert("Il faut un intitulé à la question !");
+            setMessageInfo("Il faut un intitulé à la question !");
+            setShowMessage(true);
             return false;
         }
     }

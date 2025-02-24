@@ -4,6 +4,8 @@ import { Switch } from '@mui/material';
 import {Socket} from "socket.io-client";
 
 interface CreatefreeFormProps {
+    setMessageInfo : (message : string) => void;
+    setShowMessage : (bool : boolean) => void;
     title: string;
     setTitle: React.Dispatch<React.SetStateAction<string>>;
     isPrivate : boolean;
@@ -22,12 +24,14 @@ interface CreatefreeFormProps {
     duoContain: (nombre: number) => boolean;
     manageDuo: (nombre: number) => void; 
     resetDuo: (nombre : number) => void;   
-    dccData:{ title: string; tags: string[];private: boolean; carre: { ans1: string; ans2: string; ans3: string; ans4: string };duo: number, answer: number; cash : string[] };
+    dccData:{user_id: string; title: string; tags: string[];private: boolean; carre: { ans1: string; ans2: string; ans3: string; ans4: string };duo: number, answer: number; cash : string[] };
     setDccData: React.Dispatch<React.SetStateAction<CreatefreeFormProps["dccData"]>>;
     socket: Socket | null;
   }
 
 export function CreateDCCForm({
+    setMessageInfo,
+    setShowMessage,
     setTitle,
     setPrivate,
     changePrivate,
@@ -48,17 +52,20 @@ export function CreateDCCForm({
     
     const validateDcc = () => {
         if (!dccData.title.trim()) {
-            alert("Il faut un intitulé à la question !");
+            setMessageInfo("Il faut un intitulé à la question !");
+            setShowMessage(true);
             return false;
         }
 
         if (dccData.cash.length === 0) {
-            alert("Il faut au moins une réponse !");
+            setMessageInfo("Il faut au moins une réponse !");
+            setShowMessage(true);
             return false;
         }
     
         if (dccData.cash.some(answer => answer.trim() === "")) {
-            alert("Toutes les réponses Cash doivent être remplies !");
+            setMessageInfo("Toutes les réponses Cash doivent être remplies !");
+            setShowMessage(true);
             return false;
         }
 
@@ -66,11 +73,12 @@ export function CreateDCCForm({
             !dccData.carre.ans2.trim() || 
             !dccData.carre.ans3.trim() || 
             !dccData.carre.ans4.trim()) {
-            alert("Toutes les réponses Carre doivent être remplies !");
+            setMessageInfo("Toutes les réponses Carre doivent être remplies !");
+            setShowMessage(true);
             return false;
         }
     }
-
+ 
     const sendDcc = async () => {
         if (socket instanceof Socket && validateDcc()){
             socket.emit("createDCCQuestion", dccData);

@@ -4,6 +4,8 @@ import { Switch } from '@mui/material';
 import {Socket} from "socket.io-client";
 
 interface CreatefreeFormProps {
+    setMessageInfo : (message : string) => void;
+    setShowMessage : (bool : boolean) => void;
     title: string;
     setTitle: React.Dispatch<React.SetStateAction<string>>;
     isPrivate : boolean;
@@ -17,12 +19,14 @@ interface CreatefreeFormProps {
     setAnswers: React.Dispatch<React.SetStateAction<string[]>>
     addAnswer: (answer: string) => void;
     removeAnswer: (answer: string) => void;
-    freeData: { title: string; tags: string[];private: boolean; answers: string[] };
+    freeData: {user_id: string; title: string; tags: string[];private: boolean; answers: string[] };
     setFreeData: React.Dispatch<React.SetStateAction<CreatefreeFormProps["freeData"]>>;
     socket: Socket | null;
   }
 
 export function CreateFreeForm({
+    setMessageInfo,
+    setShowMessage,
     setTitle,
     setPrivate,
     changePrivate,
@@ -36,20 +40,23 @@ export function CreateFreeForm({
     socket
   }: CreatefreeFormProps)  {
 
-    const validateFree = () => {
+    const validateFree = () => { 
 
         if (!freeData.title.trim()) {
-            alert("Il faut un intitulé à la question !");
+            setMessageInfo("Il faut un intitulé à la question !");
+            setShowMessage(true);
             return false;
         }
 
         if (freeData.answers.length === 0) {
-            alert("Il faut au moins une réponse !");
+            setMessageInfo("Il faut au moins une réponse !");
+            setShowMessage(true);
             return false;
         }
     
         if (freeData.answers.some(answer => answer.trim() === "")) {
-            alert("Toutes les réponses doivent être remplies !");
+            setMessageInfo("Toutes les réponses doivent être remplies !");
+            setShowMessage(true)
             return false;
         }
     

@@ -6,25 +6,50 @@ import { CreateFreeForm } from '../component/CreateQuestion/CreateFreeForm';
 import { CreateDCCForm } from '../component/CreateQuestion/CreateDccForm';
 import {CreateVfForm} from '../component/CreateQuestion/CreateVfForm'
 import { Banner } from '../component/Banner/Banner';
+import { Socket } from 'socket.io-client';
+import { useContext } from "react";
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from "../context/authentContext";
+import Toast from '../tools/toast/toast';
 
 export function QuestionCreationForm () {
     const [mode , setMode] = useState("QCM");
     const [title, setTitle] = useState("");
+    const [goodNews, setGoodNews] = useState(false);
     const [tags, setTags] = useState<string[]>([]);
     const [isPrivate, setPrivate] = useState(true);
     const [carre, setCarre] = useState({ans1 : "", ans2 : "", ans3: "", ans4: ""});
     const [answers, setAnswers] = useState<string[]>([]);
     const [truth, setTruth] = useState(true);
+    const auth = useContext(AuthContext);
+    const user_id = auth?.user?.id || "0";
 
-    const [freeData, setFreeData] = useState({title: title, tags: tags, private:isPrivate, answers: answers});
-    const [dccData, setDccData] = useState({title: title, tags: tags, private: isPrivate, carre: carre, duo: 2, answer: 1, cash: answers});
-    const [qcmData, setQcmData] = useState({title: title, tags: tags, private: isPrivate, choices: carre, answer: 1});
-    const [vfData, setVfData] = useState({title: title, tags: tags, private: isPrivate, truth: truth});
+    const [freeData, setFreeData] = useState({user_id : user_id,title: title, tags: tags, private:isPrivate, answers: answers});
+    const [dccData, setDccData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, carre: carre, duo: 2, answer: 1, cash: answers});
+    const [qcmData, setQcmData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, choices: carre, answer: 1});
+    const [vfData, setVfData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, truth: truth});
+
+    const [messageInfo, setMessageInfo] = useState("");
+    const [showMessage, setShowMessage] = useState(false);
+    const navigate = useNavigate();
     //const socketRef = useRef(null);
     const socket = useSocket();
     useEffect(() => {
-        
-        
+        if (socket instanceof Socket){
+            socket.on("questionCreated", ()=> {
+                setCarre({ans1 : "", ans2 : "", ans3: "", ans4: ""});
+                setPrivate(true);
+                setAnswers([]);
+                setTags([]);
+                setTruth(true);
+                setQcmData({...qcmData, answer : 1});
+                setDccData({...dccData, answer : 1, duo : 2});
+                setMessageInfo("Question créée avec succès");
+                setGoodNews(true);
+                setShowMessage(true);
+                
+            });
+        }
         // Nettoyage : Déconnexion du socket lors du démontage du composant
         
     }, [socket]);
@@ -133,6 +158,7 @@ export function QuestionCreationForm () {
         switch (mode) {
             case "QCM":
                 return <CreateQCMForm 
+                setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
@@ -140,6 +166,7 @@ export function QuestionCreationForm () {
                 qcmData={qcmData} setQcmData={setQcmData} socket={socket}/>;
             case "FREE":
                 return <CreateFreeForm 
+                setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
@@ -147,6 +174,7 @@ export function QuestionCreationForm () {
                 freeData={freeData} setFreeData={setFreeData} socket={socket}/>;
             case "DCC":
                 return <CreateDCCForm 
+                setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag}
@@ -156,6 +184,7 @@ export function QuestionCreationForm () {
                 dccData={dccData} setDccData={setDccData} socket={socket}/>;
             case "VF":
                 return <CreateVfForm
+                setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
@@ -163,6 +192,7 @@ export function QuestionCreationForm () {
                 vfData={vfData} setVfData={setVfData} socket={socket}/>;
             default:
                 return <CreateQCMForm 
+                setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag}
@@ -173,40 +203,53 @@ export function QuestionCreationForm () {
 
 
     return (
-        <>
-        <Banner></Banner>
-        <div className="Maincontainer">
-            <div className="modeSelector">
-                <h3>Créer une question avec un format</h3>
-                <Button 
-                className = {(mode == "QCM")?"selectedMode":"notSelectedMode"}
-                onClick={() => setMode("QCM")}>
-                QCM
-                </Button>
+        (auth && auth.user) ? 
+            <>
+            <Banner></Banner>
+            <div className="Maincontainer">
+                <div>
+                <div className="modeSelector">
+                    <h3>Créer une question avec un format</h3>
+                    <Button 
+                    className = {(mode == "QCM")?"selectedMode":"notSelectedMode"}
+                    onClick={() => setMode("QCM")}>
+                    QCM
+                    </Button>
+                    
+                    <Button 
+                    className = {(mode == "FREE")?"selectedMode":"notSelectedMode"}
+                    onClick={() => setMode("FREE")}>
+                    réponse libre
+                    </Button>
+                    
+                    <Button 
+                    className = {(mode == "DCC")?"selectedMode":"notSelectedMode"}
+                    onClick={() => setMode("DCC")}>
+                    Duo/Carré/Cash
+                    </Button>
+                    <Button 
+                    className = {(mode == "VF")?"selectedMode":"notSelectedMode"}
+                    onClick={() => setMode("VF")}>
+                    Vrai ou Faux
+                    </Button>
+                </div>
+                {renderContent()}
+                </div>
+                <div className={goodNews ? 'GreenText' : 'RedText'}>{
+                    showMessage &&
+                    <Toast message={messageInfo} onClose={()=>{setShowMessage(false); setGoodNews(false)}} />}
+                </div>
                 
-                <Button 
-                className = {(mode == "FREE")?"selectedMode":"notSelectedMode"}
-                onClick={() => setMode("FREE")}>
-                réponse libre
-                </Button>
-                
-                <Button 
-                className = {(mode == "DCC")?"selectedMode":"notSelectedMode"}
-                onClick={() => setMode("DCC")}>
-                Duo/Carré/Cash
-                </Button>
-                <Button 
-                className = {(mode == "VF")?"selectedMode":"notSelectedMode"}
-                onClick={() => setMode("VF")}>
-                Vrai ou Faux
-                </Button>
             </div>
-            {renderContent()}
             
-            
-        </div>
+            </>
+        : <>
+            <Banner></Banner>
+            <div className='PleaseLogin'>
+                <h1>Veuillez-vous inscrire pour créer une question</h1>
+                <Button className='linkLogin' onClick={() => navigate("/login")}>Page de connection !</Button>
+            </div>
         </>
-
         
     )
 };

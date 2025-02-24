@@ -15,7 +15,7 @@ const createQCMQuestion = async (socket : Socket, questionObj : any) =>{
         let newQuest;
         
         newQuest = await QCMModel.create({
-            author: socket.data.id,
+            author: Number(questionObj.user_id),
             tags: questionObj.tags,
             title: questionObj.title,
             private: questionObj.private,
@@ -23,8 +23,7 @@ const createQCMQuestion = async (socket : Socket, questionObj : any) =>{
             choices: questionObj.choices,
             answer: questionObj.answer,
         });
-
-        console.log(newQuest);
+        socket.emit("questionCreated");
                 
         //await newQuest.save();
 
@@ -42,13 +41,14 @@ const createFreeQuestion = async(socket : Socket, questionObj : any) => {
         let newQuest;
             
         newQuest = await FreeModel.create({
-            author: socket.data.id,
+            author: Number(questionObj.user_id),
             tags: questionObj.tags,
             title: questionObj.title,
             private: questionObj.private,
             mode: Mode.FREE,
             answers: questionObj.answers,
         });
+        socket.emit("questionCreated");
         
     } catch (error) {
         if (error instanceof Error) {
@@ -64,7 +64,7 @@ const createDCCQuestion = async(socket : Socket, questionObj : any) => {
         let newQuest;
                 
         newQuest = await DCCModel.create({
-            author: socket.data.id,
+            author: Number(questionObj.user_id),
             tags: questionObj.tags,
             title: questionObj.title,
             private: questionObj.private,
@@ -73,6 +73,7 @@ const createDCCQuestion = async(socket : Socket, questionObj : any) => {
             duo: questionObj.duo,
             cash: questionObj.cash,
         });
+        socket.emit("questionCreated");
         
             
     } catch (error) {
@@ -90,13 +91,14 @@ const createVFQuestion = async(socket : Socket, questionObj : any) => {
         let newQuest;
                 
         newQuest = await DCCModel.create({
-            author: socket.data.id,
+            author: Number(questionObj.user_id),
             tags: questionObj.tags,
             title: questionObj.title,
             private: questionObj.private,
             mode: Mode.VF,
             truth: questionObj.truth,
         });
+        socket.emit("questionCreated");
         
             
     } catch (error) {

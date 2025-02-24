@@ -3,9 +3,8 @@ import { createContext, useState, useEffect, ReactNode } from "react";
 // Définition du type User
 interface User {
   id: string;
-  nom: string;
-  prenom: string;
-  email: string;
+  Username: string;
+  currentRoom : string;
   token: string;
 }
 
@@ -28,7 +27,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    if (storedUser) { 
       try {
         const parsedUser: User = JSON.parse(storedUser);
         if (parsedUser.token && isTokenExpired(parsedUser.token)) {
