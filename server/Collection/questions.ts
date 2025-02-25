@@ -86,16 +86,16 @@ const FreeModel = QuestionModel.discriminator<IFreeQuestion>("Free", FreeSchema)
 
 // 🔵 Discriminant pour "Free"
 interface IDCCQuestion extends IQuestionBase {
-    Carre: [{content : string, answer_num: String}];
-    Duo: number;
+    carre: [{content : string, answer_num: String}];
+    duo: number;
     answer: number;
-    Cash: [string]
+    cash: [string]
 }
 
 const DCCSchema = new mongoose.Schema<IDCCQuestion>({
-    Carre: { type: [{content: String, answer_num: String}], required: true },
-    Cash: { type: [String], required: true },
-    Duo: { type: Number, required: true },
+    carre: { type: [{content: String, answer_num: String}], required: true },
+    cash: { type: [String], required: true },
+    duo: { type: Number, required: true },
     answer: {type: Number, required: true}
 });
 
@@ -110,7 +110,7 @@ const VFSchema = new mongoose.Schema<IVFQuestion>({
     truth : {type: Boolean, required : true}
 });
 
-const VFModel = QuestionModel.discriminator<IVFQuestion>("VF", DCCSchema);
+const VFModel = QuestionModel.discriminator<IVFQuestion>("VF", VFSchema);
 
 
 

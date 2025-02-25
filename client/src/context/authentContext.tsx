@@ -23,7 +23,18 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser: User = JSON.parse(storedUser);
+        return parsedUser.token && !isTokenExpired(parsedUser.token) ? parsedUser : null;
+      } catch (error) {
+        console.error("Erreur lors du parsing de l'utilisateur :", error);
+      }
+    }
+    return null;
+  });
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");

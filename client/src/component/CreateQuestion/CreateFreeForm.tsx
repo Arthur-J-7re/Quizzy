@@ -4,6 +4,7 @@ import { Switch } from '@mui/material';
 import {Socket} from "socket.io-client";
 
 interface CreatefreeFormProps {
+    question_id: Number,
     setMessageInfo : (message : string) => void;
     setShowMessage : (bool : boolean) => void;
     title: string;
@@ -25,6 +26,7 @@ interface CreatefreeFormProps {
   }
 
 export function CreateFreeForm({
+    question_id,
     setMessageInfo,
     setShowMessage,
     setTitle,
@@ -66,8 +68,12 @@ export function CreateFreeForm({
 
     const sendFree = async () => {
         if (socket instanceof Socket && validateFree()){
+            if (question_id === 0){
             socket.emit("createFreeQuestion", freeData);
-        }
+            } else {
+                socket.emit("modificationFreeQuestion", ({question_id : question_id, data : freeData}));
+            }
+        }    
     };
 
     return (

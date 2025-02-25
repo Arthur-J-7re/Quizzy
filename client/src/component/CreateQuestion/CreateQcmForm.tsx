@@ -4,6 +4,7 @@ import { Switch } from '@mui/material';
 import {Socket} from "socket.io-client";
 
 interface CreateQCMFormProps {
+    question_id: Number,
     setMessageInfo : (message : string) => void;
     setShowMessage : (bool : boolean) => void;
     title: string;
@@ -24,6 +25,7 @@ interface CreateQCMFormProps {
   
 
 export function CreateQCMForm({
+    question_id,
     setMessageInfo,
     setShowMessage,
     setTitle,
@@ -75,8 +77,11 @@ export function CreateQCMForm({
                     ...qcmData,
                     choices: formattedChoices
                 };
-        
-                socket.emit("createQCMQuestion", formattedQcmData);
+                if (question_id === 0){
+                    socket.emit("createQCMQuestion", formattedQcmData);
+                } else {
+                    socket.emit("modificationQCMQuestion", ({question_id : question_id, data : formattedQcmData}));
+                }
             }   
         }
     };

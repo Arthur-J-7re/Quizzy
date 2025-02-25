@@ -11,42 +11,60 @@ import { useContext } from "react";
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from "../context/authentContext";
 import Toast from '../tools/toast/toast';
+import { useLocation } from 'react-router-dom';
 
-export function QuestionCreationForm () {
-    const [mode , setMode] = useState("QCM");
-    const [title, setTitle] = useState("");
+export function QuestionModifier () {
+    const location = useLocation();
+    const question = location.state?.question || {};
+    console.log(question);
+
+    const [mode , setMode] = useState(question.mode || "QCM");
+    console.log(mode);
+    console.log(question.mode);
+    const [title, setTitle] = useState(question.title || "");
     const [goodNews, setGoodNews] = useState(false);
-    const [tags, setTags] = useState<string[]>([]);
-    const [isPrivate, setPrivate] = useState(true);
+    const [tags, setTags] = useState<string[]>(question.tags || []);
+    const [isPrivate, setPrivate] = useState(question.private || true);
     const [carre, setCarre] = useState({ans1 : "", ans2 : "", ans3: "", ans4: ""});
-    const [answers, setAnswers] = useState<string[]>([]);
-    const [truth, setTruth] = useState(true);
+
+    
+    
+    
+    const [answers, setAnswers] = useState<string[]>(question.answers || []);
+    const [truth, setTruth] = useState(question.truth || true);
     const auth = useContext(AuthContext);
     const user_id = auth?.user?.id || "0";
     const [freeData, setFreeData] = useState({user_id : user_id,title: title, tags: tags, private:isPrivate, answers: answers});
-    const [dccData, setDccData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, carre: carre, duo: 2, answer: 1, cash: answers});
-    const [qcmData, setQcmData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, choices: carre, answer: 1});
+    const [dccData, setDccData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, carre: carre, duo: question.duo || 2, answer:question.answer || 1, cash: answers});
+    const [qcmData, setQcmData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, choices: carre, answer:question.answer|| 1});
     const [vfData, setVfData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, truth: truth});
-
+    
     const [messageInfo, setMessageInfo] = useState("");
     const [showMessage, setShowMessage] = useState(false);
     const navigate = useNavigate();
     //const socketRef = useRef(null);
     const socket = useSocket();
     useEffect(() => {
+        if (question.choices != null){
+            setCarre({
+                ans1 : question.choices[0].content,
+                ans2 : question.choices[1].content,
+                ans3 : question.choices[2].content,
+                ans4 : question.choices[3].content
+            });
+        } else if (question.carre != null){
+            setCarre({
+                ans1 : question.carre[0].content,
+                ans2 : question.carre[1].content,
+                ans3 : question.carre[2].content,
+                ans4 : question.carre[3].content
+            });
+        }
+    }, [question]); // Exécute cet effet uniquement quand `question` change
+    useEffect(() => {
         if (socket instanceof Socket){
-            socket.on("questionCreated", ()=> {
-                setCarre({ans1 : "", ans2 : "", ans3: "", ans4: ""});
-                setPrivate(true);
-                setAnswers([]);
-                setTags([]);
-                setTruth(true);
-                setQcmData({...qcmData, answer : 1});
-                setDccData({...dccData, answer : 1, duo : 2});
-                setMessageInfo("Question créée avec succès");
-                setGoodNews(true);
-                setShowMessage(true);
-                
+            socket.on("modified", ()=> {
+                navigate("/profil");
             });
         }
         // Nettoyage : Déconnexion du socket lors du démontage du composant
@@ -177,16 +195,16 @@ export function QuestionCreationForm () {
         switch (mode) {
             case "QCM":
                 return <CreateQCMForm 
-                question_id={0}
+                question_id={question.question_id}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
                 carre={carre} setCarre={setCarre} 
                 qcmData={qcmData} setQcmData={setQcmData} socket={socket}/>;
-            case "FREE":
+            case "Free":
                 return <CreateFreeForm 
-                question_id={0}
+                question_id={question.question_id}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -195,7 +213,7 @@ export function QuestionCreationForm () {
                 freeData={freeData} setFreeData={setFreeData} socket={socket}/>;
             case "DCC":
                 return <CreateDCCForm 
-                question_id={0}
+                question_id={question.question_id}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -206,7 +224,7 @@ export function QuestionCreationForm () {
                 dccData={dccData} setDccData={setDccData} socket={socket}/>;
             case "VF":
                 return <CreateVfForm
-                question_id={0}
+                question_id={question.question_id}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -215,7 +233,7 @@ export function QuestionCreationForm () {
                 vfData={vfData} setVfData={setVfData} socket={socket}/>;
             default:
                 return <CreateQCMForm 
-                question_id={0}
+                question_id={question.question_id}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -232,7 +250,7 @@ export function QuestionCreationForm () {
             <Banner></Banner>
             <div className="Maincontainer">
                 <div>
-                <div className="modeSelector">
+                {/*<div className="modeSelector">
                     <h3>Créer une question avec un format</h3>
                     <Button 
                     className = {(mode == "QCM")?"selectedMode":"notSelectedMode"}
@@ -256,7 +274,7 @@ export function QuestionCreationForm () {
                     onClick={() => setMode("VF")}>
                     Vrai ou Faux
                     </Button>
-                </div>
+                </div>*/}
                 {renderContent()}
                 </div>
                 <div className={goodNews ? 'GreenText' : 'RedText'}>{

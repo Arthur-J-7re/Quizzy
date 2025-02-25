@@ -4,6 +4,7 @@ import { Switch } from '@mui/material';
 import {Socket} from "socket.io-client";
 
 interface CreatefreeFormProps {
+    question_id : Number;
     setMessageInfo : (message : string) => void;
     setShowMessage : (bool : boolean) => void;
     title: string;
@@ -30,6 +31,7 @@ interface CreatefreeFormProps {
   }
 
 export function CreateDCCForm({
+    question_id,
     setMessageInfo,
     setShowMessage,
     setTitle,
@@ -57,7 +59,7 @@ export function CreateDCCForm({
             return false;
         }
 
-        if (dccData.cash.length === 0) {
+        if (answers.length === 0) {
             setMessageInfo("Il faut au moins une réponse !");
             setShowMessage(true);
             return false;
@@ -77,11 +79,26 @@ export function CreateDCCForm({
             setShowMessage(true);
             return false;
         }
+        return true;
     }
  
     const sendDcc = async () => {
         if (socket instanceof Socket && validateDcc()){
-            socket.emit("createDCCQuestion", dccData);
+            console.log("duo carré cash envoyé");
+            const formattedChoices = Object.entries(carre).map(([key,value], index) => ({
+                content: value, // Texte du choix
+                answer_num: (index + 1).toString() // ID de réponse sous forme de string
+            }));
+    
+            const formattedDccData = {
+                ...dccData,
+                choices: formattedChoices
+            };
+            if (question_id === 0){
+                socket.emit("createDCCQuestion", formattedDccData);
+            } else {
+                socket.emit("modificationDCCQuestion", ({question_id : question_id, data : formattedDccData}))
+            }
         }
     };
 

@@ -6,7 +6,13 @@ import Quest from '../Collection/questions';
 const { QuestionModel, QCMModel, FreeModel, DCCModel } = Quest;
 
 const getQuestsionByOwner =async (id : number) => {
-    const retour = await QuestionModel.find().where('owner').equals(id);
+    const retour = await QuestionModel.find().where('author').equals(Number(id));
+    retour.map((quest : any) => {
+        if (quest.mode === "QCM"){
+            quest.choices.map((choix : any)=>{console.log(choix)})
+        }
+    })
+    //console.log(retour);
     return retour;
 };
 
@@ -65,4 +71,13 @@ const getPasswordByUsername = async (username : string) => {
 
 };
 
-export default {getQuesionsOfQuizz, getQuestsionByOwner, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername}
+const getIdByQuestionId = async (id : Number)=>{
+    try {
+        const retour = await QuestionModel.findOne().select('id').where('question_id').equals(id);
+        return retour?.id;
+    } catch (error){
+        console.error(error)
+    }
+};
+
+export default {getQuesionsOfQuizz, getQuestsionByOwner, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername, getIdByQuestionId}

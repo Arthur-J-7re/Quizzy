@@ -130,4 +130,6 @@ const register = async (socket : Socket, data : any) => {
 };
 
 
+
+
 export default {login, register}

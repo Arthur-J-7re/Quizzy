@@ -5,12 +5,11 @@ import Quest from '../Collection/questions';
 import getter from './getter';
 import { Socket } from 'socket.io';
 
-const {Mode, QuestionModel, QCMModel, FreeModel, DCCModel } = Quest;
+const {Mode, QuestionModel, QCMModel, FreeModel, DCCModel, VFModel } = Quest;
 const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const createQCMQuestion = async (socket : Socket, questionObj : any) =>{
-    console.log("tentative de création de question");
-    console.log(questionObj);
+    
     try {
         let newQuest;
         
@@ -27,6 +26,30 @@ const createQCMQuestion = async (socket : Socket, questionObj : any) =>{
                 
         //await newQuest.save();
 
+    } catch (error){
+        if (error instanceof Error) {
+            console.error(error.message);
+        } else {
+            console.error("Une erreur inconnue est survenue", error);
+        }
+    }
+};
+
+const modifyQCMQuestion = async (socket: Socket, information : any) =>{
+    try {
+        let questionObj = information.data;
+        let id = await getter.getIdByQuestionId(information.question_id);
+        let newQuest;
+        newQuest = await QCMModel.updateOne({ _id: id},{$set : {
+            author: Number(questionObj.user_id),
+            tags: questionObj.tags,
+            title: questionObj.title,
+            private: questionObj.private,
+            mode: Mode.QCM,
+            choices: questionObj.choices,
+            answer: questionObj.answer,
+        }});
+        socket.emit("modified");
     } catch (error){
         if (error instanceof Error) {
             console.error(error.message);
@@ -59,9 +82,33 @@ const createFreeQuestion = async(socket : Socket, questionObj : any) => {
     }
 };
 
+const modifyFreeQuestion = async (socket: Socket, information : any) =>{
+    try {
+        let questionObj = information.data;
+        let id = await getter.getIdByQuestionId(information.question_id);
+        let newQuest;
+        newQuest = await FreeModel.updateOne({ _id: id },{$set : {
+            author: Number(questionObj.user_id),
+            tags: questionObj.tags,
+            title: questionObj.title,
+            private: questionObj.private,
+            mode: Mode.FREE,
+            answers: questionObj.answers,
+        }});
+        socket.emit("modified");
+    } catch (error){
+        if (error instanceof Error) {
+            console.error(error.message);
+        } else {
+            console.error("Une erreur inconnue est survenue", error);
+        }
+    }
+};
+
 const createDCCQuestion = async(socket : Socket, questionObj : any) => {
     try {
         let newQuest;
+        console.log(questionObj);
                 
         newQuest = await DCCModel.create({
             author: Number(questionObj.user_id),
@@ -71,6 +118,7 @@ const createDCCQuestion = async(socket : Socket, questionObj : any) => {
             mode: Mode.DCC,
             carre: questionObj.carre,
             duo: questionObj.duo,
+            answer: questionObj.answer,
             cash: questionObj.cash,
         });
         socket.emit("questionCreated");
@@ -86,11 +134,41 @@ const createDCCQuestion = async(socket : Socket, questionObj : any) => {
 
 };
 
+const modifyDCCQuestion = async (socket: Socket, information : any) =>{
+    try {
+        let questionObj = information.data;
+        let id = await getter.getIdByQuestionId(information.question_id);
+        let newQuest;
+        newQuest = await DCCModel.updateOne({ _id: id },{$set : {
+            author: Number(questionObj.user_id),
+            tags: questionObj.tags,
+            title: questionObj.title,
+            private: questionObj.private,
+            mode: Mode.DCC,
+            carre: questionObj.carre,
+            duo: questionObj.duo,
+            answer: questionObj.answer,
+            cash: questionObj.cash,
+        }});
+        socket.emit("modified");
+    } catch (error){
+        if (error instanceof Error) {
+            console.error(error.message);
+        } else {
+            console.error("Une erreur inconnue est survenue", error);
+        }
+    }
+};
+
+
+
 const createVFQuestion = async(socket : Socket, questionObj : any) => {
+    console.log("tentative de création de question");
+    console.log(questionObj);
     try {
         let newQuest;
                 
-        newQuest = await DCCModel.create({
+        newQuest = await VFModel.create({
             author: Number(questionObj.user_id),
             tags: questionObj.tags,
             title: questionObj.title,
@@ -109,6 +187,29 @@ const createVFQuestion = async(socket : Socket, questionObj : any) => {
         }
     }
 
+};
+
+const modifyVFQuestion = async (socket: Socket, information : any) =>{
+    try {
+        let questionObj = information.data;
+        let id = await getter.getIdByQuestionId(information.question_id);
+        let newQuest;
+        newQuest = await VFModel.updateOne({ _id: id },{$set : {
+            author: Number(questionObj.user_id),
+            tags: questionObj.tags,
+            title: questionObj.title,
+            private: questionObj.private,
+            mode: Mode.VF,
+            truth: questionObj.truth,
+        }});
+        socket.emit("modified");
+    } catch (error){
+        if (error instanceof Error) {
+            console.error(error.message);
+        } else {
+            console.error("Une erreur inconnue est survenue", error);
+        }
+    }
 };
 
 const match = async (accountname : string, password : string) => {
@@ -152,4 +253,4 @@ const emailExist = async (mail : string) => {
 
 
 
-export default {createQCMQuestion, createFreeQuestion, createDCCQuestion, createVFQuestion, match, usernameExist, emailExist};
+export default {createQCMQuestion,modifyQCMQuestion, createFreeQuestion, modifyFreeQuestion, createDCCQuestion, modifyDCCQuestion, createVFQuestion, modifyVFQuestion, match, usernameExist, emailExist};

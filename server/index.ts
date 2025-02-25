@@ -3,6 +3,7 @@ import mongoose from "./db";
 import getter from "./function/getter";
 import dbfun from "./function/dbAction";
 import fun from "./function/fun"
+import cors from "cors";
 
 
 //const action = require('./fun.js');
@@ -15,6 +16,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
+app.use(cors({ origin: "http://localhost:5180" })); 
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
@@ -51,7 +53,24 @@ io.on('connection',(socket : Socket) => {
   socket.on("createQCMQuestion", (data) => dbfun.createQCMQuestion(socket, data));
   socket.on("createFreeQuestion", (data) => dbfun.createFreeQuestion(socket, data));
   socket.on("createDCCQuestion", (data) => dbfun.createDCCQuestion(socket, data));
-})
+  socket.on("createVFQuestion", (data) => {dbfun.createVFQuestion(socket, data)});
+  socket.on("modificationQCMQuestion", (data) => dbfun.modifyQCMQuestion(socket,data));
+  socket.on("modificationFreeQuestion", (data) => dbfun.modifyFreeQuestion(socket,data));
+  socket.on("modificationDCCQuestion", (data) => dbfun.modifyDCCQuestion(socket,data));
+  socket.on("modificationVFQuestion", (data) => dbfun.modifyVFQuestion(socket,data));
+});
+
+
+app.get("/questions", async (req,res) => {
+  const id = Number(req.query.id);
+  try {
+    const retour =await getter.getQuestsionByOwner(id);
+    res.json(retour);
+    
+  } catch (error) {
+    console.error(error);
+  }
+});
 
 
 server.listen(3000, () => {

@@ -4,6 +4,7 @@ import { Switch } from '@mui/material';
 import {Socket} from "socket.io-client";
 
 interface CreateVfFormProps {
+    question_id: Number,
     setMessageInfo : (message : string) => void;
     setShowMessage : (bool : boolean) => void;
     title: string;
@@ -24,6 +25,7 @@ interface CreateVfFormProps {
   
 
 export function CreateVfForm({
+    question_id,
     setMessageInfo,
     setShowMessage,
     setTitle,
@@ -47,13 +49,16 @@ export function CreateVfForm({
             setShowMessage(true);
             return false;
         }
+        return true;
     }
 
-    const sendVf = async () => {
+    const sendVF = async () => {
         if (socket instanceof Socket && validateVf()){
-            
-    
-            socket.emit("createVFQuestion", vfData);
+            if (question_id===0){
+                socket.emit("createVFQuestion", vfData);
+            } else {
+                socket.emit("modificationVFQuestion", ({question_id : question_id, data : vfData}));
+            }
         }
     };
     
@@ -107,7 +112,7 @@ export function CreateVfForm({
                     <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
                 )}
             </div>
-            <Button className='SendButton' onClick={()=>sendVf()}>Finaliser la création de la question</Button>
+            <Button className='SendButton' onClick={()=>sendVF()}>Finaliser la création de la question</Button>
         </div>
     
     )
