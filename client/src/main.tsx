@@ -9,6 +9,7 @@ import {Home} from './pages/Home'
 import {Login} from './pages/Login' 
 import { Profil } from './pages/Profil.tsx'
 import { QuestionModifier } from './pages/QuestionModifier.tsx';
+import { QuizzCreation } from './pages/QuizzCreation.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <SocketProvider>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/login" element={<Login />} />
             <Route path="/profil" element={<Profil />} />
             <Route path="/create-a-question" element={<QuestionCreationForm/>}/>
+            <Route path="/create-a-quizz" element={<QuizzCreation/>}/>
             <Route path="/Modify-a-question" element={<QuestionModifier/>}/>
           </Routes>
         </Router>

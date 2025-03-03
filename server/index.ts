@@ -49,7 +49,8 @@ io.on('connection',(socket : Socket) => {
   socket.data.id = 2;
   socket.data.nickname = "User_" + socket.id;
   socket.on("register", (data) => fun.register(socket, data));
-  socket.on("login", (data) => fun.login(socket, data))
+  socket.on("login", (data) => fun.login(socket, data));
+  socket.on("createQuizz", (data) => dbfun.createQuizz(socket, data));
   socket.on("createQCMQuestion", (data) => dbfun.createQCMQuestion(socket, data));
   socket.on("createFreeQuestion", (data) => dbfun.createFreeQuestion(socket, data));
   socket.on("createDCCQuestion", (data) => dbfun.createDCCQuestion(socket, data));
@@ -62,6 +63,7 @@ io.on('connection',(socket : Socket) => {
 
 
 app.get("/questions", async (req,res) => {
+  console.log("appelle au question");
   const id = Number(req.query.id);
   try {
     const retour =await getter.getQuestsionByOwner(id);

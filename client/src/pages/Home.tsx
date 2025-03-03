@@ -11,6 +11,7 @@ export function Home () {
     <div>
     <Banner></Banner>
     <Button onClick={()=>{(auth && auth.user) ? navigate("/create-a-question") : navigate("/login")}}>Créer une question</Button>
+    <Button onClick={() => {(auth && auth.user) ? navigate("/create-a-quizz") : navigate("/login")}}>Créer un quizz</Button>
     
     </div> 
 )

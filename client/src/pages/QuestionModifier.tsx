@@ -19,8 +19,6 @@ export function QuestionModifier () {
     console.log(question);
 
     const [mode , setMode] = useState(question.mode || "QCM");
-    console.log(mode);
-    console.log(question.mode);
     const [title, setTitle] = useState(question.title || "");
     const [goodNews, setGoodNews] = useState(false);
     const [tags, setTags] = useState<string[]>(question.tags || []);

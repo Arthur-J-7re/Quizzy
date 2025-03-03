@@ -212,6 +212,32 @@ const modifyVFQuestion = async (socket: Socket, information : any) =>{
     }
 };
 
+const createQuizz = async (socket : Socket, data : any) => {
+    console.log("dans CreateQuizz")
+    console.log(data);
+    try {
+        let newQuizz;
+                
+        newQuizz = await Quizz.create({
+            creator: Number(data.user_id),
+            tags: data.tags,
+            title: data.title,
+            private: data.private,
+            questions : data.questionLists
+        });
+        console.log("après la création");
+        socket.emit("questionCreated");
+        
+            
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error(error.message);
+        } else {
+            console.error("Une erreur inconnue est survenue", error);
+        }
+    }
+};
+
 const match = async (accountname : string, password : string) => {
     if (regexEmail.test(accountname)){
         let expected = await getter.getPasswordByEmail(accountname);
@@ -253,4 +279,4 @@ const emailExist = async (mail : string) => {
 
 
 
-export default {createQCMQuestion,modifyQCMQuestion, createFreeQuestion, modifyFreeQuestion, createDCCQuestion, modifyDCCQuestion, createVFQuestion, modifyVFQuestion, match, usernameExist, emailExist};
+export default {createQCMQuestion,modifyQCMQuestion, createFreeQuestion, modifyFreeQuestion, createDCCQuestion, modifyDCCQuestion, createVFQuestion, modifyVFQuestion, createQuizz, match, usernameExist, emailExist};

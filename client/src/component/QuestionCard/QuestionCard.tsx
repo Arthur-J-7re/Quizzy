@@ -1,12 +1,26 @@
 import { Button } from "@mui/material";
 
 class QuestionCard {
-    private navigate;
+    private buttonAction;
     private question;
+    private buttonText;
 
-    constructor(question : any, navigate : any){
+    constructor(question : any, action : any, text : string){
         this.question = question;
-        this.navigate = navigate;
+        this.buttonAction = action;
+        this.buttonText = text;
+    }
+
+    getId(){
+        return this.question.question_id;
+    }
+
+    getQuestion(){
+        return this.question;
+    }
+
+    setButtonText(message : string){
+        this.buttonText = message;
     }
 
     show(){
@@ -14,7 +28,7 @@ class QuestionCard {
             <div className="questionCardContainer">
                 <div className="Top">
                     <h2>{this.question.title}</h2>
-                    <Button className="Modify" onClick={()=> this.navigate(this.question)}>Modifier la question</Button>
+                    <Button className="Modify" onClick={()=> this.buttonAction(this)}>{this.buttonText}</Button>
                 </div>
                 <div className="Bottom">
                     <div className="mode"><h3>{this.question.mode}</h3></div>

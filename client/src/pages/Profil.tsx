@@ -12,8 +12,8 @@ export function Profil () {
     const [questionCards, setQuestionCards] = useState<QuestionCard[]>([]);
     const navigate = useNavigate();
 
-    const buttonPressed = (question : any) => {
-      navigate("/modify-a-question", {state : {question : question}});
+    const buttonPressed = (questionCard : QuestionCard) => {
+      navigate("/modify-a-question", {state : {question : questionCard.getQuestion()}});
     }
     useEffect(() => {
         (auth?.user?.id) ? 
@@ -33,7 +33,7 @@ export function Profil () {
     useEffect(() => {
       setQuestionCards([]);
       questions.map((question : any) =>{
-        let newQC = new QuestionCard(question, buttonPressed);
+        let newQC = new QuestionCard(question, buttonPressed, "Modifier la question");
         setQuestionCards((prevCards) => [...prevCards, newQC])
       });
     }, [questions]);
