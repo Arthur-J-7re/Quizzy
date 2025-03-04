@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '@mui/material';
 import { Switch } from '@mui/material';
 import {Socket} from "socket.io-client";
+import "./CreateQuestionCss.css"
 
 interface CreateQCMFormProps {
     question_id: Number,
@@ -96,44 +97,49 @@ export function CreateQCMForm({
                     id="title"
                     value={qcmData.title || ''}
                     onChange={(e) => setTitle(e.target.value )}
+                    autoComplete="off"
                     required
                 />
             </div>
             <div className='privateswitch'>
                 <label className='sign-label' onClick={() => setPrivate(false)}>Question public</label>
                 <Switch
-                    type='checkbox'
+                    type='checkboxe'
                     checked={qcmData.private}
                     onClick={() => changePrivate()}
                 />
                 <label className='sign-label' onClick={() => setPrivate(true)}>Question privée</label>
             </div>
-            <div className='Carre'>
-                <h3>Complétez les différentes propositions et cochez la bonne réponse</h3>
+            <div className='carre'>
+            <h3>Complétez les différentes propositions et cochez la bonne réponse</h3>
                 <div className='answerQcm'> 
-                    <input 
-                        type='checkbox' 
-                        checked={qcmData.answer == 1}
-                        onClick={() => setQcmData({...qcmData, answer:1})}
-                    ></input>
-                    <label className='sign-label'>Réponse 1</label>
+                    <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:1})}>
+                        <input 
+                            type='checkbox' 
+                            checked={qcmData.answer == 1}  
+                        ></input>
+                        <label className='sign-label'>Réponse 1</label>
+                    </div>
                     <input
                         type='text'
+                        autoComplete="off"
                         id="answer1" 
                         value={qcmData.choices.ans1 || ''}
                         onChange={(e) => setCarre({...carre, ans1: e.target.value })}
                         required
-                    /><span className="slider round"></span>
+                    />
                 </div>
                 <div className='answerQcm'>
+                    <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:2})}>
                     <input 
                         type='checkbox' 
                         checked={qcmData.answer == 2}
-                        onClick={() => setQcmData({...qcmData, answer:2})}
                     ></input>
                     <label className='sign-label'>Réponse 2</label>
+                    </div>
                     <input
                         type='text'
+                        autoComplete="off"
                         id="answer2"
                         value={qcmData.choices.ans2 || ''}
                         onChange={(e) => setCarre({...carre, ans2: e.target.value })}
@@ -141,30 +147,35 @@ export function CreateQCMForm({
                     />
                 </div>
                 <div className='answerQcm'>
+                    <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:3})}>
                     <input 
                         type='checkbox' 
                         checked={qcmData.answer == 3}
-                        onClick={() => setQcmData({...qcmData, answer:3})}
                     ></input>
                     <label className='sign-label'>Réponse 3</label>
+                    </div>
                     <input
                         type='text'
                         id="answer3"
+                        autoComplete="off"
                         value={qcmData.choices.ans3 || ''}
                         onChange={(e) => setCarre({...carre, ans3: e.target.value })}
                         required
                     />
                 </div>
                 <div className='answerQcm'>
+                    <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:4})}>
                     <input 
                         type='checkbox' 
                         checked={qcmData.answer == 4}
-                        onClick={() => setQcmData({...qcmData, answer:4})}
+                        
                     ></input>
                     <label className='sign-label'>Réponse 4</label>
+                    </div>
                     <input
                         type='text'
                         id="answer4"
+                        autoComplete="off"
                         value={qcmData.choices.ans4 || ''}
                         onChange={(e) => setCarre({...carre, ans4: e.target.value })}
                         required

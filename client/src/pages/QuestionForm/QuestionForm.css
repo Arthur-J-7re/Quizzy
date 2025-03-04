@@ -1,0 +1,27 @@
+.selectedMode,.notSelectedMode{
+    color: #5a54e8!important;
+    border-radius: 0% !important;
+
+}
+
+.selectedMode{
+    background-color: #43bc6e !important;
+}
+
+.notSelectedMode{
+    background-color: #54e889 !important;
+}
+
+.selectedMode:focus-visible, .notSelectedMode:focus-visible {
+    outline: none;
+}
+
+h3{
+    width: 100%;
+}
+
+.modeSelector{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}

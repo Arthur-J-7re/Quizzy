@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from "../../context/authentContext";
 import Toast from '../../tools/toast/toast';
 import { useLocation } from 'react-router-dom';
+import "../CommonCss.css";
 
 export function QuestionModifier () {
     const location = useLocation();

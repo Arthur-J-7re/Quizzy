@@ -1,0 +1,35 @@
+.homeContainer{
+    height: fit-content;
+    width: 100%;
+}
+
+.bouton {
+    border-radius: 15px !important;
+    white-space: nowrap;
+    text-transform: none !important;
+    font-size: clamp(14px, 5vw, 100px)!important;
+    font-weight: 550 !important;
+    font-family: 'Open Sans', sans-serif !important;
+    height: auto !important;
+    min-height: unset !important;
+    
+    margin-right: 3vw;
+    padding: 3vw;
+}
+
+.bouton:hover {
+    background-color: #43bc6e !important;
+}
+
+.bouton{
+    background-color: #54e889 !important;
+    color: #e88954!important;
+    padding: 1vw;
+    margin-top: 11vh !important ;
+}
+
+.boutonDisplay{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}

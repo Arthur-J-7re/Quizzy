@@ -3,6 +3,7 @@ import { Menu, MenuItem, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/authentContext";
+import "./ProfilMenu.css";
 
 const ProfileMenu = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -21,19 +22,19 @@ const ProfileMenu = () => {
   };
 
   return (
-    <>
+    <div className="profilContainer">
       {/* Bouton Avatar qui ouvre le menu */}
-      <Button onClick={handleClick}>
+      <Button className="profilButton"onClick={handleClick} disableRipple disableFocusRipple>
         Profil
       </Button>
 
       {/* Menu déroulant */}
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <MenuItem onClick={() => navigate("/profil")}>Voir Profil</MenuItem>
-        <MenuItem onClick={handleClose}>Paramètres</MenuItem>
-        <MenuItem onClick={() => auth?.logout()}>Déconnexion</MenuItem>
+      <Menu className="profilMenu"anchorEl={anchorEl} open={open} onClose={handleClose}>
+        <MenuItem className="profilMenuItem" onClick={() => navigate("/profil")}>Voir Profil</MenuItem>
+        {/*<MenuItem className="profilMenuItem" onClick={handleClose}>Paramètres</MenuItem>*/}
+        <MenuItem className="profilMenuItem" onClick={() => auth?.logout()}>Déconnexion</MenuItem>
       </Menu>
-    </>
+    </div>
   );
 };
 

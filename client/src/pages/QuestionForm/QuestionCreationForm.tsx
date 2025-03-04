@@ -11,6 +11,8 @@ import { useContext } from "react";
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from "../../context/authentContext";
 import Toast from '../../tools/toast/toast';
+import "../CommonCss.css";
+import "./QuestionForm.css"
 
 export function QuestionCreationForm () {
     const [mode , setMode] = useState("QCM");

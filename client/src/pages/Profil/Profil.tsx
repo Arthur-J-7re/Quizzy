@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authentContext";
 import  QuestionCard  from "../../component/QuestionCard/QuestionCard";
-
+import "../CommonCss.css";
 
 export function Profil () {
     const auth = useContext(AuthContext);

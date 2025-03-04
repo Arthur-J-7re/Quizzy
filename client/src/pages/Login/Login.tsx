@@ -8,6 +8,7 @@ import Button from '@mui/material/Button';
 //import GreenSwitch from '@mui/material/Switch'
 import { Banner } from '../../component/Banner/Banner';
 import './Login.css';
+import "../CommonCss.css";
 
 export function Login () {
     const [isLogin, setIsLogin] = useState(true);

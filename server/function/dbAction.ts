@@ -223,7 +223,7 @@ const createQuizz = async (socket : Socket, data : any) => {
             tags: data.tags,
             title: data.title,
             private: data.private,
-            questions : data.questionLists
+            questions : data.questionList
         });
         console.log("après la création");
         socket.emit("questionCreated");

@@ -10,6 +10,7 @@ import { Socket } from 'socket.io-client';
 import { AuthContext } from "../../context/authentContext";
 import  QuestionCard  from "../../component/QuestionCard/QuestionCard";
 import Toast from "../../tools/toast/toast";
+import "../CommonCss.css";
 
 
 export function QuizzCreation () {
