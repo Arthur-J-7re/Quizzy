@@ -4,12 +4,12 @@ import './index.css'
 import { SocketProvider } from './context/socketContext.tsx'
 import { AuthProvider } from './context/authentContext.tsx'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { QuestionCreationForm } from './pages/QuestionCreationForm'
-import {Home} from './pages/Home'
-import {Login} from './pages/Login' 
-import { Profil } from './pages/Profil.tsx'
-import { QuestionModifier } from './pages/QuestionModifier.tsx';
-import { QuizzCreation } from './pages/QuizzCreation.tsx';
+import { QuestionCreationForm } from './pages/QuestionForm/QuestionCreationForm.tsx'
+import {Home} from './pages/Home/Home'
+import {Login} from './pages/Login/Login.tsx' 
+import { Profil } from './pages/Profil/Profil.tsx'
+import { QuestionModifier } from './pages/QuestionForm/QuestionModifier.tsx';
+import { QuizzCreation } from './pages/QuizzForm/QuizzCreation.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <SocketProvider>

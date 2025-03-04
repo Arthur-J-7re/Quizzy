@@ -1,15 +1,15 @@
 import { Button } from "@mui/material";
 import { Switch } from '@mui/material';
-import { Banner } from "../component/Banner/Banner"
-import { useSocket } from "../context/socketContext";
+import { Banner } from "../../component/Banner/Banner"
+import { useSocket } from "../../context/socketContext";
 import { useNavigate } from "react-router-dom"
 import { useContext, useEffect, useState } from "react";
 import { useRef } from "react";
 import { useCallback } from "react";
 import { Socket } from 'socket.io-client';
-import { AuthContext } from "../context/authentContext";
-import  QuestionCard  from "../component/QuestionCard/QuestionCard";
-import Toast from "../tools/toast/toast";
+import { AuthContext } from "../../context/authentContext";
+import  QuestionCard  from "../../component/QuestionCard/QuestionCard";
+import Toast from "../../tools/toast/toast";
 
 
 export function QuizzCreation () {
@@ -193,7 +193,7 @@ export function QuizzCreation () {
     <div>
         <Banner></Banner>
         <div className='PleaseLogin'>
-            <h1>Veuillez-vous inscrire pour créer un quizz</h1>
+            <h1>Veuillez-vous inscrire pour pouvoir créer un quizz</h1>
             <Button className='linkLogin' onClick={() => navigate("/login")}>Page de connection !</Button>
         </div>
     </div>

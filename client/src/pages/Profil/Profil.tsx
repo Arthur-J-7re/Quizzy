@@ -1,9 +1,9 @@
 import { Button } from "@mui/material";
-import { Banner } from "../component/Banner/Banner"
+import { Banner } from "../../component/Banner/Banner"
 import { useNavigate } from "react-router-dom"
 import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../context/authentContext";
-import  QuestionCard  from "../component/QuestionCard/QuestionCard";
+import { AuthContext } from "../../context/authentContext";
+import  QuestionCard  from "../../component/QuestionCard/QuestionCard";
 
 
 export function Profil () {

@@ -1,17 +1,17 @@
 import { useState, useEffect, useRef} from 'react';
 import { useNavigate } from "react-router-dom";
-import { useSocket } from '../context/socketContext';
-import { AuthContext } from '../context/authentContext';
+import { useSocket } from '../../context/socketContext';
+import { AuthContext } from '../../context/authentContext';
 import { useContext } from 'react';
 import { Socket } from 'socket.io-client';
 import Button from '@mui/material/Button';
 //import GreenSwitch from '@mui/material/Switch'
-import { Banner } from '../component/Banner/Banner';
+import { Banner } from '../../component/Banner/Banner';
 import './Login.css';
 
 export function Login () {
     const [isLogin, setIsLogin] = useState(true);
-    const [checked, setChecked] = useState(true);
+    const checked=true;
 
     const [loginData, setLoginData] = useState({ username: '', password: '' });
     const [signupData, setSignupData] = useState({

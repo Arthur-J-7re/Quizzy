@@ -1,16 +1,16 @@
 import { useState, useEffect} from 'react';
 import Button from '@mui/material/Button';
-import { useSocket } from '../context/socketContext';
-import { CreateQCMForm } from '../component/CreateQuestion/CreateQcmForm';
-import { CreateFreeForm } from '../component/CreateQuestion/CreateFreeForm';
-import { CreateDCCForm } from '../component/CreateQuestion/CreateDccForm';
-import {CreateVfForm} from '../component/CreateQuestion/CreateVfForm'
-import { Banner } from '../component/Banner/Banner';
+import { useSocket } from '../../context/socketContext';
+import { CreateQCMForm } from '../../component/CreateQuestion/CreateQcmForm';
+import { CreateFreeForm } from '../../component/CreateQuestion/CreateFreeForm';
+import { CreateDCCForm } from '../../component/CreateQuestion/CreateDccForm';
+import {CreateVfForm} from '../../component/CreateQuestion/CreateVfForm'
+import { Banner } from '../../component/Banner/Banner';
 import { Socket } from 'socket.io-client';
 import { useContext } from "react";
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from "../context/authentContext";
-import Toast from '../tools/toast/toast';
+import { AuthContext } from "../../context/authentContext";
+import Toast from '../../tools/toast/toast';
 
 export function QuestionCreationForm () {
     const [mode , setMode] = useState("QCM");
@@ -270,7 +270,7 @@ export function QuestionCreationForm () {
         : <>
             <Banner></Banner>
             <div className='PleaseLogin'>
-                <h1>Veuillez-vous inscrire pour créer une question</h1>
+                <h1>Veuillez-vous inscrire pour pouvoir créer une question</h1>
                 <Button className='linkLogin' onClick={() => navigate("/login")}>Page de connection !</Button>
             </div>
         </>

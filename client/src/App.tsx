@@ -1,10 +1,10 @@
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { QuestionCreationForm } from './pages/QuestionCreationForm'
-import {Home} from './pages/Home'
-import { Profil } from './pages/Profil';
-import {Login} from './pages/Login'
-import { QuestionModifier } from './pages/QuestionModifier';
+import { QuestionCreationForm } from './pages/QuestionForm/QuestionCreationForm'
+import {Home} from './pages/Home/Home'
+import { Profil } from './pages/Profil/Profil';
+import {Login} from './pages/Login/Login'
+import { QuestionModifier } from './pages/QuestionForm/QuestionModifier';
 import "./App.css"
 
 function App() {

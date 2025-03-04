@@ -1,8 +1,8 @@
 import { Button } from "@mui/material";
-import { Banner } from "../component/Banner/Banner"
+import { Banner } from "../../component/Banner/Banner"
 import { useNavigate } from "react-router-dom"
 import { useContext } from "react";
-import { AuthContext } from "../context/authentContext";
+import { AuthContext } from "../../context/authentContext";
 
 export function Home () {
     const auth = useContext(AuthContext);
