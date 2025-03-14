@@ -2,6 +2,7 @@ import React from 'react';
 import Button from '@mui/material/Button';
 import { Switch } from '@mui/material';
 import {Socket} from "socket.io-client";
+import "./CreateQuestionCss.css"
 
 interface CreatefreeFormProps {
     question_id : Number;
@@ -109,6 +110,7 @@ export function CreateDCCForm({
             <input
                 type='text'
                 id="title"
+                className='titre'
                 value={dccData.title || ''}
                 onChange={(e) => setTitle(e.target.value )}
                 required
@@ -117,21 +119,29 @@ export function CreateDCCForm({
         <div className='privateswitch'>
             <label className='sign-label' onClick={() => setPrivate(false)}>Question public</label>
             <Switch
-                type='checkbox'
+                type='checkboxe'
                 checked={dccData.private}
+                className='isPrivate'
                 onClick={() => changePrivate()}
             />
             <label className='sign-label' onClick={() => setPrivate(true)}>Question privée</label>
         </div>
-        <div className='Carre'>
-            <h3>Complétez les différentes propositions et cochez la bonne réponse</h3>
+        <div className='carre'>
+            <h3>Complétez les différentes propositions et cochez la bonne réponse (à gauche) et la réponse complétant le duo (à droite) </h3>
             <div className='answerQcm'>
-                <input 
+                <div className='headerAns'>
+                    <input 
+                        type='checkbox' 
+                        checked={dccData.answer == 1}
+                        onClick={() => {setDccData({...dccData, answer:1})}}
+                    ></input>
+                    <label className='sign-label'>Réponse 1</label>
+                    <input 
                     type='checkbox' 
-                    checked={dccData.answer == 1}
-                    onClick={() => {setDccData({...dccData, answer:1})}}
-                ></input>
-                <label className='sign-label'>Réponse 1</label>
+                    checked={duoContain(1)}
+                    onClick={() => manageDuo(1)}
+                    ></input>
+                </div>
                 <input
                     type='text'
                     id="answer1"
@@ -139,19 +149,21 @@ export function CreateDCCForm({
                     onChange={(e) => setCarre({...carre, ans1: e.target.value })}
                     required
                 />
-                <input 
-                type='checkbox' 
-                checked={duoContain(1)}
-                onClick={() => manageDuo(1)}
-                ></input>
             </div>
             <div className='answerQcm'>
-                <input 
+                <div className='headerAns'>
+                    <input 
+                        type='checkbox' 
+                        checked={dccData.answer == 2}
+                        onClick={() => {setDccData({...dccData, answer:2})}}
+                    ></input>
+                    <label className='sign-label'>Réponse 2</label>
+                    <input 
                     type='checkbox' 
-                    checked={dccData.answer == 2}
-                    onClick={() => {setDccData({...dccData, answer:2})}}
-                ></input>
-                <label className='sign-label'>Réponse 2</label>
+                    checked={duoContain(2)}
+                    onClick={() => manageDuo(2)}
+                    ></input>
+                </div>
                 <input
                     type='text'
                     id="answer2"
@@ -159,19 +171,21 @@ export function CreateDCCForm({
                     onChange={(e) => setCarre({...carre, ans2: e.target.value })}
                     required
                 />
-                <input 
-                type='checkbox' 
-                checked={duoContain(2)}
-                onClick={() => manageDuo(2)}
-                ></input>
             </div>
             <div className='answerQcm'>
-                <input 
+                <div className='headerAns'>
+                    <input 
+                        type='checkbox' 
+                        checked={dccData.answer == 3}
+                        onClick={() => {setDccData({...dccData, answer:3})}}
+                    ></input>
+                    <label className='sign-label'>Réponse 3</label>
+                    <input 
                     type='checkbox' 
-                    checked={dccData.answer == 3}
-                    onClick={() => {setDccData({...dccData, answer:3})}}
-                ></input>
-                <label className='sign-label'>Réponse 3</label>
+                    checked={duoContain(3)}
+                    onClick={() => manageDuo(3)}
+                    ></input>
+                </div>
                 <input
                     type='text'
                     id="answer3"
@@ -179,19 +193,21 @@ export function CreateDCCForm({
                     onChange={(e) => setCarre({...carre, ans3: e.target.value })}
                     required
                 />
-                <input 
-                type='checkbox' 
-                checked={duoContain(3)}
-                onClick={() => manageDuo(3)}
-                ></input>
             </div>
             <div className='answerQcm'>
-                <input 
+                <div className='headerAns'>
+                    <input 
+                        type='checkbox' 
+                        checked={dccData.answer == 4}
+                        onClick={() => {setDccData({...dccData, answer:4})}}
+                    ></input>
+                    <label className='sign-label'>Réponse 4</label>
+                    <input 
                     type='checkbox' 
-                    checked={dccData.answer == 4}
-                    onClick={() => {setDccData({...dccData, answer:4})}}
-                ></input>
-                <label className='sign-label'>Réponse 4</label>
+                    checked={duoContain(4)}
+                    onClick={() => manageDuo(4)}
+                    ></input>
+                </div>
                 <input
                     type='text'
                     id="answer4"
@@ -199,11 +215,6 @@ export function CreateDCCForm({
                     onChange={(e) => setCarre({...carre, ans4: e.target.value })}
                     required
                 />
-                <input 
-                type='checkbox' 
-                checked={duoContain(4)}
-                onClick={() => manageDuo(4)}
-                ></input>
             </div>
         </div>
         <div className='answersList'>
@@ -232,7 +243,7 @@ export function CreateDCCForm({
         <div className='tagList'>
             <div>
                 {tags.map(tag => (
-                <span key={tag} onClick={() => removeTag(tag)} style={{ margin: "5px", cursor: "pointer", background: "#ddd", padding: "5px", borderRadius: "5px" }}>
+                <span key={tag} onClick={() => removeTag(tag)} className='tag'>
                     {tag} ❌
                 </span>
                 ))}
@@ -240,6 +251,7 @@ export function CreateDCCForm({
             {tags.length < 5 ? (
                 <input 
                 type="text" 
+                className='tagInput'
                 onKeyDown={(e) => {
                     const inputElement = e.target as HTMLInputElement;
                     if (e.key === "Enter" && inputElement.value.trim()) {

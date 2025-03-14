@@ -74,6 +74,18 @@ app.get("/questions", async (req,res) => {
   }
 });
 
+app.get("/questionsAvailable", async (req,res) => {
+  console.log("appelle au question");
+  const id = Number(req.query.id);
+  try {
+    const retour = await getter.getQuestionAvailable(id);
+    res.json(retour);
+    
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 
 server.listen(3000, () => {
   console.log('server running on port 3000.');

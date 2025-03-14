@@ -75,4 +75,18 @@ const getIdByQuestionId = async (id : Number)=>{
     }
 };
 
-export default {getQuesionsOfQuizz, getQuestsionByOwner, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername, getIdByQuestionId}
+const getQuestionAvailable = async (id : Number)=>{
+    try {
+        let questOfId = await QuestionModel.find().where('author').equals(Number(id));
+        let retour  = await QuestionModel.find().where('private').equals(false).where("author").ne(id);
+        retour.forEach((quest) => {
+            questOfId.push(quest);
+            
+        })
+        return questOfId;
+    } catch (error){
+        console.error(error)
+    }
+}
+
+export default {getQuesionsOfQuizz, getQuestsionByOwner, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername, getIdByQuestionId, getQuestionAvailable}

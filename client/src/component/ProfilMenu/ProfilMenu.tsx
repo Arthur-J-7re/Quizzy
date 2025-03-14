@@ -24,7 +24,7 @@ const ProfileMenu = () => {
   return (
     <div className="profilContainer">
       {/* Bouton Avatar qui ouvre le menu */}
-      <Button className="profilButton"onClick={handleClick} disableRipple disableFocusRipple>
+      <Button className="profilButton"onClick={handleClick} >
         Profil
       </Button>
 
@@ -32,7 +32,7 @@ const ProfileMenu = () => {
       <Menu className="profilMenu"anchorEl={anchorEl} open={open} onClose={handleClose}>
         <MenuItem className="profilMenuItem" onClick={() => navigate("/profil")}>Voir Profil</MenuItem>
         {/*<MenuItem className="profilMenuItem" onClick={handleClose}>Paramètres</MenuItem>*/}
-        <MenuItem className="profilMenuItem" onClick={() => auth?.logout()}>Déconnexion</MenuItem>
+        <MenuItem className="profilMenuItem" onClick={() => {navigate("/home");auth?.logout()}}>Déconnexion</MenuItem>
       </Menu>
     </div>
   );

@@ -237,7 +237,7 @@ export function QuestionCreationForm () {
                 <div className="modeSelector">
                     <h3>Créer une question avec un format</h3>
                     <Button 
-                    className = {(mode == "QCM")?"selectedMode":"notSelectedMode"}
+                    className = {(mode == "QCM")?"first selectedMode":"first notSelectedMode"}
                     onClick={() => setMode("QCM")}>
                     QCM
                     </Button>
@@ -254,7 +254,7 @@ export function QuestionCreationForm () {
                     Duo/Carré/Cash
                     </Button>
                     <Button 
-                    className = {(mode == "VF")?"selectedMode":"notSelectedMode"}
+                    className = {(mode == "VF")?"last selectedMode":"last notSelectedMode"}
                     onClick={() => setMode("VF")}>
                     Vrai ou Faux
                     </Button>

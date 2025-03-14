@@ -96,6 +96,7 @@ export function CreateQCMForm({
                     type='text'
                     id="title"
                     value={qcmData.title || ''}
+                    className='titre'
                     onChange={(e) => setTitle(e.target.value )}
                     autoComplete="off"
                     required
@@ -106,6 +107,7 @@ export function CreateQCMForm({
                 <Switch
                     type='checkboxe'
                     checked={qcmData.private}
+                    className='isPrivate'
                     onClick={() => changePrivate()}
                 />
                 <label className='sign-label' onClick={() => setPrivate(true)}>Question privée</label>
@@ -185,7 +187,7 @@ export function CreateQCMForm({
             <div className='tagList'>
                 <div>
                     {tags.map(tag => (
-                    <span key={tag} onClick={() => removeTag(tag)} style={{ margin: "5px", cursor: "pointer", background: "#ddd", padding: "5px", borderRadius: "5px" }}>
+                    <span key={tag} onClick={() => removeTag(tag)} className='tag'>
                         {tag} ❌
                     </span>
                     ))}
@@ -193,6 +195,7 @@ export function CreateQCMForm({
                 {tags.length < 5 ? (
                     <input 
                     type="text" 
+                    className='tagInput'
                     onKeyDown={(e) => {
                         const inputElement = e.target as HTMLInputElement;
                         if (e.key === "Enter" && inputElement.value.trim()) {

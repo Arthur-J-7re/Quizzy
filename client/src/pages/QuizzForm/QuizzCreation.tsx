@@ -1,4 +1,5 @@
 import { Button } from "@mui/material";
+import {Remove, Add} from "@mui/icons-material";
 import { Switch } from '@mui/material';
 import { Banner } from "../../component/Banner/Banner"
 import { useSocket } from "../../context/socketContext";
@@ -11,6 +12,7 @@ import { AuthContext } from "../../context/authentContext";
 import  QuestionCard  from "../../component/QuestionCard/QuestionCard";
 import Toast from "../../tools/toast/toast";
 import "../CommonCss.css";
+import "../../component/QuestionCard/QuestionCard.css"
 
 
 export function QuizzCreation () {
@@ -34,7 +36,7 @@ export function QuizzCreation () {
         fetched.current = true; // Marque le fetch comme effectué
 
         if (auth?.user?.id) {
-            fetch("http://localhost:3000/questions?id=" + auth?.user?.id)
+            fetch("http://localhost:3000/questionsAvailable?id=" + auth?.user?.id)
                 .then((response) => {
                     if (!response.ok) {
                         throw new Error("Network response was not ok");
@@ -51,12 +53,12 @@ export function QuizzCreation () {
         setQuestionCardsOfQuizz(prevCards => {
             const found = prevCards.find(card => card.getId() === questionCard.getId());
             if (found) {
-                console.log("On remove la card");
-                questionCard.setButtonText("Ajouter la question au Quizz");
+                questionCard.setButtonText(<Add/>);
+                questionCard.setColor("Green");
                 return prevCards.filter(card => card.getId() !== questionCard.getId());
             } else {
-                console.log("On add la card");
-                questionCard.setButtonText("Retirer la question du Quizz");
+                questionCard.setButtonText(<Remove/>);
+                questionCard.setColor("Red");
                 return [...prevCards, questionCard];
             }
         });
@@ -111,8 +113,21 @@ export function QuizzCreation () {
 
     useEffect(() => {
       setQuestionCards([]);
+      /*if (questions.length === 0){
+        let listNum = [1,2,3,4,5,6,7,8,9,10,11,12];
+        listNum.map((i : number) => {
+          let newQC = new QuestionCard({
+            question_id : i,
+            title : "titre mias genre en un peu plus long, t'sais si le mec il a pas dosé et tout genre malade mental quoi le gars mdr. nan plus sérieusement qu'est ce qu'il se passerait si l'intitulé de la question était immense, il faudrait le bloqué nan ? "+  i,
+            mode : "QCM",
+            private : false
+          }, buttonPressed, <Add/>, (0);
+          setQuestionCards((prevCards) => [...prevCards, newQC])
+      
+        })
+      }*/
       questions.map((question : any) =>{
-        let newQC = new QuestionCard(question, buttonPressed, "Ajouter la question au quizz");
+        let newQC = new QuestionCard(question, buttonPressed, <Add/>,(Number(auth?.user?.id) || 0));
         setQuestionCards((prevCards) => [...prevCards, newQC])
       });
     }, [questions]);
@@ -146,16 +161,20 @@ export function QuizzCreation () {
             />
             <label className='sign-label' onClick={() => setPrivate(true)}>Quizz privé</label>
         </div>
-        <div >
+        <div className="questionCardArea">
         {questionCards.length > 0  ?  questionCards.map((questionCard : QuestionCard) => (
-            questionCard.show()
-          )): <h2>Chargement des questions {questionCards.length}</h2>}
-        </div>
-        <div>
-            {questionCardsOfQuizz.length > 0 ? questionCardsOfQuizz.map((questionCard : QuestionCard)=> (
-                console.log("il y a " + questionCardsOfQuizz.length),
+            
+                /*<div>{questionCard.isShowing() ? questionCard.show() : questionCard.showLess()}</div>*/
                 questionCard.show()
-            )) : <h2>Sélectionnez des questions pour votre quizz !</h2>}
+            
+
+          )): <h2 className="filler">Chargement des questions {questionCards.length}</h2>}
+        </div>
+        <div className="questionCardArea">
+            {questionCardsOfQuizz.length > 0 ? questionCardsOfQuizz.map((questionCard : QuestionCard)=> (
+                /*<div>{questionCard.isShowing() ? questionCard.show() : questionCard.showLess()}</div>*/
+                questionCard.show()
+            )) : <h2 className="filler">Sélectionnez des questions pour votre quizz !</h2>}
         </div>
         <div className='tagList'>
                 <div>

@@ -2,6 +2,7 @@ import React from 'react';
 import Button from '@mui/material/Button';
 import { Switch } from '@mui/material';
 import {Socket} from "socket.io-client";
+import "./CreateQuestionCss.css"
 
 interface CreatefreeFormProps {
     question_id: Number,
@@ -83,6 +84,7 @@ export function CreateFreeForm({
             <input
                 type='text'
                 id="title"
+                className='titre'
                 value={freeData.title || ''}
                 onChange={(e) => setTitle(e.target.value )}
                 required
@@ -91,8 +93,9 @@ export function CreateFreeForm({
         <div className='privateswitch'>
             <label className='sign-label' onClick={() => setPrivate(false)}>Question public</label>
             <Switch
-                type='checkbox'
+                type='checkboxe'
                 checked={freeData.private}
+                className='isPrivate'
                 onClick={() => changePrivate()}
             />
             <label className='sign-label' onClick={() => setPrivate(true)}>Question privée</label>
@@ -100,7 +103,7 @@ export function CreateFreeForm({
         <div className='answersList'>
             <div>
                 {answers.map(answer => (
-                <span key={answer} onClick={() => removeAnswer(answer)} className="answer" style={{ margin: "5px", cursor: "pointer", background: "#ddd", padding: "5px", borderRadius: "5px" }}>
+                <span key={answer} onClick={() => removeAnswer(answer)} className="answer" >
                     {answer} ❌
                 </span>
                 ))}
@@ -108,6 +111,7 @@ export function CreateFreeForm({
             
             <input 
             type="text" 
+            className='answerInput'
             onKeyDown={(e) => {
                 const inputElement = e.target as HTMLInputElement;
                 if (e.key === "Enter" && inputElement.value.trim()) {
@@ -123,7 +127,7 @@ export function CreateFreeForm({
         <div className='tagList'>
             <div>
                 {tags.map(tag => (
-                <span key={tag} onClick={() => removeTag(tag)} style={{ margin: "5px", cursor: "pointer", background: "#ddd", padding: "5px", borderRadius: "5px" }}>
+                <span key={tag} onClick={() => removeTag(tag)} className='tag'>
                     {tag} ❌
                 </span>
                 ))}
@@ -131,6 +135,7 @@ export function CreateFreeForm({
             {tags.length < 5 ? (
                 <input 
                 type="text" 
+                className='tagInput'
                 onKeyDown={(e) => {
                     const inputElement = e.target as HTMLInputElement;
                     if (e.key === "Enter" && inputElement.value.trim()) {

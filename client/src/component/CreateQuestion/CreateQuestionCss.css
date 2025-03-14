@@ -1,41 +1,24 @@
-input{
+html, body {
+    overflow-x: hidden;
+}
+
+input {
     background-color: #7687f0;
     border-radius: 5px;
     color: #e5e5e5;
-    font-size:larger;
+    font-size: larger;
+    padding: 0.7vw;
+    height: 3vh;
+    max-width: 100%;
 }
 
-input:focus-visible {
-    outline: none;
+input:focus-visible, button {
+    outline: none !important;
 }
 
-.carre{
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.headerAns{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: baseline;
-}
-
-.answerQcm{
-    display: flex;
-    width: 45%;
-    flex-grow: 1;
-    flex-direction: column;
-    margin: 1vw;
-}
-
-h3{
-    text-align: center;
-}
-
+/* Checkbox Styling */
 input[type="checkbox"] {
-    appearance: none;  /* Supprime le style par défaut */
+    appearance: none;
     width: 20px;
     height: 20px;
     border-radius: 10px;
@@ -46,19 +29,13 @@ input[type="checkbox"] {
     position: relative;
 }
 
-input[type="text"]{
-    padding: 0.7vw;
-    height: 3vh;
-}
-
 input[type="checkbox"]:checked {
     border: 2px solid #54e889;
     background-color: #54e889;
 }
 
-.custom-checkbox:checked::after {
-    
-    content: "✔"; /* Ajoute un check */
+input[type="checkbox"].custom-checkbox:checked::after {
+    content: "✔";
     color: green;
     font-size: 16px;
     position: absolute;
@@ -66,3 +43,97 @@ input[type="checkbox"]:checked {
     top: 50%;
     transform: translate(-50%, -50%);
 }
+
+/* Layouts */
+.carre, .privateswitch, .headerAns {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    flex-wrap: wrap;
+    max-width: 100%;
+}
+
+.headerAns {
+    flex-direction: row;
+}
+
+.answerQcm {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    width: 40%;
+    margin: 1vw;
+    max-width: 100%;
+}
+
+h3 {
+    text-align: center;
+}
+
+.title, .titre {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2vw;
+    width: calc(100% - 4vw);
+    height: calc(0.05* calc(100% - 4vw));
+
+}
+
+.titre{
+    max-width: 450px;
+    max-height: 22px;
+}
+
+/* Tags and Answers */
+.tag, .answer {
+    margin: 5px;
+    cursor: pointer;
+    background: #ddd;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.tagList, .answersList, .formContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2vw;
+}
+
+.tagInput, .answerInput {
+    margin-top: 2vw;
+}
+
+
+/* Send Button */
+.SendButton {
+    border-radius: 15px !important;
+    white-space: nowrap;
+    background-color: #54e889 !important;
+    color: #5a54e8 !important;
+    text-transform: none !important;
+    /*font-size: clamp(14px, 2vw, 100px) !important;*/
+    font-weight: 550 !important;
+    font-family: 'Open Sans', sans-serif !important;
+    height: auto !important;
+    min-height: unset !important;
+    margin-top: 3vw !important;
+    justify-self: center;
+    max-width: 100%;
+}
+
+.isPrivate .MuiSwitch-switchBase.Mui-checked {
+    color: #e95353 !important;
+}
+  .isPrivate .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
+    background-color:  #e95353 !important;
+  }
+  
+  /* ❌ Quand il est désactivé */
+  .isPrivate .MuiSwitch-switchBase:not(.Mui-checked) {
+    color:  #54e889 !important;
+  }
+  .isPrivate .MuiSwitch-track {
+    background-color: #54e889!important;
+  }

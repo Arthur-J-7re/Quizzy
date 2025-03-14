@@ -17,7 +17,7 @@
     color: #5a54e8!important;
     background-color: #54e889 !important;
     text-transform: none !important;
-    font-size: clamp(14px, 5vw, 100px)!important;
+    font-size: clamp(14px, 2vw, 100px)!important;
     font-weight: 550 !important;
     font-family: 'Open Sans', sans-serif !important;
     height: auto !important;

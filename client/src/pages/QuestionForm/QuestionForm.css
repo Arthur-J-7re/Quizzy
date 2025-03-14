@@ -4,7 +4,17 @@
 
 }
 
-.selectedMode{
+.first{
+    border-top-left-radius: 10px !important;
+    border-bottom-left-radius: 10px !important;
+}
+
+.last{
+    border-top-right-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
+}
+
+.selectedMode, .notSelectedMode:hover{
     background-color: #43bc6e !important;
 }
 
