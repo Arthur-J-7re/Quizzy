@@ -1,14 +1,14 @@
 import Quizz from '../Collection/quizz';
 import User from "../Collection/user";
 import Emission from "../Collection/emission";
-import Quest from '../Collection/questions';
+import Question from '../Collection/questions';
 import getter from './getter';
 import { Socket } from 'socket.io';
 
-const {Mode, QuestionModel, QCMModel, FreeModel, DCCModel, VFModel } = Quest;
+const {Mode, QuestionModel, QCMModel, FreeModel, DCCModel, VFModel } = Question;
 const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const createQCMQuestion = async (socket : Socket, questionObj : any) =>{
+const createQCMQuestion = async ( questionObj : any) =>{
     
     try {
         let newQuest;
@@ -22,7 +22,7 @@ const createQCMQuestion = async (socket : Socket, questionObj : any) =>{
             choices: questionObj.choices,
             answer: questionObj.answer,
         });
-        socket.emit("questionCreated");
+        return(true);
                 
         //await newQuest.save();
 
@@ -35,7 +35,8 @@ const createQCMQuestion = async (socket : Socket, questionObj : any) =>{
     }
 };
 
-const modifyQCMQuestion = async (socket: Socket, information : any) =>{
+const modifyQCMQuestion = async ( information : any) =>{
+    console.log("on modifie le qcm");
     try {
         let questionObj = information.data;
         let id = await getter.getIdByQuestionId(information.question_id);
@@ -49,7 +50,7 @@ const modifyQCMQuestion = async (socket: Socket, information : any) =>{
             choices: questionObj.choices,
             answer: questionObj.answer,
         }});
-        socket.emit("modified");
+        return(true);
     } catch (error){
         if (error instanceof Error) {
             console.error(error.message);
@@ -59,7 +60,7 @@ const modifyQCMQuestion = async (socket: Socket, information : any) =>{
     }
 };
 
-const createFreeQuestion = async(socket : Socket, questionObj : any) => {
+const createFreeQuestion = async( questionObj : any) => {
     try {
         let newQuest;
             
@@ -71,7 +72,7 @@ const createFreeQuestion = async(socket : Socket, questionObj : any) => {
             mode: Mode.FREE,
             answers: questionObj.answers,
         });
-        socket.emit("questionCreated");
+        return(true);
         
     } catch (error) {
         if (error instanceof Error) {
@@ -82,7 +83,7 @@ const createFreeQuestion = async(socket : Socket, questionObj : any) => {
     }
 };
 
-const modifyFreeQuestion = async (socket: Socket, information : any) =>{
+const modifyFreeQuestion = async ( information : any) =>{
     try {
         let questionObj = information.data;
         let id = await getter.getIdByQuestionId(information.question_id);
@@ -95,7 +96,7 @@ const modifyFreeQuestion = async (socket: Socket, information : any) =>{
             mode: Mode.FREE,
             answers: questionObj.answers,
         }});
-        socket.emit("modified");
+        return(true);
     } catch (error){
         if (error instanceof Error) {
             console.error(error.message);
@@ -105,7 +106,7 @@ const modifyFreeQuestion = async (socket: Socket, information : any) =>{
     }
 };
 
-const createDCCQuestion = async(socket : Socket, questionObj : any) => {
+const createDCCQuestion = async( questionObj : any) => {
     try {
         let newQuest;
         console.log(questionObj);
@@ -121,7 +122,7 @@ const createDCCQuestion = async(socket : Socket, questionObj : any) => {
             answer: questionObj.answer,
             cash: questionObj.cash,
         });
-        socket.emit("questionCreated");
+        return(true);
         
             
     } catch (error) {
@@ -134,7 +135,7 @@ const createDCCQuestion = async(socket : Socket, questionObj : any) => {
 
 };
 
-const modifyDCCQuestion = async (socket: Socket, information : any) =>{
+const modifyDCCQuestion = async ( information : any) =>{
     try {
         let questionObj = information.data;
         let id = await getter.getIdByQuestionId(information.question_id);
@@ -150,7 +151,7 @@ const modifyDCCQuestion = async (socket: Socket, information : any) =>{
             answer: questionObj.answer,
             cash: questionObj.cash,
         }});
-        socket.emit("modified");
+        return(true);
     } catch (error){
         if (error instanceof Error) {
             console.error(error.message);
@@ -162,7 +163,7 @@ const modifyDCCQuestion = async (socket: Socket, information : any) =>{
 
 
 
-const createVFQuestion = async(socket : Socket, questionObj : any) => {
+const createVFQuestion = async( questionObj : any) => {
     console.log("tentative de création de question");
     console.log(questionObj);
     try {
@@ -176,7 +177,7 @@ const createVFQuestion = async(socket : Socket, questionObj : any) => {
             mode: Mode.VF,
             truth: questionObj.truth,
         });
-        socket.emit("questionCreated");
+        return(true);
         
             
     } catch (error) {
@@ -189,7 +190,7 @@ const createVFQuestion = async(socket : Socket, questionObj : any) => {
 
 };
 
-const modifyVFQuestion = async (socket: Socket, information : any) =>{
+const modifyVFQuestion = async ( information : any) =>{
     try {
         let questionObj = information.data;
         let id = await getter.getIdByQuestionId(information.question_id);
@@ -202,7 +203,7 @@ const modifyVFQuestion = async (socket: Socket, information : any) =>{
             mode: Mode.VF,
             truth: questionObj.truth,
         }});
-        socket.emit("modified");
+        return(true);
     } catch (error){
         if (error instanceof Error) {
             console.error(error.message);
@@ -212,71 +213,19 @@ const modifyVFQuestion = async (socket: Socket, information : any) =>{
     }
 };
 
-const createQuizz = async (socket : Socket, data : any) => {
-    console.log("dans CreateQuizz")
-    console.log(data);
+
+const deleteQuestion = async (question_id: String) => {
     try {
-        let newQuizz;
-                
-        newQuizz = await Quizz.create({
-            creator: Number(data.user_id),
-            tags: data.tags,
-            title: data.title,
-            private: data.private,
-            questions : data.questionList
-        });
-        console.log("après la création");
-        socket.emit("questionCreated");
-        
-            
+        await QuestionModel.deleteOne({question_id : question_id});
     } catch (error) {
-        if (error instanceof Error) {
-            console.error(error.message);
-        } else {
-            console.error("Une erreur inconnue est survenue", error);
-        }
+        console.error("error de la suprression du quizz : " + question_id, error);
     }
-};
-
-const match = async (accountname : string, password : string) => {
-    if (regexEmail.test(accountname)){
-        let expected = await getter.getPasswordByEmail(accountname);
-        
-        return (expected === password);
-    } else {
-        let expected = await getter.getPasswordByUsername(accountname);
-        return (expected === password);
-    }
-};
-
-const usernameExist = async (name : string) => {
-    try {
-        const retour = await User.findOne().where("username").equals(name);
-        if (retour) {
-            return true ;
-        } else {
-            return false;
-        }
-    } catch (error) {
-        console.error(error)
-    }
-};
-
-const emailExist = async (mail : string) => {
-    try {
-        const retour = await User.findOne().where("mail").equals(mail);
-        if (retour) {
-            return true ;
-        } else {
-            return false;
-        }
-    } catch (error) {
-        console.error(error)
-    }
-};
+}
 
 
 
 
 
-export default {createQCMQuestion,modifyQCMQuestion, createFreeQuestion, modifyFreeQuestion, createDCCQuestion, modifyDCCQuestion, createVFQuestion, modifyVFQuestion, createQuizz, match, usernameExist, emailExist};
+
+
+export default {createQCMQuestion,modifyQCMQuestion, createFreeQuestion, modifyFreeQuestion, createDCCQuestion, modifyDCCQuestion, createVFQuestion, modifyVFQuestion, deleteQuestion};

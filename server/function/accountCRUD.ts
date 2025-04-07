@@ -1,6 +1,5 @@
 import { Socket } from "socket.io";
 import jwt from "jsonwebtoken";
-import dbAction from "./dbAction";
 import getter from "./getter"
 import User from "../Collection/user"
 import dotenv from 'dotenv';
@@ -15,6 +14,7 @@ const SECRET_KEY : string= process.env.JWT_SECRET || "sferkfjdddfeofjgrjkjdkdpcd
 
 
 const login = async (socket : Socket, data : any) => {
+    console.log(data);
     let name = data.username;
     if (regexEmail.test(name)){
         loginEMail(socket, data);
@@ -24,11 +24,11 @@ const login = async (socket : Socket, data : any) => {
 };
 
 const loginEMail = async (socket: Socket, data : any) => {
-    let can = await dbAction.emailExist(data.username);
+    let can = await emailExist(data.username);
     if (can){
-        let match = await dbAction.match(data.username, data.password)
-        console.log(match);
-        if (match){
+        let matching = await match(data.username, data.password)
+        console.log(matching);
+        if (matching){
             let id;
             try {
                 id = await getter.getIdByEmail(data.username);
@@ -52,9 +52,9 @@ const loginEMail = async (socket: Socket, data : any) => {
 };
 
 const loginUsername = async (socket : Socket, data : any) => {
-    let cant = await dbAction.usernameExist(data.username);
+    let cant = await usernameExist(data.username);
     if (cant){
-        if (await dbAction.match(data.username, data.password)){
+        if (await match(data.username, data.password)){
             let id;
             try {
                 id = await getter.getIdByUsername(data.username);
@@ -68,7 +68,7 @@ const loginUsername = async (socket : Socket, data : any) => {
                 { expiresIn: '2190h' }
             );
             
-            socket.emit("success", {id: id, token:token});
+            socket.emit("success", {id: id, token:token, username : data.username});
         }
         else {
             socket.emit("alert", "Mauvais mot de passe.");
@@ -80,8 +80,8 @@ const loginUsername = async (socket : Socket, data : any) => {
 
 const register = async (socket : Socket, data : any) => {
 
-    let cantEMail = await dbAction.emailExist(data.email);
-    let cantUserName = await dbAction.usernameExist(data.username);
+    let cantEMail = await emailExist(data.email);
+    let cantUserName = await usernameExist(data.username);
     console.log("entrer dans le register");
 
 
@@ -110,7 +110,7 @@ const register = async (socket : Socket, data : any) => {
                 { expiresIn: '2190h' }
             );
             
-            socket.emit("success", {id: id, token:token});
+            socket.emit("success", {id: id, token:token, username : data.username});
             console.log("après le create user");
 
             /*const token = jwt.sign(
@@ -124,12 +124,60 @@ const register = async (socket : Socket, data : any) => {
         } catch(error) {
             console.error(error);
             socket.emit("alert", "Format d'adresse e-amil non valide.")
-
         }
+    }
+};
+
+const updateUsername = async (id : any, username : any) => {
+    console.log(id, username);
+    try {
+        await User.updateOne({ user_id: id },{$set : {
+            username : username
+        }});
+        return ({username : username});
+    } catch (error) {
+        console.error("error lors de l'update du username");
+    }
+}
+
+const match = async (accountname : string, password : string) => {
+    if (regexEmail.test(accountname)){
+        let expected = await getter.getPasswordByEmail(accountname);
+        
+        return (expected === password);
+    } else {
+        let expected = await getter.getPasswordByUsername(accountname);
+        return (expected === password);
+    }
+};
+
+const usernameExist = async (name : string) => {
+    try {
+        const retour = await User.findOne().where("username").equals(name);
+        if (retour) {
+            return true ;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error(error)
+    }
+};
+
+const emailExist = async (mail : string) => {
+    try {
+        const retour = await User.findOne().where("mail").equals(mail);
+        if (retour) {
+            return true ;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error(error)
     }
 };
 
 
 
 
-export default {login, register}
+export default {login, register, updateUsername, match, usernameExist, emailExist}

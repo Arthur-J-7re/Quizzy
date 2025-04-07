@@ -57,9 +57,9 @@ export function Login () {
 
             socket.on("success", (data) =>{
                 if (isLogin) {
-                    auth?.login({id : data.id, Username : loginData.username, currentRoom : "", token : data.token  })
+                    auth?.login({id : data.id, Username : data.username, currentRoom : "", token : data.token  })
                 } else {
-                    auth?.login({id : data.id, Username : signupData.username, currentRoom : "", token : data.token  })
+                    auth?.login({id : data.id, Username : data.username, currentRoom : "", token : data.token  })
                 }
                 
                 //localStorage.setItem("authToken", data.token);
@@ -102,14 +102,11 @@ export function Login () {
                             fontSize: '16px',
                             fontFamily: 'Open_sans, sans-serif',
                             fontWeight: isLogin ? 'bold' : 'regular',
-                            backgroundColor:checked 
-                            ? (isLogin ? '#4CAF50' : "#64e33d") 
-                            : (isLogin ? '#E056B3' : '#FC6EDA'),
-                            '&:hover': checked ? {
-                                backgroundColor: '#4caf50',
-                            } : {
-                                backgroundColor: '#e056b3',
-                            }
+                            backgroundColor:
+                            isLogin ? '#1DD75E' : "#4BE782",
+                            '&:hover': {
+                                backgroundColor: '#1DD75E',
+                            } 
                             
                         }}>
                         Login
@@ -131,13 +128,9 @@ export function Login () {
                             fontSize: '16px',
                             fontFamily: 'Open_sans, sans-serif',
                             fontWeight: isLogin ? 'regular' : 'bold',
-                            backgroundColor:checked 
-                            ? (isLogin ?  '#64e33d' :'#4CAF50') 
-                            : (isLogin ?  '#FC6EDA' : "#E056B3"),
-                            '&:hover': checked ? {
-                                backgroundColor: '#4CAF50',
-                            } : {
-                                backgroundColor: '#E056B3',
+                            backgroundColor: (isLogin ?  '#4BE782' :'#1DD75E') ,
+                            '&:hover':{
+                                backgroundColor: '#1DD75E',
                             }
                         }}>
                         Sign Up
@@ -181,7 +174,7 @@ export function Login () {
                                 sx={{
                                     height: '45px',
                                     width: '120px',
-                                    backgroundColor: '#2E3A59',
+                                    backgroundColor: '#4BE782',
                                     color: '#fff',
                                     borderRadius: '15px',
                                     textTransform: 'none',
@@ -189,10 +182,6 @@ export function Login () {
                                     fontFamily: 'Open Sans, sans-serif',
                                     fontWeight: 'bold',
                                     transition: 'all 0.5s ease',
-                                    '&:hover': {
-                                        backgroundColor:checked ? '#64e33d' : '#FC6EDA',
-                                        boxShadow:checked ? '' : '0 0 15px 5px rgba(252, 110, 218, 0.6)',
-                                    }
                                 }}>
                                 Login
                             </Button>
@@ -258,7 +247,7 @@ export function Login () {
                                 sx={{
                                     height: '45px',
                                     width: '120px',
-                                    backgroundColor: '#2E3A59',
+                                    backgroundColor: '#4BE782',
                                     color: '#fff',
                                     borderRadius: '15px',
                                     textTransform: 'none',
@@ -266,10 +255,6 @@ export function Login () {
                                     fontFamily: 'Open Sans, sans-serif',
                                     fontWeight: 'bold',
                                     transition: 'all 0.5s ease',
-                                    '&:hover': {
-                                        backgroundColor: checked ? '#64e33d' : '#FC6EDA',
-                                        
-                                    }
                                 }}>
                                 Sign Up
                             </Button>

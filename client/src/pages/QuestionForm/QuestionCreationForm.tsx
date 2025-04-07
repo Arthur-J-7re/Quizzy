@@ -8,13 +8,15 @@ import {CreateVfForm} from '../../component/CreateQuestion/CreateVfForm'
 import { Banner } from '../../component/Banner/Banner';
 import { Socket } from 'socket.io-client';
 import { useContext } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from "../../context/authentContext";
 import Toast from '../../tools/toast/toast';
 import "../CommonCss.css";
 import "./QuestionForm.css"
 
 export function QuestionCreationForm () {
+    const location = useLocation();
+    const question = location.state?.question || {title : "", private : false, tags : [], mode : []};
     const [mode , setMode] = useState("QCM");
     const [title, setTitle] = useState("");
     const [goodNews, setGoodNews] = useState(false);
@@ -43,6 +45,7 @@ export function QuestionCreationForm () {
                 setAnswers([]);
                 setTags([]);
                 setTruth(true);
+                setTitle("");
                 setQcmData({...qcmData, answer : 1});
                 setDccData({...dccData, answer : 1, duo : 2});
                 setMessageInfo("Question créée avec succès");
@@ -237,24 +240,24 @@ export function QuestionCreationForm () {
                 <div className="modeSelector">
                     <h3>Créer une question avec un format</h3>
                     <Button 
-                    className = {(mode == "QCM")?"first selectedMode":"first notSelectedMode"}
+                    className = {(mode == "QCM")?"first notOutlined selectedMode":"first notOutlined notSelectedMode"}
                     onClick={() => setMode("QCM")}>
                     QCM
                     </Button>
                     
                     <Button 
-                    className = {(mode == "FREE")?"selectedMode":"notSelectedMode"}
+                    className = {(mode == "FREE")?"notOutlined selectedMode":"notOutlined notSelectedMode"}
                     onClick={() => setMode("FREE")}>
                     réponse libre
                     </Button>
                     
                     <Button 
-                    className = {(mode == "DCC")?"selectedMode":"notSelectedMode"}
+                    className = {(mode == "DCC")?"notOutlined selectedMode":"notOutlined notSelectedMode"}
                     onClick={() => setMode("DCC")}>
                     Duo/Carré/Cash
                     </Button>
                     <Button 
-                    className = {(mode == "VF")?"last selectedMode":"last notSelectedMode"}
+                    className = {(mode == "VF")?"last notOutlined selectedMode":"last notOutlined notSelectedMode"}
                     onClick={() => setMode("VF")}>
                     Vrai ou Faux
                     </Button>

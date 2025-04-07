@@ -1,6 +1,6 @@
 .bannerContainer{
     border-bottom:solid 1px #e88954;
-    background-color: #5a54e8;
+    background-color: #c6d4ff;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -27,6 +27,12 @@
     padding: 3vw;
 }
 
+.menuButtonContainer{
+    display: flex;
+    width: 22%;/* 35% si en mobile à faire*/
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
 .Connexion:hover {
     background-color: #43bc6e !important;
 }

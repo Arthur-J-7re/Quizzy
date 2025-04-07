@@ -30,6 +30,7 @@ export function CreateFreeForm({
     question_id,
     setMessageInfo,
     setShowMessage,
+    title,
     setTitle,
     setPrivate,
     changePrivate,
@@ -56,6 +57,12 @@ export function CreateFreeForm({
             setShowMessage(true);
             return false;
         }
+
+        if (tags.length === 0) {
+            setMessageInfo("veuillez renseigner au moins une catégorie pour la question.");
+            setShowMessage(true);
+            return false;
+        }
     
         if (freeData.answers.some(answer => answer.trim() === "")) {
             setMessageInfo("Toutes les réponses doivent être remplies !");
@@ -76,32 +83,32 @@ export function CreateFreeForm({
             }
         }    
     };
-
+ 
     return (
     <div className='formContainer'>
         <div className='title'>
-            <label className='sign-label'>Intitulé de la question</label>
+            <label className='questionCreation-label'>Intitulé de la question</label>
             <input
                 type='text'
                 id="title"
                 className='titre'
-                value={freeData.title || ''}
+                value={title || ''}
                 onChange={(e) => setTitle(e.target.value )}
                 required
             />
         </div>
         <div className='privateswitch'>
-            <label className='sign-label' onClick={() => setPrivate(false)}>Question public</label>
+            <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
             <Switch
                 type='checkboxe'
                 checked={freeData.private}
                 className='isPrivate'
                 onClick={() => changePrivate()}
             />
-            <label className='sign-label' onClick={() => setPrivate(true)}>Question privée</label>
+            <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
         </div>
         <div className='answersList'>
-            <div>
+            <div className='tagSpanDispencer'>
                 {answers.map(answer => (
                 <span key={answer} onClick={() => removeAnswer(answer)} className="answer" >
                     {answer} ❌
@@ -125,7 +132,7 @@ export function CreateFreeForm({
         </div>
         
         <div className='tagList'>
-            <div>
+            <div className='tagSpanDispencer'>
                 {tags.map(tag => (
                 <span key={tag} onClick={() => removeTag(tag)} className='tag'>
                     {tag} ❌

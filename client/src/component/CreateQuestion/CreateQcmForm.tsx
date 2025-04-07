@@ -51,6 +51,12 @@ export function CreateQCMForm({
             setShowMessage(true);
             return false;
         }
+
+        if (tags.length === 0) {
+            setMessageInfo("veuillez renseigner au moins une catégorie pour la question.");
+            setShowMessage(true);
+            return false;
+        }
     
         if (!qcmData.choices.ans1.trim() || 
             !qcmData.choices.ans2.trim() || 
@@ -69,7 +75,7 @@ export function CreateQCMForm({
     const sendQcm = async () => {
         if (socket instanceof Socket){
             if (validateQcm()){
-                const formattedChoices = Object.entries(carre).map(([key,value], index) => ({
+                const formattedChoices = Object.entries(carre).map(([_key,value], index) => ({
                     content: value, // Texte du choix
                     answer_num: (index + 1).toString() // ID de réponse sous forme de string
                 }));
@@ -91,7 +97,7 @@ export function CreateQCMForm({
     return (
         <div className='formContainer'>
             <div className='title'>
-                <label className='sign-label'>Intitulé de la question</label>
+                <label className='questionCreation-label'>Intitulé de la question</label>
                 <input
                     type='text'
                     id="title"
@@ -103,24 +109,25 @@ export function CreateQCMForm({
                 />
             </div>
             <div className='privateswitch'>
-                <label className='sign-label' onClick={() => setPrivate(false)}>Question public</label>
+                <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
                 <Switch
                     type='checkboxe'
                     checked={qcmData.private}
                     className='isPrivate'
                     onClick={() => changePrivate()}
                 />
-                <label className='sign-label' onClick={() => setPrivate(true)}>Question privée</label>
+                <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
             </div>
             <div className='carre'>
-            <h3>Complétez les différentes propositions et cochez la bonne réponse</h3>
+            <h3 className='questionCreationIndication'>Complétez les différentes propositions et cochez la bonne réponse</h3>
                 <div className='answerQcm'> 
                     <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:1})}>
                         <input 
                             type='checkbox' 
                             checked={qcmData.answer == 1}  
+                            className='coloredAnswer'
                         ></input>
-                        <label className='sign-label'>Réponse 1</label>
+                        <label className='questionCreation-label'>Réponse 1</label>
                     </div>
                     <input
                         type='text'
@@ -136,8 +143,9 @@ export function CreateQCMForm({
                     <input 
                         type='checkbox' 
                         checked={qcmData.answer == 2}
+                        className='coloredAnswer'
                     ></input>
-                    <label className='sign-label'>Réponse 2</label>
+                    <label className='questionCreation-label'>Réponse 2</label>
                     </div>
                     <input
                         type='text'
@@ -153,8 +161,9 @@ export function CreateQCMForm({
                     <input 
                         type='checkbox' 
                         checked={qcmData.answer == 3}
+                        className='coloredAnswer'
                     ></input>
-                    <label className='sign-label'>Réponse 3</label>
+                    <label className='questionCreation-label'>Réponse 3</label>
                     </div>
                     <input
                         type='text'
@@ -170,9 +179,10 @@ export function CreateQCMForm({
                     <input 
                         type='checkbox' 
                         checked={qcmData.answer == 4}
+                        className='coloredAnswer'
                         
                     ></input>
-                    <label className='sign-label'>Réponse 4</label>
+                    <label className='questionCreation-label'>Réponse 4</label>
                     </div>
                     <input
                         type='text'
@@ -185,7 +195,7 @@ export function CreateQCMForm({
                 </div>
             </div>
             <div className='tagList'>
-                <div>
+                <div className='tagSpanDispencer'>
                     {tags.map(tag => (
                     <span key={tag} onClick={() => removeTag(tag)} className='tag'>
                         {tag} ❌

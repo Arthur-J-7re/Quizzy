@@ -1,0 +1,24 @@
+.subTitle{
+    margin-left: 4vw;
+    margin-top: 1vh;
+    align-self: flex-start;
+}
+
+.profilBlock{
+    margin-bottom: 6vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.update{
+    border-radius: 15px !important;
+    white-space: nowrap;
+    color: #5a54e8 !important;
+    background-color: #28e269 !important;
+    text-transform: none !important;
+    height: fit-content !important;
+    width: calc(fit-content - 10px)!important;
+    justify-self: center;
+    max-width: 100%;
+}

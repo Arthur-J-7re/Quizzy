@@ -19,8 +19,42 @@ body.custom-background {
 
 
 
+
+
+input {
+    background-color: #99b3ff;
+    border-radius: 5px;
+    color: #050505;
+    font-size: larger;
+    padding: max(0.7vw, 10px);
+    height: 3vh;
+    max-width: 100%;
+}
+
+.coloredAnswer:focus-visible,.notOutlined, button {
+    outline: none !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .login-container {
-    background-color: #FFF;
+    background-color: #e5e5e5;
     
 }
 
@@ -140,7 +174,7 @@ body.custom-background {
 
 .login-input:focus {
     outline: none;
-    border-color: #66e33d;
+    border-color: #4BE782;
     
 }
 
@@ -241,7 +275,7 @@ body.custom-background {
 }
 
 .greenBorder:focus{
-    border-color: #66e33d;
+    border-color: #4BE782;
     color: #000;
     background-color: #ECEFF1;
 }

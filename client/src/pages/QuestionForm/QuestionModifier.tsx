@@ -16,10 +16,10 @@ import "../CommonCss.css";
 
 export function QuestionModifier () {
     const location = useLocation();
-    const question = location.state?.question || {};
+    const question = location.state?.question || {title : "", private : false, tags : [], mode : "QCM"};
     console.log(question);
 
-    const [mode , setMode] = useState(question.mode || "QCM");
+    const [mode , _setMode] = useState(question.mode || "QCM");
     const [title, setTitle] = useState(question.title || "");
     const [goodNews, setGoodNews] = useState(false);
     const [tags, setTags] = useState<string[]>(question.tags || []);
@@ -58,6 +58,12 @@ export function QuestionModifier () {
                 ans3 : question.carre[2].content,
                 ans4 : question.carre[3].content
             });
+        }
+
+        if (question.answers != null){
+            setAnswers(question.answers);
+        } else if (question.cash != null){
+            setAnswers(question.cash);
         }
     }, [question]); // Exécute cet effet uniquement quand `question` change
     useEffect(() => {
@@ -190,6 +196,27 @@ export function QuestionModifier () {
 
     }, [truth]);
 
+    const deleteQuestion = async () => {
+        const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer définitivement la question ?");
+        if (confirmation) {
+            fetch("http://localhost:3000/question?question_id=" + question.question_id, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                mode: "cors"
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then((data) => {if (data.success === "true"){
+                navigate("/profil");
+            }})
+            .catch((error) => console.error("There was a problem with the fetch operation:", error));
+        }
+    } 
+
     const renderContent = () => {
         switch (mode) {
             case "QCM":
@@ -275,6 +302,9 @@ export function QuestionModifier () {
                     </Button>
                 </div>*/}
                 {renderContent()}
+                </div>
+                <div className='modeSelector'>
+                    <Button onClick={() => deleteQuestion()}> supprimer la question</Button>
                 </div>
                 <div className={goodNews ? 'GreenText' : 'RedText'}>{
                     showMessage &&

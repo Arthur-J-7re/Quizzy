@@ -5,7 +5,7 @@ import Quest from '../Collection/questions';
 
 const { QuestionModel, QCMModel, FreeModel, DCCModel } = Quest;
 
-const getQuestsionByOwner =async (id : number) => {
+const getQuestionByOwner =async (id : number) => {
     const retour = await QuestionModel.find().where('author').equals(Number(id));
     //console.log(retour);
     return retour;
@@ -17,7 +17,8 @@ const getQuesionsOfQuizz = async (id : number) => {
 };
 
 const getQuizzByOwner = async (id : number) => {
-    const retour = await Quizz.findOne().where("owner").equals(id);
+    const retour = await Quizz.find().where("creator").equals(id);
+    return retour;
 };
 
 /*const getQuizzByTags = async (tags) => {
@@ -89,4 +90,4 @@ const getQuestionAvailable = async (id : Number)=>{
     }
 }
 
-export default {getQuesionsOfQuizz, getQuestsionByOwner, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername, getIdByQuestionId, getQuestionAvailable}
+export default {getQuesionsOfQuizz, getQuestionByOwner, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername, getIdByQuestionId, getQuestionAvailable}

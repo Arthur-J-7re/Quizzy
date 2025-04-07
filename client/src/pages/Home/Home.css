@@ -6,14 +6,16 @@
 .bouton {
     border-radius: 15px !important;
     white-space: nowrap;
+    color: #5a54e8!important;
+    background-color: #54e889 !important;
     text-transform: none !important;
-    font-size: clamp(14px, 5vw, 100px)!important;
+    font-size: clamp(28px, 3vw, 150px)!important;
     font-weight: 550 !important;
     font-family: 'Open Sans', sans-serif !important;
     height: auto !important;
     min-height: unset !important;
-    
-    margin-right: 3vw;
+    max-width: 450px !important;
+    margin: 3vw;
     padding: 3vw;
 }
 
@@ -22,14 +24,12 @@
 }
 
 .bouton{
-    background-color: #54e889 !important;
-    color: #e88954!important;
     padding: 1vw;
-    margin-top: 11vh !important ;
+    margin-top: 6vh !important ;
 }
 
 .boutonDisplay{
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    align-items: center;
 }

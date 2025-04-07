@@ -50,6 +50,12 @@ export function CreateVfForm({
             setShowMessage(true);
             return false;
         }
+
+        if (tags.length === 0) {
+            setMessageInfo("veuillez renseigner au moins une catégorie pour la question.");
+            setShowMessage(true);
+            return false;
+        }
         return true;
     }
 
@@ -67,7 +73,7 @@ export function CreateVfForm({
     return (
         <div className='formContainer'>
             <div className='title'>
-                <label className='sign-label'>Intitulé de la question</label>
+                <label className='questionCreation-label'>Intitulé de la question</label>
                 <input
                     type='text'
                     id="title"
@@ -78,21 +84,21 @@ export function CreateVfForm({
                 />
             </div>
             <div className='privateswitch'>
-                <label className='sign-label' onClick={() => setPrivate(false)}>Question public</label>
+                <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
                 <Switch
                     type='checkboxe'
                     checked={vfData.private}
                     className='isPrivate'
                     onClick={() => changePrivate()}
                 />
-                <label className='sign-label' onClick={() => setPrivate(true)}>Question privée</label>
+                <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
             </div>
             <div className='VraiFaux'>
                 <Button onClick={()=>setTruth(true)} className={"VFButton" + truth ? "checked" : ""} >Vrai</Button>
                 <Button onClick={()=>setTruth(false)} className={"VFButton" + truth ? "" : "checked"}>Faux</Button>
             </div>
             <div className='tagList'>
-                <div>
+                <div className='tagSpanDispencer'>
                     {tags.map(tag => (
                     <span key={tag} onClick={() => removeTag(tag)} className='tag'>
                         {tag} ❌

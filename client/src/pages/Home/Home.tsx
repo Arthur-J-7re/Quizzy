@@ -12,6 +12,8 @@ export function Home () {
     return (
     <div className="homeContainer">
         <Banner></Banner>
+        <div className="welcome">Bienvenue sur QUIZZY !! L'outil de création de quizz</div>
+        <div className="presentation">Vous pouvez d'ores et déjà créer vos propres questions et quizz en vous connectant, pour ce qui est de jouer c'est encore en développement donc pas encore disponible {":'("}</div>
         <div className="boutonDisplay">
             <Button className="bouton" onClick={()=>{(auth && auth.user) ? navigate("/create-a-question") : navigate("/login")}}>Créer une question</Button>
             <Button className="bouton" onClick={() => {(auth && auth.user) ? navigate("/create-a-quizz") : navigate("/login")}}>Créer un quizz</Button>

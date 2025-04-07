@@ -4,13 +4,16 @@
 
 .css-1umw9bq-MuiSvgIcon-root{
     width: 3vw !important;
+    max-width: 30px;
+    max-height: 30px;
     height: 2vw !important;
+    min-height: 15px;
 }
 
 
 .questionCardArea{
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Ajustement automatique */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Ajustement automatique */
     gap: 10px;
     width: 90%;
     max-width: 90%;
@@ -20,13 +23,28 @@
     
 }
 
-.questionCardArea, .questionCardContainer{
+.questionCardAreaWOGrid{
+    padding: 2vw 0 2vw 0;
+    width: 90%;
+    max-width: 90%;
+    box-sizing: border-box;
+    max-height: 50vh;
+    overflow-y: scroll;
+    display: flex;   
+    justify-content: center;
+}
+
+.filler{
+    justify-self: unset;
+}
+
+.questionCardArea, .questionCardContainer,.questionCardAreaWOGrid{
     border-radius: 20px;
     margin: 1vw;
     border : black;
 }
 
-.questionCardArea{
+.questionCardArea,.questionCardAreaWOGrid{
     border: 2px dashed #e88954;
 }
 
@@ -34,7 +52,7 @@
     border: 2px solid #8f56e6;
 }
 
-.questionCardContainer{
+.questionCardContainer, .dragZone{
     line-height: 1 !important;
     text-align: center;
     padding: 0.5vw;
@@ -42,6 +60,10 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+.dragZone{
+    box-sizing: border-box;
 }
 
 .owned{
@@ -86,8 +108,10 @@ h3{
     font-size: 10px;
 }
 
-
-
+input{
+    max-width: 220px;
+    max-height: 50px;
+}
 
 
 
@@ -98,14 +122,16 @@ button{
     color: #5a54e8 !important;
     text-transform: none !important;
     height: fit-content !important;
-    width: fit-content !important;
+    width: calc(fit-content - 10px)!important;
     justify-self: center;
     max-width: 100%;
 }
 
 .Green{
-    background-color: #54e889 !important;
+    background-color: #28e269 !important;
 }
+
+
 
 .Red{
     background-color: #e95353 !important;

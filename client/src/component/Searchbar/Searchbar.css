@@ -1,0 +1,19 @@
+.filter{
+    display: flex;
+    flex-direction: row;
+    
+}
+
+select{
+    background-color: #7687f0;
+}
+/*select:focus{
+    outline: none !important;
+}*/
+
+input{
+    border-radius: 0% !important;
+    border: solid 1px black;
+}
+
+
