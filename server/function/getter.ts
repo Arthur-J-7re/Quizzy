@@ -11,9 +11,14 @@ const getQuestionByOwner =async (id : number) => {
     return retour;
 };
 
-const getQuesionsOfQuizz = async (id : number) => {
-    const retour = await Quizz.findOne().where("id").equals(id);
-    return retour;
+const getQuestionsOfQuizz = async (id : number) => {
+    const retour = await Quizz.findOne().where("quizz_id").equals(id);
+    return retour?.questions;
+};
+
+const getQuizzOfQuestion = async (id : number) => {
+    const retour = await QuestionModel.findOne().where("question_id").equals(id);
+    return retour?.quizz;
 };
 
 const getQuizzByOwner = async (id : number) => {
@@ -67,7 +72,7 @@ const getPasswordByUsername = async (username : string) => {
 
 };
 
-const getIdByQuestionId = async (id : Number)=>{
+const getIdByQuestionId = async (id : number)=>{
     try {
         const retour = await QuestionModel.findOne().select('id').where('question_id').equals(id);
         return retour?.id;
@@ -76,7 +81,7 @@ const getIdByQuestionId = async (id : Number)=>{
     }
 };
 
-const getQuestionAvailable = async (id : Number)=>{
+const getQuestionAvailable = async (id : number)=>{
     try {
         let questOfId = await QuestionModel.find().where('author').equals(Number(id));
         let retour  = await QuestionModel.find().where('private').equals(false).where("author").ne(id);
@@ -90,4 +95,23 @@ const getQuestionAvailable = async (id : Number)=>{
     }
 }
 
-export default {getQuesionsOfQuizz, getQuestionByOwner, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername, getIdByQuestionId, getQuestionAvailable}
+const getOwnerOfQuestion = async (id: String | number) => {
+    try {
+        let retour = await QuestionModel.findOne().select("author").where('question_id').equals(id);
+        console.log("dans le gette :", retour);
+        return retour?.author;
+    } catch (error) {
+        console.error("erreur lors de la récupération de l'owner", error);
+    }
+}
+
+const getOwnerOfQuizz = async (id: String | number) => {
+    try {
+        let retour = await Quizz.findOne().where('quizz_id').equals(id);
+        return retour?.creator;
+    } catch (error) {
+        console.error("erreur lors de la récupération de l'owner", error);
+    }
+}
+
+export default {getQuestionsOfQuizz,getQuizzOfQuestion, getQuestionByOwner, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername, getIdByQuestionId, getQuestionAvailable, getOwnerOfQuestion, getOwnerOfQuizz}

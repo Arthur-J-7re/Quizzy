@@ -110,7 +110,7 @@ class QuestionCard {
                 <div className="bottom">
                     <div className="mode"><h3>{this.question.mode || ""}</h3></div>
                     <div className="mode"><h3>{this.question.tags.length || ""}</h3></div>
-                    <div className="private">{this.question.private ? <Https/> : <Public/>}</div>
+                    <div className="privateiIcon">{this.question.private ? <Https className="privateIcon"/> : <Public className="privateIcon"/>}</div>
                 </div>
             </div>
         )

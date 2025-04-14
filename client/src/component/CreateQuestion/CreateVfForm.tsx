@@ -1,11 +1,12 @@
 import React from 'react';
 import { Button } from '@mui/material';
 import { Switch } from '@mui/material';
-import {Socket} from "socket.io-client";
 import "./CreateQuestionCss.css"
+import makeRequest from '../../tools/requestScheme';
 
 interface CreateVfFormProps {
-    question_id: Number,
+    question_id: number,
+    endTask : ()=>void;
     setMessageInfo : (message : string) => void;
     setShowMessage : (bool : boolean) => void;
     title: string;
@@ -19,16 +20,17 @@ interface CreateVfFormProps {
     removeTag: (tag: string) => void;
     truth: boolean, 
     setTruth: (bool : boolean)=>void;
-    vfData: { user_id: string;title: string; tags: string[];private: boolean; truth: boolean };
+    vfData: { user_id: string;mode : string;title: string; tags: string[];private: boolean; truth: boolean };
     setVfData: React.Dispatch<React.SetStateAction<CreateVfFormProps["vfData"]>>;
-    socket: Socket | null;
   }
   
 
 export function CreateVfForm({
     question_id,
+    endTask,
     setMessageInfo,
     setShowMessage,
+    title,
     setTitle,
     setPrivate,
     changePrivate,
@@ -38,11 +40,9 @@ export function CreateVfForm({
     truth,
     setTruth,
     vfData,
-    socket
   }: CreateVfFormProps) {
   
     
-    //const socket = useSocket();
 
     const validateVf = () => {
         if (!vfData.title.trim()) {
@@ -60,11 +60,20 @@ export function CreateVfForm({
     }
 
     const sendVF = async () => {
-        if (socket instanceof Socket && validateVf()){
-            if (question_id===0){
-                socket.emit("createVFQuestion", vfData);
+        if (validateVf()){
+            if (question_id === 0){
+                console.log(vfData.mode);
+                const response = await makeRequest("/question/create", "POST", vfData);
+                if (response.success){
+                    endTask();
+                };
+
             } else {
-                socket.emit("modificationVFQuestion", ({question_id : question_id, data : vfData}));
+                const response = await  makeRequest("/question/update", "PUT", {data : vfData, question_id : question_id});
+                if (response.success){
+                    endTask();
+                };
+
             }
         }
     };
@@ -78,7 +87,7 @@ export function CreateVfForm({
                     type='text'
                     id="title"
                     className='titre'
-                    value={vfData.title || ''}
+                    value={title || ''}
                     onChange={(e) => setTitle(e.target.value )}
                     required
                 />
@@ -87,15 +96,15 @@ export function CreateVfForm({
                 <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
                 <Switch
                     type='checkboxe'
-                    checked={vfData.private}
+                    defaultChecked={vfData.private}
                     className='isPrivate'
                     onClick={() => changePrivate()}
                 />
                 <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
             </div>
             <div className='VraiFaux'>
-                <Button onClick={()=>setTruth(true)} className={"VFButton" + truth ? "checked" : ""} >Vrai</Button>
-                <Button onClick={()=>setTruth(false)} className={"VFButton" + truth ? "" : "checked"}>Faux</Button>
+                <Button onClick={()=>setTruth(true)} className={truth ? "VFButtonchecked":"VFButton"} >Vrai</Button>
+                <Button onClick={()=>setTruth(false)} className={truth ? "VFButton" : "VFButtonchecked"}>Faux</Button>
             </div>
             <div className='tagList'>
                 <div className='tagSpanDispencer'>

@@ -113,6 +113,11 @@ input{
     max-height: 50px;
 }
 
+.ActionIcon,.actionIcon, .privateIcon{
+    max-width: 15px !important;
+    max-height: 15px !important;
+}
+
 
 
 

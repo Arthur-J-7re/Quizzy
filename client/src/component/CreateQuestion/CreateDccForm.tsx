@@ -1,11 +1,12 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import { Switch } from '@mui/material';
-import {Socket} from "socket.io-client";
 import "./CreateQuestionCss.css"
+import makeRequest from '../../tools/requestScheme';
 
 interface CreatefreeFormProps {
-    question_id : Number;
+    question_id : number;
+    endTask : () => void;
     setMessageInfo : (message : string) => void;
     setShowMessage : (bool : boolean) => void;
     title: string;
@@ -26,13 +27,13 @@ interface CreatefreeFormProps {
     duoContain: (nombre: number) => boolean;
     manageDuo: (nombre: number) => void; 
     resetDuo: (nombre : number) => void;   
-    dccData:{user_id: string; title: string; tags: string[];private: boolean; carre: { ans1: string; ans2: string; ans3: string; ans4: string };duo: number, answer: number; cash : string[] };
+    dccData:{user_id: string; mode : string;title: string; tags: string[];private: boolean; carre: { ans1: string; ans2: string; ans3: string; ans4: string };duo: number, answer: number; cash : string[] };
     setDccData: React.Dispatch<React.SetStateAction<CreatefreeFormProps["dccData"]>>;
-    socket: Socket | null;
   }
 
 export function CreateDCCForm({
     question_id,
+    endTask,
     setMessageInfo,
     setShowMessage,
     title,
@@ -51,7 +52,6 @@ export function CreateDCCForm({
     manageDuo,
     dccData,
     setDccData,
-    socket
   }: CreatefreeFormProps)   {
     
     const validateDcc = () => {
@@ -91,7 +91,7 @@ export function CreateDCCForm({
     }
  
     const sendDcc = async () => {
-        if (socket instanceof Socket && validateDcc()){
+        if (validateDcc()){
             console.log("duo carré cash envoyé");
             const formattedcarre = Object.entries(carre).map(([_key,value], index) => ({
                 content: value, // Texte du choix
@@ -103,9 +103,17 @@ export function CreateDCCForm({
                 carre: formattedcarre
             };
             if (question_id === 0){
-                socket.emit("createDCCQuestion", formattedDccData);
+                const response = await makeRequest("/question/create", "POST", formattedDccData);
+                if (response.success){
+                    endTask();
+                };
+
             } else {
-                socket.emit("modificationDCCQuestion", ({question_id : question_id, data : formattedDccData}))
+                const response = await  makeRequest("/question/update", "PUT", {data : formattedDccData, question_id : question_id});
+                if (response.success){
+                    endTask();
+                };
+
             }
         }
     };
@@ -127,7 +135,7 @@ export function CreateDCCForm({
             <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
             <Switch
                 type='checkboxe'
-                checked={dccData.private}
+                defaultChecked={dccData.private}
                 className='isPrivate'
                 onClick={() => changePrivate()}
             />
@@ -140,14 +148,14 @@ export function CreateDCCForm({
                 <div className='headerAns'>
                     <input 
                         type='checkbox' 
-                        checked={dccData.answer == 1}
+                        defaultChecked={dccData.answer == 1}
                         className='coloredAnswer'
                         onClick={() => {setDccData({...dccData, answer:1})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 1</label>
                     <input 
                         type='checkbox' 
-                        checked={duoContain(1)}
+                        defaultChecked={duoContain(1)}
                         className='coloredAnswer'
                         onClick={() => manageDuo(1)}
                     ></input>
@@ -164,14 +172,14 @@ export function CreateDCCForm({
                 <div className='headerAns'>
                     <input 
                         type='checkbox' 
-                        checked={dccData.answer == 2}
+                        defaultChecked={dccData.answer == 2}
                         className='coloredAnswer'
                         onClick={() => {setDccData({...dccData, answer:2})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 2</label>
                     <input 
                     type='checkbox' 
-                    checked={duoContain(2)}
+                    defaultChecked={duoContain(2)}
                     className='coloredAnswer'
                     onClick={() => manageDuo(2)}
                     ></input>
@@ -188,14 +196,14 @@ export function CreateDCCForm({
                 <div className='headerAns'>
                     <input 
                         type='checkbox' 
-                        checked={dccData.answer == 3}
+                        defaultChecked={dccData.answer == 3}
                         className='coloredAnswer'
                         onClick={() => {setDccData({...dccData, answer:3})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 3</label>
                     <input 
                     type='checkbox' 
-                    checked={duoContain(3)}
+                    defaultChecked={duoContain(3)}
                     className='coloredAnswer'
                     onClick={() => manageDuo(3)}
                     ></input>
@@ -212,14 +220,14 @@ export function CreateDCCForm({
                 <div className='headerAns'>
                     <input 
                         type='checkbox' 
-                        checked={dccData.answer == 4}
+                        defaultChecked={dccData.answer == 4}
                         className='coloredAnswer'
                         onClick={() => {setDccData({...dccData, answer:4})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 4</label>
                     <input 
                     type='checkbox' 
-                    checked={duoContain(4)}
+                    defaultChecked={duoContain(4)}
                     className='coloredAnswer'
                     onClick={() => manageDuo(4)}
                     ></input>

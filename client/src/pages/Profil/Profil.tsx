@@ -8,6 +8,7 @@ import  QuestionCard  from "../../component/QuestionCard/QuestionCard";
 import "../CommonCss.css";
 import "./profil.css";
 import "../../component/QuestionCard/QuestionCard.css";
+import makeRequest from "../../tools/requestScheme";
 
 export function Profil () {
     const auth = useContext(AuthContext);
@@ -26,29 +27,22 @@ export function Profil () {
     }
 
     useEffect(() => {
-        (auth?.user?.id) ? 
-        fetch("http://localhost:3000/question?id=" + auth?.user?.id)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            return response.json();
-          })
-          .then((data) => {setQuestions(data)})
-          .catch((error) => console.error("There was a problem with the fetch operation:", error))
-        : "";
-        (auth?.user?.id) ? 
-        fetch("http://localhost:3000/quizz?id=" + auth?.user?.id)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            return response.json();
-          })
-          .then((data) => {setQuizz(data)})
-          .catch((error) => console.error("There was a problem with the fetch operation:", error))
-        : "";
-      }, [auth?.user?.id]);
+      const fetchData = async () => {
+        if (auth?.user?.id) {
+          try {
+            const responseQuestions = await makeRequest("/question?id=" + auth.user.id);
+            setQuestions(responseQuestions);
+    
+            const responseQuizz = await makeRequest("/quizz?id=" + auth.user.id);
+            setQuizz(responseQuizz);
+          } catch (error) {
+            console.error("Erreur lors du fetch :", error);
+          }
+        }
+      };
+    
+      fetchData();
+    }, [auth?.user?.id]);
     
     useEffect(() => {
       setQuestionCards([]);
@@ -65,10 +59,12 @@ export function Profil () {
       
         })
       }*/
-      questions.map((question : any) =>{
-        let newQC = new QuestionCard(question, buttonPressedQuestion, <Edit/>,  Number(auth?.user?.id));
-        setQuestionCards((prevCards) => [...prevCards, newQC])
-      });
+      if (questions){
+        questions.map((question : any) =>{
+          let newQC = new QuestionCard(question, buttonPressedQuestion, <Edit className="ActionIcon"/>,  Number(auth?.user?.id));
+          setQuestionCards((prevCards) => [...prevCards, newQC])
+        });
+      }
     }, [questions]);
 
     useEffect(() => {
@@ -86,10 +82,12 @@ export function Profil () {
       
         })
       }*/
-      quizz.map((quizz : any) =>{
-        let newQC = new QuestionCard(quizz, buttonPressedQuizz, <Edit/>,  Number(auth?.user?.id));
-        setQuizzCards((prevCards) => [...prevCards, newQC])
-      });
+      if (quizz){
+        quizz.map((quizz : any) =>{
+          let newQC = new QuestionCard(quizz, buttonPressedQuizz, <Edit className="ActionIcon"/>,  Number(auth?.user?.id));
+          setQuizzCards((prevCards) => [...prevCards, newQC])
+        });
+      }
     }, [quizz]);
 
 

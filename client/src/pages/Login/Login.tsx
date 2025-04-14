@@ -1,14 +1,13 @@
-import { useState, useEffect, useRef} from 'react';
+import { useState} from 'react';
 import { useNavigate } from "react-router-dom";
-import { useSocket } from '../../context/socketContext';
 import { AuthContext } from '../../context/authentContext';
 import { useContext } from 'react';
-import { Socket } from 'socket.io-client';
 import Button from '@mui/material/Button';
 //import GreenSwitch from '@mui/material/Switch'
 import { Banner } from '../../component/Banner/Banner';
 import './Login.css';
 import "../CommonCss.css";
+import makeRequest from '../../tools/requestScheme';
 
 export function Login () {
     const [isLogin, setIsLogin] = useState(true);
@@ -20,70 +19,33 @@ export function Login () {
     });
     
     
-    const socketRef = useRef<Socket | null>(null);
-    const socket = useSocket();
     const auth = useContext(AuthContext);
     
     const navigate = useNavigate();
     
     const loginUser = async () => {
-        if (socket){
-        socket.emit("login", loginData);
+        const retour = await makeRequest("/login", "POST", {loginData : loginData});
+        if (retour.success){
+            const data = retour.data;
+            auth?.login({id : data.id, Username : data.username, currentRoom : "", token : data.token  })
+            navigate("/");
+        } else {
+            alert(retour.message);
         }
+
     }
     
     const registerUser = async () => {
-        if (socket){
-            socket.emit("register", signupData);
+        const retour = await makeRequest("/login", "POST", {loginData : signupData});
+        if (retour.success){
+            const data = retour.data;
+            auth?.login({id : data.id, Username : data.username, currentRoom : "", token : data.token  })
+            navigate("/");
+        } else {
+            alert(retour.message);
         }
     }
     
-    /*const handleChange = (event : any) => {
-        setChecked(event.target.checked);
-        isLogin 
-        ? setLoginData({ ...loginData, checked: event.target.checked }) 
-        : setSignupData({ ...signupData, checked: event.target.checked })
-    };*/
-    // Référence pour garder l'instance du socket
-    
-    useEffect(() => {
-         
-    
-        
-        if (socket){
-            socket.on("alert", (message) =>{
-                alert(message);
-            });
-
-            socket.on("success", (data) =>{
-                if (isLogin) {
-                    auth?.login({id : data.id, Username : data.username, currentRoom : "", token : data.token  })
-                } else {
-                    auth?.login({id : data.id, Username : data.username, currentRoom : "", token : data.token  })
-                }
-                
-                //localStorage.setItem("authToken", data.token);
-                navigate("/");
-            });
-
-            socket.on("connect_error", (err) => {
-                console.error("Erreur de connexion socket :", err.message);
-              });
-        }
-
-
-           
-          
-        
-    
-        // Nettoyage : Déconnexion du socket lors du démontage du composant
-        return () => {
-          if (socketRef.current) {
-            socketRef.current.disconnect();
-            console.log("Utilisateur déconnecté !");
-          }
-        };
-      }, [socket]); // L'initialisation du socket se fait une seule fois lors du montage
   return (
     <>
     <Banner></Banner>

@@ -35,6 +35,8 @@ interface IQuestionBase extends mongoose.Document {
     mode: Mode;
     title : String;
     private: boolean;
+    quizz : number[];
+    playlist : number []
     report?: { date: Date; reporter: number }[];
     played?: number;
     succeed?: number;
@@ -48,6 +50,7 @@ const QuestionSchema = new mongoose.Schema<IQuestionBase>({
     mode: { type: String, enum: Object.values(Mode), required: true },
     title : {type : String, required: true},
     private: {type: Boolean, required: true},
+    quizz : {type: [Number], default: []},
     report: { type : [{ date: Date, reporter: Number }], default : []},
     played: {type : Number, default : 0},
     succeed: {type : Number, default : 0},

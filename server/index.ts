@@ -15,15 +15,19 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
+import questionCRUD from "./function/questionCRUD";
 dotenv.config();
 
 const app = express();
+
+
 app.use(cors({ origin: "http://localhost:5180" })); 
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
         origin: "http://localhost:5180",
         methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"]
     }
 });
 
@@ -50,16 +54,23 @@ io.on('connection',(socket : Socket) => {
   console.log("Un utilisateur est connecté");
   socket.data.id = 2;
   socket.data.nickname = "User_" + socket.id;
-  socket.on("register", (data) => AccountCRUD.register(socket, data));
-  socket.on("login", (data) => AccountCRUD.login(socket, data));
-  socket.on("createQuizz", (data) => QuizzCRUD.createQuizz(socket, data));
+  /*socket.on("register", (data) => AccountCRUD.register(socket, data));
+  socket.on("login", (data) => AccountCRUD.login(socket, data));*/
+  socket.on("createVFQuestion", (data) => QuestionCRUD.createVFQuestionSocket(socket, data))
 });
+
+const update = async() => {
+  await questionCRUD.update();
+}
+
+
 
 app.use(express.json());
 
 
 app.use((req, res, next) => {
-  console.log(`[${req.method}] Requête reçue sur ${req.url}`);
+
+  //console.log(`[${req.method}] Requête reçue sur ${req.url}`);
   next();
 });
 

@@ -23,6 +23,18 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Vérifie si le token est expiré
+const isTokenExpired = (token: string): boolean => {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const expiration = payload.exp * 1000;
+    return Date.now() > expiration;
+  } catch (error) {
+    console.error("Failed to parse token", error);
+    return true;
+  }
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem("user");
@@ -52,19 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
   }, []);
-
-  // Vérifie si le token est expiré
-  const isTokenExpired = (token: string): boolean => {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const expiration = payload.exp * 1000;
-      return Date.now() > expiration;
-    } catch (error) {
-      console.error("Failed to parse token", error);
-      return true;
-    }
-  };
-
+  
   // Fonction de connexion
   const login = (userData: User) => {
     setUser(userData);

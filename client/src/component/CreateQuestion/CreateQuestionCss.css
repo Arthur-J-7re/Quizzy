@@ -66,6 +66,8 @@ input[type="checkbox"].custom-checkbox:checked::after {
     font-size: 20px !important;
 }
 
+
+
 /* Layouts */
 .carre, .privateswitch, .headerAns {
     display: flex;
@@ -82,6 +84,13 @@ input[type="checkbox"].custom-checkbox:checked::after {
 .headerAns {
     flex-direction: row;
     align-items:normal !important;
+}
+
+.VraiFaux{
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .answerQcm {
@@ -138,10 +147,9 @@ h3 {
 
 
 /* Send Button */
-.SendButton {
+.SendButton, .VFButtonchecked, .VFButton {
     border-radius: 15px !important;
-    white-space: nowrap;
-    background-color: #54e889 !important;
+    white-space: nowrap; 
     color: #5a54e8 !important;
     text-transform: none !important;
     /*font-size: clamp(14px, 2vw, 100px) !important;*/
@@ -149,9 +157,21 @@ h3 {
     font-family: 'Open Sans', sans-serif !important;
     height: auto !important;
     min-height: unset !important;
-    margin-top: 3vw !important;
     justify-self: center;
     max-width: 100%;
+}
+
+.SendButton{
+    margin-top: 3vw !important;
+}
+
+.SendButton, .VFButtonchecked{
+    background-color: #54e889 !important;
+}
+
+.VFButton{
+    background-color: #f04265 !important;
+    color: #99b3ff !important;
 }
 
 .coloredAnswer{
@@ -160,7 +180,7 @@ h3 {
 
 
 
-.isPrivate .MuiSwitch-switchBase.Mui-checked {
+.isPrivate .MuiSwitch-switchBase.Mui-checked{
     color: #ed254e !important;
 }
   .isPrivate .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {

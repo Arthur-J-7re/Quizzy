@@ -16,7 +16,7 @@ import "./QuestionForm.css"
 
 export function QuestionCreationForm () {
     const location = useLocation();
-    const question = location.state?.question || {title : "", private : false, tags : [], mode : []};
+    const _question = location.state?.question || {title : "", private : false, tags : [], mode : []};
     const [mode , setMode] = useState("QCM");
     const [title, setTitle] = useState("");
     const [goodNews, setGoodNews] = useState(false);
@@ -27,10 +27,10 @@ export function QuestionCreationForm () {
     const [truth, setTruth] = useState(true);
     const auth = useContext(AuthContext);
     const user_id = auth?.user?.id || "0";
-    const [freeData, setFreeData] = useState({user_id : user_id,title: title, tags: tags, private:isPrivate, answers: answers});
-    const [dccData, setDccData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, carre: carre, duo: 2, answer: 1, cash: answers});
-    const [qcmData, setQcmData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, choices: carre, answer: 1});
-    const [vfData, setVfData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, truth: truth});
+    const [freeData, setFreeData] = useState({user_id : user_id,mode : "FREE",title: title, tags: tags, private:isPrivate, answers: answers});
+    const [dccData, setDccData] = useState({user_id : user_id,mode : "DCC",title: title, tags: tags, private: isPrivate, carre: carre, duo: 2, answer: 1, cash: answers});
+    const [qcmData, setQcmData] = useState({user_id : user_id,mode : "QCM",title: title, tags: tags, private: isPrivate, choices: carre, answer: 1});
+    const [vfData, setVfData] = useState({user_id : user_id,mode : "VF",title: title, tags: tags, private: isPrivate, truth: truth});
 
     const [messageInfo, setMessageInfo] = useState("");
     const [showMessage, setShowMessage] = useState(false);
@@ -57,6 +57,10 @@ export function QuestionCreationForm () {
         // Nettoyage : Déconnexion du socket lors du démontage du composant
         
     }, [socket]);
+
+    useEffect(()=>{
+        console.log(mode);
+    }, [mode]);
     
     const addAnswer = (answer : string) => {
         if (!answers.includes(answer)) {
@@ -101,6 +105,8 @@ export function QuestionCreationForm () {
         setPrivate(!isPrivate);
     };
 
+    const endTask = () => {navigate(-1)};
+
 
     useEffect(() => {
         setQcmData(prev => ({
@@ -132,7 +138,7 @@ export function QuestionCreationForm () {
             private: isPrivate
         }));
         
-    }, [title, tags, carre, isPrivate, answers]);
+    }, [title, tags, carre, isPrivate, answers, mode]);
 
     useEffect(() =>{
         if (dccData.duo==dccData.answer){
@@ -183,6 +189,7 @@ export function QuestionCreationForm () {
             case "QCM":
                 return <CreateQCMForm 
                 question_id={0}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -192,6 +199,7 @@ export function QuestionCreationForm () {
             case "FREE":
                 return <CreateFreeForm 
                 question_id={0}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -201,6 +209,7 @@ export function QuestionCreationForm () {
             case "DCC":
                 return <CreateDCCForm 
                 question_id={0}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -212,6 +221,7 @@ export function QuestionCreationForm () {
             case "VF":
                 return <CreateVfForm
                 question_id={0}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -221,6 +231,7 @@ export function QuestionCreationForm () {
             default:
                 return <CreateQCMForm 
                 question_id={0}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}

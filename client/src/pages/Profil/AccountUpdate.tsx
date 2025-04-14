@@ -3,6 +3,7 @@ import { Button } from "@mui/material";
 import { AuthContext } from "../../context/authentContext";
 import "./profil.css"
 import { Banner } from "../../component/Banner/Banner";
+import  makeRequest  from "../../tools/requestScheme";
 
 export function AccountUpdate(){
     const auth = useContext(AuthContext);
@@ -29,19 +30,8 @@ export function AccountUpdate(){
         setChanged(false);
         if (id != ""){
             try {
-                fetch("http://localhost:3000/user/updateUsername?id=" + id + "&username=" + username, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    mode: "cors"
-                })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("Network response was not ok");
-                    }
-                    return response.json();
-                })
-                .then((data) => auth?.updateUser(data.username))
-                .catch((error) => console.error("There was a problem with the fetch operation:", error));
+                const response = await makeRequest("/user/updateUsername", "PUT", {user_id : id, username : username});
+                auth?.updateUser(response.username)
             } catch(error) {
                 console.error("error while updating user Information", error);
             }

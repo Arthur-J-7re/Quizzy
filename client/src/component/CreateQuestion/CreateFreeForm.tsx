@@ -1,11 +1,12 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import { Switch } from '@mui/material';
-import {Socket} from "socket.io-client";
 import "./CreateQuestionCss.css"
+import makeRequest from '../../tools/requestScheme';
 
 interface CreatefreeFormProps {
-    question_id: Number,
+    question_id: number,
+    endTask : () => void;
     setMessageInfo : (message : string) => void;
     setShowMessage : (bool : boolean) => void;
     title: string;
@@ -21,13 +22,13 @@ interface CreatefreeFormProps {
     setAnswers: React.Dispatch<React.SetStateAction<string[]>>
     addAnswer: (answer: string) => void;
     removeAnswer: (answer: string) => void;
-    freeData: {user_id: string; title: string; tags: string[];private: boolean; answers: string[] };
+    freeData: {user_id: string;mode : string; title: string; tags: string[];private: boolean; answers: string[] };
     setFreeData: React.Dispatch<React.SetStateAction<CreatefreeFormProps["freeData"]>>;
-    socket: Socket | null;
   }
 
 export function CreateFreeForm({
     question_id,
+    endTask,
     setMessageInfo,
     setShowMessage,
     title,
@@ -41,7 +42,6 @@ export function CreateFreeForm({
     addAnswer,
     removeAnswer,
     freeData,
-    socket
   }: CreatefreeFormProps)  {
 
     const validateFree = () => { 
@@ -75,11 +75,19 @@ export function CreateFreeForm({
     
 
     const sendFree = async () => {
-        if (socket instanceof Socket && validateFree()){
+        if (validateFree()){
             if (question_id === 0){
-            socket.emit("createFreeQuestion", freeData);
+                const response = await makeRequest("/question/create", "POST", freeData);
+                if (response.success){
+                    endTask();
+                };
+
             } else {
-                socket.emit("modificationFreeQuestion", ({question_id : question_id, data : freeData}));
+                const response = await  makeRequest("/question/update", "PUT",{question_id : question_id, data :freeData});
+                if (response.success){
+                    endTask();
+                };
+
             }
         }    
     };
@@ -101,7 +109,7 @@ export function CreateFreeForm({
             <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
             <Switch
                 type='checkboxe'
-                checked={freeData.private}
+                defaultChecked={freeData.private}
                 className='isPrivate'
                 onClick={() => changePrivate()}
             />

@@ -1,11 +1,12 @@
 import React from 'react';
 import { Button } from '@mui/material';
 import { Switch } from '@mui/material';
-import {Socket} from "socket.io-client";
 import "./CreateQuestionCss.css"
+import makeRequest from '../../tools/requestScheme';
 
 interface CreateQCMFormProps {
-    question_id: Number,
+    question_id: number,
+    endTask : () => void,
     setMessageInfo : (message : string) => void;
     setShowMessage : (bool : boolean) => void;
     title: string;
@@ -19,16 +20,17 @@ interface CreateQCMFormProps {
     removeTag: (tag: string) => void;
     carre: { ans1: string; ans2: string; ans3: string; ans4: string };
     setCarre: React.Dispatch<React.SetStateAction<{ ans1: string; ans2: string; ans3: string; ans4: string }>>;
-    qcmData: {user_id: string;title: string; tags: string[];private: boolean; choices: { ans1: string; ans2: string; ans3: string; ans4: string }; answer: number };
+    qcmData: {user_id: string;mode : string;title: string; tags: string[];private: boolean; choices: { ans1: string; ans2: string; ans3: string; ans4: string }; answer: number };
     setQcmData: React.Dispatch<React.SetStateAction<CreateQCMFormProps["qcmData"]>>;
-    socket: Socket | null;
 }
   
 
 export function CreateQCMForm({
     question_id,
+    endTask,
     setMessageInfo,
     setShowMessage,
+    title,
     setTitle,
     setPrivate,
     changePrivate,
@@ -39,11 +41,7 @@ export function CreateQCMForm({
     setCarre,
     qcmData,
     setQcmData,
-    socket
   }: CreateQCMFormProps) {
-  
-    
-    //const socket = useSocket();
 
     const validateQcm = () => {
         if (!qcmData.title.trim()) {
@@ -73,24 +71,30 @@ export function CreateQCMForm({
     
 
     const sendQcm = async () => {
-        if (socket instanceof Socket){
-            if (validateQcm()){
-                const formattedChoices = Object.entries(carre).map(([_key,value], index) => ({
-                    content: value, // Texte du choix
-                    answer_num: (index + 1).toString() // ID de réponse sous forme de string
-                }));
-        
-                const formattedQcmData = {
-                    ...qcmData,
-                    choices: formattedChoices
+        if (validateQcm()){
+            const formattedChoices = Object.entries(carre).map(([_key,value], index) => ({
+                content: value, // Texte du choix
+                answer_num: (index + 1).toString() // ID de réponse sous forme de string
+            }));
+    
+            const formattedQcmData = {
+                ...qcmData,
+                choices: formattedChoices
+            };
+            if (question_id === 0){
+                const response = await makeRequest("/question/create", "POST", formattedQcmData);
+                if (response.success){
+                    endTask();
                 };
-                if (question_id === 0){
-                    socket.emit("createQCMQuestion", formattedQcmData);
-                } else {
-                    socket.emit("modificationQCMQuestion", ({question_id : question_id, data : formattedQcmData}));
-                }
-            }   
-        }
+
+            } else {
+                const response = await  makeRequest("/question/update", "PUT", {data : formattedQcmData, question_id : question_id});
+                if (response.success){
+                    endTask();
+                };
+
+            }
+        }   
     };
     
 
@@ -101,7 +105,7 @@ export function CreateQCMForm({
                 <input
                     type='text'
                     id="title"
-                    value={qcmData.title || ''}
+                    value={title || ''}
                     className='titre'
                     onChange={(e) => setTitle(e.target.value )}
                     autoComplete="off"
@@ -112,7 +116,7 @@ export function CreateQCMForm({
                 <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
                 <Switch
                     type='checkboxe'
-                    checked={qcmData.private}
+                    defaultChecked={qcmData.private}
                     className='isPrivate'
                     onClick={() => changePrivate()}
                 />
@@ -124,7 +128,7 @@ export function CreateQCMForm({
                     <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:1})}>
                         <input 
                             type='checkbox' 
-                            checked={qcmData.answer == 1}  
+                            defaultChecked={qcmData.answer == 1}  
                             className='coloredAnswer'
                         ></input>
                         <label className='questionCreation-label'>Réponse 1</label>
@@ -133,7 +137,7 @@ export function CreateQCMForm({
                         type='text'
                         autoComplete="off"
                         id="answer1" 
-                        value={qcmData.choices.ans1 || ''}
+                        value={carre.ans1 || ''}
                         onChange={(e) => setCarre({...carre, ans1: e.target.value })}
                         required
                     />
@@ -142,7 +146,7 @@ export function CreateQCMForm({
                     <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:2})}>
                     <input 
                         type='checkbox' 
-                        checked={qcmData.answer == 2}
+                        defaultChecked={qcmData.answer == 2}
                         className='coloredAnswer'
                     ></input>
                     <label className='questionCreation-label'>Réponse 2</label>
@@ -151,7 +155,7 @@ export function CreateQCMForm({
                         type='text'
                         autoComplete="off"
                         id="answer2"
-                        value={qcmData.choices.ans2 || ''}
+                        value={carre.ans2 || ''}
                         onChange={(e) => setCarre({...carre, ans2: e.target.value })}
                         required
                     />
@@ -160,7 +164,7 @@ export function CreateQCMForm({
                     <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:3})}>
                     <input 
                         type='checkbox' 
-                        checked={qcmData.answer == 3}
+                        defaultChecked={qcmData.answer == 3}
                         className='coloredAnswer'
                     ></input>
                     <label className='questionCreation-label'>Réponse 3</label>
@@ -169,7 +173,7 @@ export function CreateQCMForm({
                         type='text'
                         id="answer3"
                         autoComplete="off"
-                        value={qcmData.choices.ans3 || ''}
+                        value={carre.ans3 || ''}
                         onChange={(e) => setCarre({...carre, ans3: e.target.value })}
                         required
                     />
@@ -178,7 +182,7 @@ export function CreateQCMForm({
                     <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:4})}>
                     <input 
                         type='checkbox' 
-                        checked={qcmData.answer == 4}
+                        defaultChecked={qcmData.answer == 4}
                         className='coloredAnswer'
                         
                     ></input>
@@ -188,7 +192,7 @@ export function CreateQCMForm({
                         type='text'
                         id="answer4"
                         autoComplete="off"
-                        value={qcmData.choices.ans4 || ''}
+                        value={carre.ans4 || ''}
                         onChange={(e) => setCarre({...carre, ans4: e.target.value })}
                         required
                     />

@@ -13,17 +13,17 @@ const SECRET_KEY : string= process.env.JWT_SECRET || "sferkfjdddfeofjgrjkjdkdpcd
 
 
 
-const login = async (socket : Socket, data : any) => {
+const login = async (data : any) => {
     console.log(data);
     let name = data.username;
     if (regexEmail.test(name)){
-        loginEMail(socket, data);
+        return await loginEMail(data);
     } else {
-        loginUsername(socket, data);
+        return await loginUsername(data);
     }
 };
 
-const loginEMail = async (socket: Socket, data : any) => {
+const loginEMail = async (data : any) => {
     let can = await emailExist(data.username);
     if (can){
         let matching = await match(data.username, data.password)
@@ -35,23 +35,22 @@ const loginEMail = async (socket: Socket, data : any) => {
             } catch (error) {
                 console.error(error);
             }
-            socket.data.id = id;
             const token = jwt.sign(
-                { id: socket.data.id, nickname: socket.data.nickname },
+                { id: id },
                 SECRET_KEY,
-                { expiresIn: '1h' }
+                { expiresIn: '2190h' }
             );
-            socket.emit("success", {id: id, token: token});
+            return {success : true, data :  {id: id, token: token}}
         }
         else {
-            socket.emit("alert", "Mauvais mot de passe.");
+            return {success : false , message : "Mauvais mot de passe ou identifiant." }
         }
     } else {
-        socket.emit("alert", "Ce mail n'est pas enregistré.");
+        return {success : false , message : "Mauvais mot de passe ou identifiant." }
     }
 };
 
-const loginUsername = async (socket : Socket, data : any) => {
+const loginUsername = async ( data : any) => {
     let cant = await usernameExist(data.username);
     if (cant){
         if (await match(data.username, data.password)){
@@ -61,24 +60,23 @@ const loginUsername = async (socket : Socket, data : any) => {
             } catch (error) {
                 console.error(error);
             }
-            socket.data.id = id;
             const token = jwt.sign(
                 { id: id },
                 SECRET_KEY,
                 { expiresIn: '2190h' }
             );
             
-            socket.emit("success", {id: id, token:token, username : data.username});
+            return{success : true,data : {id: id, token:token, username : data.username}};
         }
         else {
-            socket.emit("alert", "Mauvais mot de passe.");
+            return {success : false , message : "Mauvais mot de passe ou identifiant." }
         }
     } else {
-        socket.emit("alert", "Ce username n'est pas enregistré.");
+        return {success : false , message : "Mauvais mot de passe ou identifiant." }
     }
 };
 
-const register = async (socket : Socket, data : any) => {
+const register = async (data : any) => {
 
     let cantEMail = await emailExist(data.email);
     let cantUserName = await usernameExist(data.username);
@@ -86,11 +84,9 @@ const register = async (socket : Socket, data : any) => {
 
 
     if (cantEMail){
-        socket.emit("alert", "Cette adresse e-mail est déjà utilisée.");
-        return false;
+        return {success : false , message : "Cette adresse e-mail est déjà utilisée." }
     } else if (cantUserName){
-        socket.emit("alert", "Ce Username est déjà pris.");
-        return false;
+        return {success : false , message :  "Ce Username est déjà pris." }
     } else {
         try {const newUser = await User.create({
                 username: data.username,
@@ -103,27 +99,19 @@ const register = async (socket : Socket, data : any) => {
             } catch (error) {
                 console.error(error);
             }
-            socket.data.id = id;
             const token = jwt.sign(
                 { id: id },
                 SECRET_KEY,
                 { expiresIn: '2190h' }
             );
             
-            socket.emit("success", {id: id, token:token, username : data.username});
             console.log("après le create user");
+            return{success : true, data: {id: id, token:token, username : data.username}};
 
-            /*const token = jwt.sign(
-                { id: socket.data.id, nickname: socket.data.nickname },
-                process.env.JWT_SECRET,
-                { expiresIn: '1h' }
-            );*/
 
-            
-            return true;
         } catch(error) {
             console.error(error);
-            socket.emit("alert", "Format d'adresse e-amil non valide.")
+            return {success : false , message :  "Format d'adresse e-amil non valide."}
         }
     }
 };
@@ -138,7 +126,7 @@ const updateUsername = async (id : any, username : any) => {
     } catch (error) {
         console.error("error lors de l'update du username");
     }
-}
+};
 
 const match = async (accountname : string, password : string) => {
     if (regexEmail.test(accountname)){
@@ -177,7 +165,63 @@ const emailExist = async (mail : string) => {
     }
 };
 
+const addQuizzToUser = async (user_id: number, quizz_id : number) => {
+    console.log(quizz_id, user_id);
+    try {
+        const updatedUser = await User.updateOne(
+            { user_id: user_id },
+            {$addToSet: {quizz: quizz_id}
+            });
+            console.log(updatedUser);
+        return ({success : true});
+    } catch (error) {
+        console.error("error lors de l'update du username");
+    }
+};
+
+const addQuestionToUser = async (user_id: number, question_id : number) => {
+    console.log(question_id, user_id);
+    try {
+        console.log("ça supprime un quizz au user");
+        const updatedUser = await User.updateOne(
+            { user_id: user_id },
+            {$addToSet: {questions: question_id}
+            });
+        return ({success : true});
+    } catch (error) {
+        console.error("error lors de l'update du username");
+    }
+};
+
+const deleteQuestionFromUser = async (user_id : number, question_id : number) => {
+    try {
+        console.log("ça supprime une question au user");
+        const updatedUser =await User.updateOne(
+            {user_id : user_id},
+            {$pull: {questions: question_id}})
+        console.log(updatedUser);
+        return { success: true };
+    } catch (error) {
+        console.error("Erreur dans l'update des questions après la suppression d'un quizz", error);
+        return { success: false };
+    }
+};
+
+const deleteQuizzFromUser = async (user_id : number, quizz_id : number) => {
+    try {
+        const updatedUser = await User.updateOne(
+            {user_id : user_id},
+            {$pull: {quizz: quizz_id}})
+            console.log(updatedUser);
+        return { success: true };
+    } catch (error) {
+        console.error("Erreur dans l'update des questions après la suppression d'un quizz", error);
+        return { success: false };
+    }
+};
 
 
 
-export default {login, register, updateUsername, match, usernameExist, emailExist}
+
+
+export default {login, register, updateUsername, match, usernameExist, emailExist, addQuestionToUser, addQuizzToUser, deleteQuestionFromUser, deleteQuizzFromUser}

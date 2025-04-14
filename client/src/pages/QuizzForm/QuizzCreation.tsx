@@ -1,10 +1,8 @@
 import { Button, Switch } from "@mui/material";
 import {Remove, Add} from "@mui/icons-material";
 import { Banner } from "../../component/Banner/Banner"
-import { useSocket } from "../../context/socketContext";
 import { useNavigate, useLocation } from "react-router-dom"
 import { useContext, useEffect, useState, useRef, useCallback } from "react";
-import { Socket } from 'socket.io-client';
 import { AuthContext } from "../../context/authentContext";
 import  QuestionCard  from "../../component/QuestionCard/QuestionCard";
 import Toast from "../../tools/toast/toast"; 
@@ -12,6 +10,7 @@ import "../CommonCss.css";
 import "../../component/QuestionCard/QuestionCard.css";
 import "./QuizzForm.css";
 import { Searchbar } from "../../component/Searchbar/Searchbar";
+import makeRequest from "../../tools/requestScheme";
 
 
 export function QuizzCreation () {
@@ -20,19 +19,20 @@ export function QuizzCreation () {
     const [quizz, setQuizz] =useState((location.state?.quizz && location.pathname === "/modify-a-quizz")|| {title : "", Private : false, questions : [], tags: []});
     const [creating, setCreating] = useState(location.pathname === "/modify-a-quizz" ? false : true);
     let list = quizz?.questions;
-    (quizz?.questions && location.pathname === "/modify-a-quizz")? "" : navigate("/create-a-quizz");
     const auth = useContext(AuthContext);
     const user_id = auth?.user?.id || "0";
     const [questions, setQuestions] = useState([]);
     const [questionCards, setQuestionCards] = useState<QuestionCard[]>([]);
     const [title, setTitle] = useState(quizz?.title || "");
-    const socket = useSocket();
+
     const [isPrivate, setPrivate] = useState(quizz?.private || true);
     const [questionCardsOfQuizz, setQuestionCardsOfQuizz] = useState<QuestionCard[]>([]);
     const [tags, setTags] = useState<string[]>(quizz?.tags || []);
     const [messageInfo, setMessageInfo] = useState("");
     const [showMessage, setShowMessage] = useState(false);
     const [filterData, setFilterData] = useState({ questionType : "any", scope : "all", searchText : ""});
+    const [questionCardsBuild, setQuestionCardsBuild] = useState(false);
+    const [endTaskToast, setEndTaskToast] = useState(() => {});
 
     const fetched = useRef(false);
 
@@ -61,24 +61,39 @@ export function QuizzCreation () {
     };    
 
 
-
     useEffect(() => {
         //if (fetched.current) return; // Empêche un deuxième fetch
         fetched.current = true; // Marque le fetch comme effectué
 
-        if (auth?.user?.id) {
-            fetch("http://localhost:3000/question/questionsAvailable?id=" + auth?.user?.id)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return response.json();
-            })
-            .then((data) => setQuestions(data))
-            .catch((error) => console.error("There was a problem with the fetch operation:", error));
+        const fetchData = async () => {
+            if (auth?.user?.id) {
+              try {
+                const responseQuestions = await makeRequest("/question/questionsAvailable?id=" + auth.user.id);
+                setQuestions(responseQuestions);
+              } catch (error) {
+                console.error("Erreur lors du fetch :", error);
+              }
+            }
+          };
+        
+        fetchData();
+        if (location.state?.quizz) {
+            setQuizz(location.state.quizz);
         }
-        setQuizz(location.state?.quizz);
-    }, [auth?.user?.id]);
+
+    }, [auth?.user?.id, location.state?.quizz]);
+
+    useEffect(() => {
+        if ((quizz?.title?.length === 0  && location.pathname === "/modify-a-quizz")) {
+          navigate("/create-a-quizz");
+        }
+      }, [quizz?.questions, location.pathname]);
+
+    useEffect(()=>{
+        if (questionCardsBuild || questionCards.length > 0){
+            setQuestionCardsBuild(true);
+        }
+    }, [questionCards])
 
     useEffect(()=>{
         console.log("useState de quizz");
@@ -99,7 +114,7 @@ export function QuizzCreation () {
         console.log("questionCards de base");
         toBeSeted.map((card : any) => console.log(card.getId()));
         setQuestionCardsOfQuizz(toBeSeted);
-    }, [quizz, questionCards]);
+    }, [quizz, questionCardsBuild]);
     
     
     const buttonPressed = useCallback((questionCard: QuestionCard) => {
@@ -158,59 +173,74 @@ export function QuizzCreation () {
     const deleteQuizz = async () => {
         const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer définitivement la question ?");
         if (confirmation) {
-            fetch("http://localhost:3000/quizz?quizz_id=" + quizz.quizz_id, {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                mode: "cors"
-            })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return response.json();
-            })
-            .then((data) => {if (data.success === "true"){
-                navigate("/profil");
-            }})
-            .catch((error) => console.error("There was a problem with the fetch operation:", error));
+            const response = await makeRequest("/quizz", "DELETE", {quizz_id : quizz.quizz_id, creator: quizz.creator});
+            if (response.success){
+                navigate("/profil")
+            }
         }
-    } 
+    };
+
+    const endTask = () =>{
+        setMessageInfo("quizz créé avec succès");
+        setShowMessage(true);
+        setEndTaskToast(() => navigate(-1));
+    }
     
-    const sendData = () => {
-        if (socket instanceof Socket && validateQuizz()) {
-            console.log(questionCardsOfQuizz.length);
-            let retour = questionCardsOfQuizz.map((card) => card.getId()); // Utilisation correcte de map()
-            
-            socket.emit("createQuizz", {
-                user_id: user_id,
-                title: title,
-                private: isPrivate, 
-                tags: tags,
-                questionList: retour
-            });
+    const sendData = async () => {
+        if (validateQuizz()) {
+            if (creating){
+                console.log(questionCardsOfQuizz.length);
+                let questionList = questionCardsOfQuizz.map((card) => card.getId()); // Utilisation correcte de map()
+                const retour = await makeRequest("/quizz/create", "POST", {
+                    user_id: user_id,
+                    title: title,
+                    private: isPrivate, 
+                    tags: tags,
+                    questionList: questionList
+                });
+                if (retour.success){
+                    endTask();
+                }
+            } else {
+                console.log("on tente d'update");
+                let questionList = questionCardsOfQuizz.map((card) => card.getId()); // Utilisation correcte de map()
+                const retour = await makeRequest("/quizz/update", "PUT", {
+                    quizz_id: quizz.quizz_id,
+                    user_id: user_id,
+                    title: title,
+                    private: isPrivate, 
+                    tags: tags,
+                    questionList: questionList
+                });
+                if (retour.success){
+                    endTask();
+                }
+            }
         }
     };
 
     useEffect(() => {
-      setQuestionCards([]);
-      /*if (questions.length === 0){
+        setQuestionCards([]);
+        /*if (questions.length === 0){
         let listNum = [1,2,3,4,5,6,7,8,9,10,11,12];
         listNum.map((i : number) => {
-          let newQC = new QuestionCard({
+            let newQC = new QuestionCard({
             question_id : i,
             title : "titre mias genre en un peu plus long, t'sais si le mec il a pas dosé et tout genre malade mental quoi le gars mdr. nan plus sérieusement qu'est ce qu'il se passerait si l'intitulé de la question était immense, il faudrait le bloqué nan ? "+  i,
             mode : "QCM",
             private : false
-          }, buttonPressed, <Add/>, (0);
-          setQuestionCards((prevCards) => [...prevCards, newQC])
-      
+            }, buttonPressed, <Add/>, (0);
+            setQuestionCards((prevCards) => [...prevCards, newQC])
+        
         })
-      }*/
-      questions.map((question : any) =>{
-        const {button, couleur} = list?.includes(question.question_id) ? {button : <Remove/>,couleur : "Red"}:{button : <Add/>, couleur : 'Green'};
-        let newQC = new QuestionCard(question, buttonPressed,button,(Number(auth?.user?.id) || 0), couleur);
-        setQuestionCards((prevCards) => [...prevCards, newQC])
-      });
+        }*/
+        if (questions){
+            questions.map((question : any) =>{
+                const {button, couleur} = list?.includes(question.question_id) ? {button : <Remove className="ActionIcon"/>,couleur : "Red"}:{button : <Add className="ActionIcon"/>, couleur : 'Green'};
+                let newQC = new QuestionCard(question, buttonPressed,button,(Number(auth?.user?.id) || 0), couleur);
+                setQuestionCards((prevCards) => [...prevCards, newQC])
+            });
+        }
     }, [questions]);
 
     useEffect(() => {
@@ -318,7 +348,7 @@ export function QuizzCreation () {
             </div>
             <div className= 'RedText'>{
                 showMessage &&
-                <Toast message={messageInfo} onClose={()=>{setShowMessage(false)}} />}
+                <Toast message={messageInfo} onClose={()=>{setShowMessage(false); endTaskToast}} />}
             </div>
         </div>
     
