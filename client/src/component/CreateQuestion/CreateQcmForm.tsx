@@ -1,10 +1,12 @@
 import React from 'react';
 import { Button } from '@mui/material';
 import { Switch } from '@mui/material';
-import {Socket} from "socket.io-client";
+import "./CreateQuestionCss.css"
+import makeRequest from '../../tools/requestScheme';
 
 interface CreateQCMFormProps {
-    question_id: Number,
+    question_id: number,
+    endTask : () => void,
     setMessageInfo : (message : string) => void;
     setShowMessage : (bool : boolean) => void;
     title: string;
@@ -18,16 +20,17 @@ interface CreateQCMFormProps {
     removeTag: (tag: string) => void;
     carre: { ans1: string; ans2: string; ans3: string; ans4: string };
     setCarre: React.Dispatch<React.SetStateAction<{ ans1: string; ans2: string; ans3: string; ans4: string }>>;
-    qcmData: {user_id: string;title: string; tags: string[];private: boolean; choices: { ans1: string; ans2: string; ans3: string; ans4: string }; answer: number };
+    qcmData: {user_id: string;mode : string;title: string; tags: string[];private: boolean; choices: { ans1: string; ans2: string; ans3: string; ans4: string }; answer: number };
     setQcmData: React.Dispatch<React.SetStateAction<CreateQCMFormProps["qcmData"]>>;
-    socket: Socket | null;
 }
   
 
 export function CreateQCMForm({
     question_id,
+    endTask,
     setMessageInfo,
     setShowMessage,
+    title,
     setTitle,
     setPrivate,
     changePrivate,
@@ -38,15 +41,17 @@ export function CreateQCMForm({
     setCarre,
     qcmData,
     setQcmData,
-    socket
   }: CreateQCMFormProps) {
-  
-    
-    //const socket = useSocket();
 
     const validateQcm = () => {
         if (!qcmData.title.trim()) {
             setMessageInfo("Il faut un intitulé à la question !");
+            setShowMessage(true);
+            return false;
+        }
+
+        if (tags.length === 0) {
+            setMessageInfo("veuillez renseigner au moins une catégorie pour la question.");
             setShowMessage(true);
             return false;
         }
@@ -66,115 +71,137 @@ export function CreateQCMForm({
     
 
     const sendQcm = async () => {
-        if (socket instanceof Socket){
-            if (validateQcm()){
-                const formattedChoices = Object.entries(carre).map(([key,value], index) => ({
-                    content: value, // Texte du choix
-                    answer_num: (index + 1).toString() // ID de réponse sous forme de string
-                }));
-        
-                const formattedQcmData = {
-                    ...qcmData,
-                    choices: formattedChoices
+        if (validateQcm()){
+            const formattedChoices = Object.entries(carre).map(([_key,value], index) => ({
+                content: value, // Texte du choix
+                answer_num: (index + 1).toString() // ID de réponse sous forme de string
+            }));
+    
+            const formattedQcmData = {
+                ...qcmData,
+                choices: formattedChoices
+            };
+            if (question_id === 0){
+                const response = await makeRequest("/question/create", "POST", formattedQcmData);
+                if (response.success){
+                    endTask();
                 };
-                if (question_id === 0){
-                    socket.emit("createQCMQuestion", formattedQcmData);
-                } else {
-                    socket.emit("modificationQCMQuestion", ({question_id : question_id, data : formattedQcmData}));
-                }
-            }   
-        }
+
+            } else {
+                const response = await  makeRequest("/question/update", "PUT", {data : formattedQcmData, question_id : question_id});
+                if (response.success){
+                    endTask();
+                };
+
+            }
+        }   
     };
     
 
     return (
         <div className='formContainer'>
             <div className='title'>
-                <label className='sign-label'>Intitulé de la question</label>
+                <label className='questionCreation-label'>Intitulé de la question</label>
                 <input
                     type='text'
                     id="title"
-                    value={qcmData.title || ''}
+                    value={title || ''}
+                    className='titre'
                     onChange={(e) => setTitle(e.target.value )}
+                    autoComplete="off"
                     required
                 />
             </div>
             <div className='privateswitch'>
-                <label className='sign-label' onClick={() => setPrivate(false)}>Question public</label>
+                <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
                 <Switch
-                    type='checkbox'
-                    checked={qcmData.private}
+                    type='checkboxe'
+                    defaultChecked={qcmData.private}
+                    className='isPrivate'
                     onClick={() => changePrivate()}
                 />
-                <label className='sign-label' onClick={() => setPrivate(true)}>Question privée</label>
+                <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
             </div>
-            <div className='Carre'>
-                <h3>Complétez les différentes propositions et cochez la bonne réponse</h3>
+            <div className='carre'>
+            <h3 className='questionCreationIndication'>Complétez les différentes propositions et cochez la bonne réponse</h3>
                 <div className='answerQcm'> 
-                    <input 
-                        type='checkbox' 
-                        checked={qcmData.answer == 1}
-                        onClick={() => setQcmData({...qcmData, answer:1})}
-                    ></input>
-                    <label className='sign-label'>Réponse 1</label>
+                    <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:1})}>
+                        <input 
+                            type='checkbox' 
+                            defaultChecked={qcmData.answer == 1}  
+                            className='coloredAnswer'
+                        ></input>
+                        <label className='questionCreation-label'>Réponse 1</label>
+                    </div>
                     <input
                         type='text'
+                        autoComplete="off"
                         id="answer1" 
-                        value={qcmData.choices.ans1 || ''}
+                        value={carre.ans1 || ''}
                         onChange={(e) => setCarre({...carre, ans1: e.target.value })}
                         required
-                    /><span className="slider round"></span>
+                    />
                 </div>
                 <div className='answerQcm'>
+                    <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:2})}>
                     <input 
                         type='checkbox' 
-                        checked={qcmData.answer == 2}
-                        onClick={() => setQcmData({...qcmData, answer:2})}
+                        defaultChecked={qcmData.answer == 2}
+                        className='coloredAnswer'
                     ></input>
-                    <label className='sign-label'>Réponse 2</label>
+                    <label className='questionCreation-label'>Réponse 2</label>
+                    </div>
                     <input
                         type='text'
+                        autoComplete="off"
                         id="answer2"
-                        value={qcmData.choices.ans2 || ''}
+                        value={carre.ans2 || ''}
                         onChange={(e) => setCarre({...carre, ans2: e.target.value })}
                         required
                     />
                 </div>
                 <div className='answerQcm'>
+                    <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:3})}>
                     <input 
                         type='checkbox' 
-                        checked={qcmData.answer == 3}
-                        onClick={() => setQcmData({...qcmData, answer:3})}
+                        defaultChecked={qcmData.answer == 3}
+                        className='coloredAnswer'
                     ></input>
-                    <label className='sign-label'>Réponse 3</label>
+                    <label className='questionCreation-label'>Réponse 3</label>
+                    </div>
                     <input
                         type='text'
                         id="answer3"
-                        value={qcmData.choices.ans3 || ''}
+                        autoComplete="off"
+                        value={carre.ans3 || ''}
                         onChange={(e) => setCarre({...carre, ans3: e.target.value })}
                         required
                     />
                 </div>
                 <div className='answerQcm'>
+                    <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:4})}>
                     <input 
                         type='checkbox' 
-                        checked={qcmData.answer == 4}
-                        onClick={() => setQcmData({...qcmData, answer:4})}
+                        defaultChecked={qcmData.answer == 4}
+                        className='coloredAnswer'
+                        
                     ></input>
-                    <label className='sign-label'>Réponse 4</label>
+                    <label className='questionCreation-label'>Réponse 4</label>
+                    </div>
                     <input
                         type='text'
                         id="answer4"
-                        value={qcmData.choices.ans4 || ''}
+                        autoComplete="off"
+                        value={carre.ans4 || ''}
                         onChange={(e) => setCarre({...carre, ans4: e.target.value })}
                         required
                     />
                 </div>
             </div>
             <div className='tagList'>
-                <div>
+                <div className='tagSpanDispencer'>
                     {tags.map(tag => (
-                    <span key={tag} onClick={() => removeTag(tag)} style={{ margin: "5px", cursor: "pointer", background: "#ddd", padding: "5px", borderRadius: "5px" }}>
+                    <span key={tag} onClick={() => removeTag(tag)} className='tag'>
                         {tag} ❌
                     </span>
                     ))}
@@ -182,6 +209,7 @@ export function CreateQCMForm({
                 {tags.length < 5 ? (
                     <input 
                     type="text" 
+                    className='tagInput'
                     onKeyDown={(e) => {
                         const inputElement = e.target as HTMLInputElement;
                         if (e.key === "Enter" && inputElement.value.trim()) {

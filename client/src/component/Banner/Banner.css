@@ -1,10 +1,51 @@
 .bannerContainer{
-    border-bottom:solid 1px;
+    border-bottom:solid 1px #e88954;
+    background-color: #c6d4ff;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
 }
 
 .logoBanner{
     max-height: 15vh;
 }
+
+.Connexion {
+    border-radius: 15px !important;
+    white-space: nowrap;
+    color: #5a54e8!important;
+    background-color: #54e889 !important;
+    text-transform: none !important;
+    font-size: clamp(14px, 2vw, 100px)!important;
+    font-weight: 550 !important;
+    font-family: 'Open Sans', sans-serif !important;
+    height: auto !important;
+    min-height: unset !important;
+    
+    margin: 3vw;
+    padding: 3vw;
+}
+
+.menuButtonContainer{
+    display: flex;
+    width: 22%;/* 35% si en mobile à faire*/
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.Connexion:hover {
+    background-color: #43bc6e !important;
+}
+
+/*@media (max-width: 1400px) { 
+        font-size: clamp(14px, 5vw, 24px)!important;
+        font-weight: 550 !important;
+    }
+}
+
+@media (min-width : 1400px) {
+    .Connexion{
+        font-size: 5vw!important;
+        font-weight: 550 !important;
+    }
+}*/

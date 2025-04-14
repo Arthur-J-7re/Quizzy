@@ -8,11 +8,15 @@ import {CreateVfForm} from '../../component/CreateQuestion/CreateVfForm'
 import { Banner } from '../../component/Banner/Banner';
 import { Socket } from 'socket.io-client';
 import { useContext } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from "../../context/authentContext";
 import Toast from '../../tools/toast/toast';
+import "../CommonCss.css";
+import "./QuestionForm.css"
 
 export function QuestionCreationForm () {
+    const location = useLocation();
+    const _question = location.state?.question || {title : "", private : false, tags : [], mode : []};
     const [mode , setMode] = useState("QCM");
     const [title, setTitle] = useState("");
     const [goodNews, setGoodNews] = useState(false);
@@ -23,10 +27,10 @@ export function QuestionCreationForm () {
     const [truth, setTruth] = useState(true);
     const auth = useContext(AuthContext);
     const user_id = auth?.user?.id || "0";
-    const [freeData, setFreeData] = useState({user_id : user_id,title: title, tags: tags, private:isPrivate, answers: answers});
-    const [dccData, setDccData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, carre: carre, duo: 2, answer: 1, cash: answers});
-    const [qcmData, setQcmData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, choices: carre, answer: 1});
-    const [vfData, setVfData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, truth: truth});
+    const [freeData, setFreeData] = useState({user_id : user_id,mode : "FREE",title: title, tags: tags, private:isPrivate, answers: answers});
+    const [dccData, setDccData] = useState({user_id : user_id,mode : "DCC",title: title, tags: tags, private: isPrivate, carre: carre, duo: 2, answer: 1, cash: answers});
+    const [qcmData, setQcmData] = useState({user_id : user_id,mode : "QCM",title: title, tags: tags, private: isPrivate, choices: carre, answer: 1});
+    const [vfData, setVfData] = useState({user_id : user_id,mode : "VF",title: title, tags: tags, private: isPrivate, truth: truth});
 
     const [messageInfo, setMessageInfo] = useState("");
     const [showMessage, setShowMessage] = useState(false);
@@ -41,6 +45,7 @@ export function QuestionCreationForm () {
                 setAnswers([]);
                 setTags([]);
                 setTruth(true);
+                setTitle("");
                 setQcmData({...qcmData, answer : 1});
                 setDccData({...dccData, answer : 1, duo : 2});
                 setMessageInfo("Question créée avec succès");
@@ -52,6 +57,10 @@ export function QuestionCreationForm () {
         // Nettoyage : Déconnexion du socket lors du démontage du composant
         
     }, [socket]);
+
+    useEffect(()=>{
+        console.log(mode);
+    }, [mode]);
     
     const addAnswer = (answer : string) => {
         if (!answers.includes(answer)) {
@@ -96,6 +105,8 @@ export function QuestionCreationForm () {
         setPrivate(!isPrivate);
     };
 
+    const endTask = () => {navigate(-1)};
+
 
     useEffect(() => {
         setQcmData(prev => ({
@@ -127,7 +138,7 @@ export function QuestionCreationForm () {
             private: isPrivate
         }));
         
-    }, [title, tags, carre, isPrivate, answers]);
+    }, [title, tags, carre, isPrivate, answers, mode]);
 
     useEffect(() =>{
         if (dccData.duo==dccData.answer){
@@ -178,6 +189,7 @@ export function QuestionCreationForm () {
             case "QCM":
                 return <CreateQCMForm 
                 question_id={0}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -187,6 +199,7 @@ export function QuestionCreationForm () {
             case "FREE":
                 return <CreateFreeForm 
                 question_id={0}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -196,6 +209,7 @@ export function QuestionCreationForm () {
             case "DCC":
                 return <CreateDCCForm 
                 question_id={0}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -207,6 +221,7 @@ export function QuestionCreationForm () {
             case "VF":
                 return <CreateVfForm
                 question_id={0}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -216,6 +231,7 @@ export function QuestionCreationForm () {
             default:
                 return <CreateQCMForm 
                 question_id={0}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -235,24 +251,24 @@ export function QuestionCreationForm () {
                 <div className="modeSelector">
                     <h3>Créer une question avec un format</h3>
                     <Button 
-                    className = {(mode == "QCM")?"selectedMode":"notSelectedMode"}
+                    className = {(mode == "QCM")?"first notOutlined selectedMode":"first notOutlined notSelectedMode"}
                     onClick={() => setMode("QCM")}>
                     QCM
                     </Button>
                     
                     <Button 
-                    className = {(mode == "FREE")?"selectedMode":"notSelectedMode"}
+                    className = {(mode == "FREE")?"notOutlined selectedMode":"notOutlined notSelectedMode"}
                     onClick={() => setMode("FREE")}>
                     réponse libre
                     </Button>
                     
                     <Button 
-                    className = {(mode == "DCC")?"selectedMode":"notSelectedMode"}
+                    className = {(mode == "DCC")?"notOutlined selectedMode":"notOutlined notSelectedMode"}
                     onClick={() => setMode("DCC")}>
                     Duo/Carré/Cash
                     </Button>
                     <Button 
-                    className = {(mode == "VF")?"selectedMode":"notSelectedMode"}
+                    className = {(mode == "VF")?"last notOutlined selectedMode":"last notOutlined notSelectedMode"}
                     onClick={() => setMode("VF")}>
                     Vrai ou Faux
                     </Button>

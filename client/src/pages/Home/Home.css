@@ -1,0 +1,39 @@
+.homeContainer{
+    height: fit-content;
+    width: 100%;
+}
+
+.bouton {
+    border-radius: 15px !important;
+    white-space: nowrap;
+    color: #5a54e8!important;
+    background-color: #54e889 !important;
+    text-transform: none !important;
+    font-size: clamp(28px, 3vw, 150px)!important;
+    font-weight: 550 !important;
+    font-family: 'Open Sans', sans-serif !important;
+    height: auto !important;
+    min-height: unset !important;
+    max-width: 450px !important;
+    margin: 3vw;
+    padding: 3vw;
+}
+
+.bouton:hover {
+    background-color: #43bc6e !important;
+}
+
+.bouton{
+    padding: 1vw;
+    margin-top: 6vh !important ;
+}
+
+.boutonDisplay{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.welcome, .presentation{
+    margin-left: 3vw;
+}

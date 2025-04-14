@@ -13,6 +13,7 @@ interface AuthContextType {
   user: User | null;
   login: (userData: User) => void;
   logout: () => void;
+  updateUser: (usrename : string) => void;
 }
 
 // Création du contexte avec un type explicite
@@ -21,6 +22,18 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 interface AuthProviderProps {
   children: ReactNode;
 }
+
+// Vérifie si le token est expiré
+const isTokenExpired = (token: string): boolean => {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const expiration = payload.exp * 1000;
+    return Date.now() > expiration;
+  } catch (error) {
+    console.error("Failed to parse token", error);
+    return true;
+  }
+};
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -51,33 +64,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
   }, []);
-
-  // Vérifie si le token est expiré
-  const isTokenExpired = (token: string): boolean => {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const expiration = payload.exp * 1000;
-      return Date.now() > expiration;
-    } catch (error) {
-      console.error("Failed to parse token", error);
-      return true;
-    }
-  };
-
+  
   // Fonction de connexion
-  const login = (userData: User): void => {
+  const login = (userData: User) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
   };
 
   // Fonction de déconnexion
-  const logout = (): void => {
+  const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
   };
 
+  const updateUser = (new_username : string) => {
+    let user = JSON.parse(localStorage.getItem("user") || "");
+    if (user != "") {
+      user.Username = new_username;
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      console.log("Aucun utilisateur trouvé dans le localStorage");
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

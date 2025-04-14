@@ -12,13 +12,15 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from "../../context/authentContext";
 import Toast from '../../tools/toast/toast';
 import { useLocation } from 'react-router-dom';
+import "../CommonCss.css";
+import makeRequest from '../../tools/requestScheme';
 
 export function QuestionModifier () {
     const location = useLocation();
-    const question = location.state?.question || {};
+    const question = location.state?.question || {title : "", private : false, tags : [], mode : "QCM"};
     console.log(question);
 
-    const [mode , setMode] = useState(question.mode || "QCM");
+    const [mode , _setMode] = useState(question.mode || "QCM");
     const [title, setTitle] = useState(question.title || "");
     const [goodNews, setGoodNews] = useState(false);
     const [tags, setTags] = useState<string[]>(question.tags || []);
@@ -32,10 +34,10 @@ export function QuestionModifier () {
     const [truth, setTruth] = useState(question.truth || true);
     const auth = useContext(AuthContext);
     const user_id = auth?.user?.id || "0";
-    const [freeData, setFreeData] = useState({user_id : user_id,title: title, tags: tags, private:isPrivate, answers: answers});
-    const [dccData, setDccData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, carre: carre, duo: question.duo || 2, answer:question.answer || 1, cash: answers});
-    const [qcmData, setQcmData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, choices: carre, answer:question.answer|| 1});
-    const [vfData, setVfData] = useState({user_id : user_id,title: title, tags: tags, private: isPrivate, truth: truth});
+    const [freeData, setFreeData] = useState({user_id : user_id,mode : mode,title: title, tags: tags, private:isPrivate, answers: answers});
+    const [dccData, setDccData] = useState({user_id : user_id,mode : mode,title: title, tags: tags, private: isPrivate, carre: carre, duo: question.duo || 2, answer:question.answer || 1, cash: answers});
+    const [qcmData, setQcmData] = useState({user_id : user_id,mode : mode,title: title, tags: tags, private: isPrivate, choices: carre, answer:question.answer|| 1});
+    const [vfData, setVfData] = useState({user_id : user_id,mode : mode,title: title, tags: tags, private: isPrivate, truth: truth});
     
     const [messageInfo, setMessageInfo] = useState("");
     const [showMessage, setShowMessage] = useState(false);
@@ -43,6 +45,9 @@ export function QuestionModifier () {
     //const socketRef = useRef(null);
     const socket = useSocket();
     useEffect(() => {
+        if (location.pathname === "/modify-a-question" && question.title === ""){
+            navigate("/create-a-question");
+        }
         if (question.choices != null){
             setCarre({
                 ans1 : question.choices[0].content,
@@ -58,6 +63,12 @@ export function QuestionModifier () {
                 ans4 : question.carre[3].content
             });
         }
+
+        if (question.answers != null){
+            setAnswers(question.answers);
+        } else if (question.cash != null){
+            setAnswers(question.cash);
+        }
     }, [question]); // Exécute cet effet uniquement quand `question` change
     useEffect(() => {
         if (socket instanceof Socket){
@@ -68,6 +79,8 @@ export function QuestionModifier () {
         // Nettoyage : Déconnexion du socket lors du démontage du composant
         
     }, [socket]);
+
+    const endTask = () => {navigate(-1)}
     
     const addAnswer = (answer : string) => {
         if (!answers.includes(answer)) {
@@ -189,11 +202,22 @@ export function QuestionModifier () {
 
     }, [truth]);
 
+    const deleteQuestion = async () => {
+        const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer définitivement la question ?");
+        if (confirmation) {
+            const response = await makeRequest("/question?question_id=" + question.question_id, "DELETE");
+            if (response.success){
+                navigate("/profil")
+            }
+        }
+    } 
+
     const renderContent = () => {
         switch (mode) {
             case "QCM":
                 return <CreateQCMForm 
                 question_id={question.question_id}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -203,6 +227,7 @@ export function QuestionModifier () {
             case "Free":
                 return <CreateFreeForm 
                 question_id={question.question_id}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -212,6 +237,7 @@ export function QuestionModifier () {
             case "DCC":
                 return <CreateDCCForm 
                 question_id={question.question_id}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -223,6 +249,7 @@ export function QuestionModifier () {
             case "VF":
                 return <CreateVfForm
                 question_id={question.question_id}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -232,6 +259,7 @@ export function QuestionModifier () {
             default:
                 return <CreateQCMForm 
                 question_id={question.question_id}
+                endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
@@ -274,6 +302,9 @@ export function QuestionModifier () {
                     </Button>
                 </div>*/}
                 {renderContent()}
+                </div>
+                <div className='modeSelector'>
+                    <Button onClick={() => deleteQuestion()}> supprimer la question</Button>
                 </div>
                 <div className={goodNews ? 'GreenText' : 'RedText'}>{
                     showMessage &&

@@ -3,15 +3,26 @@
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #333;
-    color: white;
+    background-color: #99B3FF;
+    color: #e95353;
     padding: 12px 20px;
     border-radius: 5px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     opacity: 1;
     transition: opacity 0.5s ease-in-out;
+    width: fit-content;
+
+    /*display: flex;
+    justify-content: center;*/
   }
   
+.toast-message{
+  font-size: 2vw;
+  text-justify: center;
+  white-space: nowrap;
+
+}
+
   .toast.hide {
     opacity: 0;
   }

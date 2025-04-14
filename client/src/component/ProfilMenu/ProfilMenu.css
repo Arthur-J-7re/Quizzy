@@ -1,0 +1,55 @@
+.profilButton {
+    border-radius: 15px !important;
+    white-space: nowrap;
+    color: #5a54e8!important;
+    text-transform: none !important;
+    font-size: clamp(14px, 2vw, 100px)!important;
+    font-weight: 550 !important;
+    font-family: 'Open Sans', sans-serif !important;
+    height: auto !important;
+    min-height: unset !important;
+    
+    margin-right: 3vw;
+    padding: 3vw;
+}
+
+.Mui-focusVisible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.profilButton:hover,.profilMenuItem:hover {
+    background-color: #43bc6e !important;
+}
+
+.profilButton:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.profilButton,.profilMenuItem{
+    background-color: #54e889 !important;
+    color: #5a54e8!important;
+    padding: 1vw;
+}
+
+ol,ul,.profilMenu, .profilContainer{
+    padding: none !important;
+    background-color: none !important;
+}
+
+.css-1tktgsa-MuiPaper-root-MuiPopover-paper-MuiMenu-paper {
+    padding: none;
+}
+
+.css-1toxriw-MuiList-root-MuiMenu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    outline: 0;
+}
+
+

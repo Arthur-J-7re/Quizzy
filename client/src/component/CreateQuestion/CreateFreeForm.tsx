@@ -1,10 +1,12 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import { Switch } from '@mui/material';
-import {Socket} from "socket.io-client";
+import "./CreateQuestionCss.css"
+import makeRequest from '../../tools/requestScheme';
 
 interface CreatefreeFormProps {
-    question_id: Number,
+    question_id: number,
+    endTask : () => void;
     setMessageInfo : (message : string) => void;
     setShowMessage : (bool : boolean) => void;
     title: string;
@@ -20,15 +22,16 @@ interface CreatefreeFormProps {
     setAnswers: React.Dispatch<React.SetStateAction<string[]>>
     addAnswer: (answer: string) => void;
     removeAnswer: (answer: string) => void;
-    freeData: {user_id: string; title: string; tags: string[];private: boolean; answers: string[] };
+    freeData: {user_id: string;mode : string; title: string; tags: string[];private: boolean; answers: string[] };
     setFreeData: React.Dispatch<React.SetStateAction<CreatefreeFormProps["freeData"]>>;
-    socket: Socket | null;
   }
 
 export function CreateFreeForm({
     question_id,
+    endTask,
     setMessageInfo,
     setShowMessage,
+    title,
     setTitle,
     setPrivate,
     changePrivate,
@@ -39,7 +42,6 @@ export function CreateFreeForm({
     addAnswer,
     removeAnswer,
     freeData,
-    socket
   }: CreatefreeFormProps)  {
 
     const validateFree = () => { 
@@ -55,6 +57,12 @@ export function CreateFreeForm({
             setShowMessage(true);
             return false;
         }
+
+        if (tags.length === 0) {
+            setMessageInfo("veuillez renseigner au moins une catégorie pour la question.");
+            setShowMessage(true);
+            return false;
+        }
     
         if (freeData.answers.some(answer => answer.trim() === "")) {
             setMessageInfo("Toutes les réponses doivent être remplies !");
@@ -67,40 +75,50 @@ export function CreateFreeForm({
     
 
     const sendFree = async () => {
-        if (socket instanceof Socket && validateFree()){
+        if (validateFree()){
             if (question_id === 0){
-            socket.emit("createFreeQuestion", freeData);
+                const response = await makeRequest("/question/create", "POST", freeData);
+                if (response.success){
+                    endTask();
+                };
+
             } else {
-                socket.emit("modificationFreeQuestion", ({question_id : question_id, data : freeData}));
+                const response = await  makeRequest("/question/update", "PUT",{question_id : question_id, data :freeData});
+                if (response.success){
+                    endTask();
+                };
+
             }
         }    
     };
-
+ 
     return (
     <div className='formContainer'>
         <div className='title'>
-            <label className='sign-label'>Intitulé de la question</label>
+            <label className='questionCreation-label'>Intitulé de la question</label>
             <input
                 type='text'
                 id="title"
-                value={freeData.title || ''}
+                className='titre'
+                value={title || ''}
                 onChange={(e) => setTitle(e.target.value )}
                 required
             />
         </div>
         <div className='privateswitch'>
-            <label className='sign-label' onClick={() => setPrivate(false)}>Question public</label>
+            <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
             <Switch
-                type='checkbox'
-                checked={freeData.private}
+                type='checkboxe'
+                defaultChecked={freeData.private}
+                className='isPrivate'
                 onClick={() => changePrivate()}
             />
-            <label className='sign-label' onClick={() => setPrivate(true)}>Question privée</label>
+            <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
         </div>
         <div className='answersList'>
-            <div>
+            <div className='tagSpanDispencer'>
                 {answers.map(answer => (
-                <span key={answer} onClick={() => removeAnswer(answer)} className="answer" style={{ margin: "5px", cursor: "pointer", background: "#ddd", padding: "5px", borderRadius: "5px" }}>
+                <span key={answer} onClick={() => removeAnswer(answer)} className="answer" >
                     {answer} ❌
                 </span>
                 ))}
@@ -108,6 +126,7 @@ export function CreateFreeForm({
             
             <input 
             type="text" 
+            className='answerInput'
             onKeyDown={(e) => {
                 const inputElement = e.target as HTMLInputElement;
                 if (e.key === "Enter" && inputElement.value.trim()) {
@@ -121,9 +140,9 @@ export function CreateFreeForm({
         </div>
         
         <div className='tagList'>
-            <div>
+            <div className='tagSpanDispencer'>
                 {tags.map(tag => (
-                <span key={tag} onClick={() => removeTag(tag)} style={{ margin: "5px", cursor: "pointer", background: "#ddd", padding: "5px", borderRadius: "5px" }}>
+                <span key={tag} onClick={() => removeTag(tag)} className='tag'>
                     {tag} ❌
                 </span>
                 ))}
@@ -131,6 +150,7 @@ export function CreateFreeForm({
             {tags.length < 5 ? (
                 <input 
                 type="text" 
+                className='tagInput'
                 onKeyDown={(e) => {
                     const inputElement = e.target as HTMLInputElement;
                     if (e.key === "Enter" && inputElement.value.trim()) {
