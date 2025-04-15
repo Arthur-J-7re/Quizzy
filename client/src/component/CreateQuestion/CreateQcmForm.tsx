@@ -82,7 +82,7 @@ export function CreateQCMForm({
                 choices: formattedChoices
             };
             if (question_id === 0){
-                const response = await makeRequest("/question/create", "POST", formattedQcmData);
+                const response = await makeRequest("/question/create", "POST", qcmData);
                 if (response.success){
                     endTask();
                 };
@@ -116,7 +116,7 @@ export function CreateQCMForm({
                 <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
                 <Switch
                     type='checkboxe'
-                    defaultChecked={qcmData.private}
+                    checked={qcmData.private}
                     className='isPrivate'
                     onClick={() => changePrivate()}
                 />
@@ -143,7 +143,7 @@ export function CreateQCMForm({
                     />
                 </div>
                 <div className='answerQcm'>
-                    <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:2})}>
+                    <div className='headerAns' onClick={() => {console.log(qcmData);setQcmData({...qcmData, answer:2})}}>
                     <input 
                         type='checkbox' 
                         defaultChecked={qcmData.answer == 2}

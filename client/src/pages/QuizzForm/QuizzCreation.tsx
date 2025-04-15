@@ -121,11 +121,11 @@ export function QuizzCreation () {
         setQuestionCardsOfQuizz(prevCards => {
             const found = prevCards.find(card => card.getId() === questionCard.getId());
             if (found) {
-                questionCard.setButtonText(<Add/>);
+                questionCard.setButtonText(<Add className="ActionIcon"/>);
                 questionCard.setColor("Green");
                 return prevCards.filter(card => card.getId() !== questionCard.getId());
             } else {
-                questionCard.setButtonText(<Remove/>);
+                questionCard.setButtonText(<Remove className="ActionIcon"/>);
                 questionCard.setColor("Red");
                 return [...prevCards, questionCard];
             }

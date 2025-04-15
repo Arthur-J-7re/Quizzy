@@ -49,19 +49,9 @@ export function QuestionModifier () {
             navigate("/create-a-question");
         }
         if (question.choices != null){
-            setCarre({
-                ans1 : question.choices[0].content,
-                ans2 : question.choices[1].content,
-                ans3 : question.choices[2].content,
-                ans4 : question.choices[3].content
-            });
+            setCarre(question.choices);
         } else if (question.carre != null){
-            setCarre({
-                ans1 : question.carre[0].content,
-                ans2 : question.carre[1].content,
-                ans3 : question.carre[2].content,
-                ans4 : question.carre[3].content
-            });
+            setCarre(question.carre);
         }
 
         if (question.answers != null){
@@ -223,7 +213,7 @@ export function QuestionModifier () {
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
                 carre={carre} setCarre={setCarre} 
-                qcmData={qcmData} setQcmData={setQcmData} socket={socket}/>;
+                qcmData={qcmData} setQcmData={setQcmData} />;
             case "Free":
                 return <CreateFreeForm 
                 question_id={question.question_id}
@@ -233,7 +223,7 @@ export function QuestionModifier () {
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
                 answers={answers} setAnswers={setAnswers} addAnswer={addAnswer} removeAnswer={removeAnswer}
-                freeData={freeData} setFreeData={setFreeData} socket={socket}/>;
+                freeData={freeData} setFreeData={setFreeData} />;
             case "DCC":
                 return <CreateDCCForm 
                 question_id={question.question_id}
@@ -245,7 +235,7 @@ export function QuestionModifier () {
                 answers={answers} setAnswers={setAnswers} addAnswer={addAnswer} removeAnswer={removeAnswer} 
                 carre={carre} setCarre={setCarre} 
                 duoContain={duoContain} manageDuo={manageDuo} resetDuo={resetDuo}
-                dccData={dccData} setDccData={setDccData} socket={socket}/>;
+                dccData={dccData} setDccData={setDccData} />;
             case "VF":
                 return <CreateVfForm
                 question_id={question.question_id}
@@ -255,7 +245,7 @@ export function QuestionModifier () {
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
                 truth={truth} setTruth={setTruth}
-                vfData={vfData} setVfData={setVfData} socket={socket}/>;
+                vfData={vfData} setVfData={setVfData} />;
             default:
                 return <CreateQCMForm 
                 question_id={question.question_id}
@@ -265,7 +255,7 @@ export function QuestionModifier () {
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag}
                 carre={carre} setCarre={setCarre} 
-                qcmData={qcmData} setQcmData={setQcmData} socket={socket}/>;
+                qcmData={qcmData} setQcmData={setQcmData} />;
           }
     };
 

@@ -1,0 +1,19 @@
+.answerQcmContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.answerQcmCarreArea{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: fit-content;
+}
+
+.gameAnswerQcm{
+    flex-grow: 1;
+    width: 40%;
+    text-align: center;
+    cursor:default;
+}

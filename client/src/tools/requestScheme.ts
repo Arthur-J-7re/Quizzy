@@ -10,7 +10,7 @@ const makeRequest = async (url: string, method: string = "GET", data: object = {
         console.log(token);
 
         const headers: HeadersInit = {
-        "Content-Type": "application/json",
+            "Content-Type": "application/json",
         };
 
         // Si un token est présent, on l'ajoute dans l'en-tête Authorization

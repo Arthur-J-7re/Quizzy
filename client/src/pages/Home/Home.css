@@ -14,19 +14,18 @@
     font-family: 'Open Sans', sans-serif !important;
     height: auto !important;
     min-height: unset !important;
-    max-width: 450px !important;
+    max-width: 700px !important;
     margin: 3vw;
     padding: 3vw;
+    padding: 1vw;
+    margin-top: 6vh !important ;
 }
 
 .bouton:hover {
     background-color: #43bc6e !important;
 }
 
-.bouton{
-    padding: 1vw;
-    margin-top: 6vh !important ;
-}
+
 
 .boutonDisplay{
     display: flex;

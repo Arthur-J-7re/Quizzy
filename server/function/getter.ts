@@ -16,6 +16,11 @@ const getQuestionsOfQuizz = async (id : number) => {
     return retour?.questions;
 };
 
+const getQuestionById = async (id : number) => {
+    const retour = await QuestionModel.findOne().where("question_id").equals(id);
+    return retour;
+}
+
 const getQuizzOfQuestion = async (id : number) => {
     const retour = await QuestionModel.findOne().where("question_id").equals(id);
     return retour?.quizz;
@@ -33,9 +38,9 @@ const getQuizzByOwner = async (id : number) => {
 
 const getIdByEmail = async (mail : string) => {
     try {
-        const retour = await User.findOne().select("user_id").where("email").equals(mail);
+        const retour = await User.findOne().where("email").equals(mail);
         if (retour){
-            return retour.user_id;
+            return {id : retour.user_id, username : retour.username};
         }
     } catch (error) {
         console.error(error);
@@ -114,4 +119,4 @@ const getOwnerOfQuizz = async (id: String | number) => {
     }
 }
 
-export default {getQuestionsOfQuizz,getQuizzOfQuestion, getQuestionByOwner, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername, getIdByQuestionId, getQuestionAvailable, getOwnerOfQuestion, getOwnerOfQuizz}
+export default {getQuestionsOfQuizz,getQuizzOfQuestion, getQuestionByOwner, getQuestionById, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername, getIdByQuestionId, getQuestionAvailable, getOwnerOfQuestion, getOwnerOfQuizz}

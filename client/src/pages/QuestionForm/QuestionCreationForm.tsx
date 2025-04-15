@@ -195,7 +195,7 @@ export function QuestionCreationForm () {
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
                 carre={carre} setCarre={setCarre} 
-                qcmData={qcmData} setQcmData={setQcmData} socket={socket}/>;
+                qcmData={qcmData} setQcmData={setQcmData} />;
             case "FREE":
                 return <CreateFreeForm 
                 question_id={0}
@@ -205,7 +205,7 @@ export function QuestionCreationForm () {
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
                 answers={answers} setAnswers={setAnswers} addAnswer={addAnswer} removeAnswer={removeAnswer}
-                freeData={freeData} setFreeData={setFreeData} socket={socket}/>;
+                freeData={freeData} setFreeData={setFreeData} />;
             case "DCC":
                 return <CreateDCCForm 
                 question_id={0}
@@ -217,7 +217,7 @@ export function QuestionCreationForm () {
                 answers={answers} setAnswers={setAnswers} addAnswer={addAnswer} removeAnswer={removeAnswer} 
                 carre={carre} setCarre={setCarre} 
                 duoContain={duoContain} manageDuo={manageDuo} resetDuo={resetDuo}
-                dccData={dccData} setDccData={setDccData} socket={socket}/>;
+                dccData={dccData} setDccData={setDccData} />;
             case "VF":
                 return <CreateVfForm
                 question_id={0}
@@ -227,7 +227,7 @@ export function QuestionCreationForm () {
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
                 truth={truth} setTruth={setTruth}
-                vfData={vfData} setVfData={setVfData} socket={socket}/>;
+                vfData={vfData} setVfData={setVfData} />;
             default:
                 return <CreateQCMForm 
                 question_id={0}
@@ -237,7 +237,7 @@ export function QuestionCreationForm () {
                 isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag}
                 carre={carre} setCarre={setCarre} 
-                qcmData={qcmData} setQcmData={setQcmData} socket={socket}/>;
+                qcmData={qcmData} setQcmData={setQcmData} />;
           }
     };
 

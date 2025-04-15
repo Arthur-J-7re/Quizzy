@@ -52,10 +52,13 @@ const io = new Server(server, {
 
 io.on('connection',(socket : Socket) => {
   console.log("Un utilisateur est connecté");
-  socket.data.id = 2;
-  socket.data.nickname = "User_" + socket.id;
-  /*socket.on("register", (data) => AccountCRUD.register(socket, data));
-  socket.on("login", (data) => AccountCRUD.login(socket, data));*/
+  socket.on("userInformation", (data) => console.log("connection de ", data.username));
+  socket.on("getQuestionTest",async ()=>{
+    console.log("on demande la question");
+    const question = await getter.getQuestionById(22);
+    console.log("on renvoie la question", question);
+    socket.emit("newQuestion", {question : question})
+  })
   socket.on("createVFQuestion", (data) => QuestionCRUD.createVFQuestionSocket(socket, data))
 });
 

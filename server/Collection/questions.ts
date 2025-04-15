@@ -24,7 +24,7 @@ module.exports = model;*/
 
 export enum Mode {
     QCM = "QCM",
-    FREE = "Free",
+    FREE = "FREE",
     DCC = "DCC",
     VF = "VF",
 }
@@ -64,12 +64,14 @@ const QuestionModel = mongoose.model<IQuestionBase>("Question", QuestionSchema);
 
 // 🔵 Discriminant pour "QCM"
 interface IQCMQuestion extends IQuestionBase {
-    choices: [{content : string, answer_num : string}];
+    //choices: [{content : string, answer_num : string}];
+    choices: {ans1 : string, ans2: string, ans3: string, ans4: string},
     answer : number;
 }
 
 const QCMSchema = new mongoose.Schema<IQCMQuestion>({
-    choices: [{content: String, answer_num: String}],
+    //choices: [{content: String, answer_num: String}],
+    choices: {ans1 : String, ans2: String, ans3: String, ans4: String},
     answer : {type : Number, required: true}
 });
 
@@ -89,14 +91,15 @@ const FreeModel = QuestionModel.discriminator<IFreeQuestion>("Free", FreeSchema)
 
 // 🔵 Discriminant pour "Free"
 interface IDCCQuestion extends IQuestionBase {
-    carre: [{content : string, answer_num: String}];
+    carre: {ans1 : string, ans2: string, ans3: string, ans4: string};
     duo: number;
     answer: number;
     cash: [string]
 }
 
 const DCCSchema = new mongoose.Schema<IDCCQuestion>({
-    carre: { type: [{content: String, answer_num: String}], required: true },
+    //carre: { type: [{content: String, answer_num: String}], required: true },
+    carre: {ans1 : String, ans2: String, ans3: String, ans4: String},
     cash: { type: [String], required: true },
     duo: { type: Number, required: true },
     answer: {type: Number, required: true}

@@ -17,6 +17,7 @@ export function Home () {
         <div className="boutonDisplay">
             <Button className="bouton" onClick={()=>{(auth && auth.user) ? navigate("/create-a-question") : navigate("/login")}}>Créer une question</Button>
             <Button className="bouton" onClick={() => {(auth && auth.user) ? navigate("/create-a-quizz") : navigate("/login")}}>Créer un quizz</Button>
+            <Button className="bouton" onClick={() => {navigate("/play")}}>Jouer ?</Button>
         </div>
     </div> 
 )

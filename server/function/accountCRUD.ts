@@ -30,8 +30,11 @@ const loginEMail = async (data : any) => {
         console.log(matching);
         if (matching){
             let id;
+            let username;
             try {
-                id = await getter.getIdByEmail(data.username);
+                const userInfo = await getter.getIdByEmail(data.username);
+                id = userInfo?.id; 
+                username = userInfo?.username;
             } catch (error) {
                 console.error(error);
             }
