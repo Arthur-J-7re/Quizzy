@@ -96,7 +96,7 @@ export function CreateVfForm({
                 <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
                 <Switch
                     type='checkboxe'
-                    defaultChecked={vfData.private}
+                    checked={vfData.private}
                     className='isPrivate'
                     onClick={() => changePrivate()}
                 />

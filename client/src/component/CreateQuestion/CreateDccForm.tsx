@@ -134,11 +134,11 @@ export function CreateDCCForm({
         <div className='privateswitch'>
             <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
             <Switch
-                type='checkboxe'
-                defaultChecked={dccData.private}
-                className='isPrivate'
-                onClick={() => changePrivate()}
-            />
+                 type='checkboxe'
+                 checked={dccData.private}
+                 className='isPrivate'
+                 onClick={() => changePrivate()}
+             />
             <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
         </div>
         <div className='carre'>
@@ -148,14 +148,14 @@ export function CreateDCCForm({
                 <div className='headerAns'>
                     <input 
                         type='checkbox' 
-                        defaultChecked={dccData.answer == 1}
+                        checked={dccData.answer == 1}
                         className='coloredAnswer'
                         onClick={() => {setDccData({...dccData, answer:1})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 1</label>
                     <input 
                         type='checkbox' 
-                        defaultChecked={duoContain(1)}
+                        checked={duoContain(1)}
                         className='coloredAnswer'
                         onClick={() => manageDuo(1)}
                     ></input>
@@ -172,14 +172,14 @@ export function CreateDCCForm({
                 <div className='headerAns'>
                     <input 
                         type='checkbox' 
-                        defaultChecked={dccData.answer == 2}
+                        checked={dccData.answer == 2}
                         className='coloredAnswer'
                         onClick={() => {setDccData({...dccData, answer:2})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 2</label>
                     <input 
                     type='checkbox' 
-                    defaultChecked={duoContain(2)}
+                    checked={duoContain(2)}
                     className='coloredAnswer'
                     onClick={() => manageDuo(2)}
                     ></input>
@@ -196,14 +196,14 @@ export function CreateDCCForm({
                 <div className='headerAns'>
                     <input 
                         type='checkbox' 
-                        defaultChecked={dccData.answer == 3}
+                        checked={dccData.answer == 3}
                         className='coloredAnswer'
                         onClick={() => {setDccData({...dccData, answer:3})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 3</label>
                     <input 
                     type='checkbox' 
-                    defaultChecked={duoContain(3)}
+                    checked={duoContain(3)}
                     className='coloredAnswer'
                     onClick={() => manageDuo(3)}
                     ></input>
@@ -220,14 +220,14 @@ export function CreateDCCForm({
                 <div className='headerAns'>
                     <input 
                         type='checkbox' 
-                        defaultChecked={dccData.answer == 4}
+                        checked={dccData.answer == 4}
                         className='coloredAnswer'
                         onClick={() => {setDccData({...dccData, answer:4})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 4</label>
                     <input 
                     type='checkbox' 
-                    defaultChecked={duoContain(4)}
+                    checked={duoContain(4)}
                     className='coloredAnswer'
                     onClick={() => manageDuo(4)}
                     ></input>

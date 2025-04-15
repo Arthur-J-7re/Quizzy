@@ -128,7 +128,7 @@ export function CreateQCMForm({
                     <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:1})}>
                         <input 
                             type='checkbox' 
-                            defaultChecked={qcmData.answer == 1}  
+                            checked={qcmData.answer == 1}  
                             className='coloredAnswer'
                         ></input>
                         <label className='questionCreation-label'>Réponse 1</label>
@@ -146,7 +146,7 @@ export function CreateQCMForm({
                     <div className='headerAns' onClick={() => {console.log(qcmData);setQcmData({...qcmData, answer:2})}}>
                     <input 
                         type='checkbox' 
-                        defaultChecked={qcmData.answer == 2}
+                        checked={qcmData.answer == 2}
                         className='coloredAnswer'
                     ></input>
                     <label className='questionCreation-label'>Réponse 2</label>
@@ -164,7 +164,7 @@ export function CreateQCMForm({
                     <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:3})}>
                     <input 
                         type='checkbox' 
-                        defaultChecked={qcmData.answer == 3}
+                        checked={qcmData.answer == 3}
                         className='coloredAnswer'
                     ></input>
                     <label className='questionCreation-label'>Réponse 3</label>
@@ -182,7 +182,7 @@ export function CreateQCMForm({
                     <div className='headerAns' onClick={() => setQcmData({...qcmData, answer:4})}>
                     <input 
                         type='checkbox' 
-                        defaultChecked={qcmData.answer == 4}
+                        checked={qcmData.answer == 4}
                         className='coloredAnswer'
                         
                     ></input>

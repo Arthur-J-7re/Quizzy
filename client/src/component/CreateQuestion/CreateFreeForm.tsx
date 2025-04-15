@@ -109,7 +109,7 @@ export function CreateFreeForm({
             <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
             <Switch
                 type='checkboxe'
-                defaultChecked={freeData.private}
+                checked={freeData.private}
                 className='isPrivate'
                 onClick={() => changePrivate()}
             />
