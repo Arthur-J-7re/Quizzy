@@ -96,23 +96,16 @@ export function QuizzCreation () {
     }, [questionCards])
 
     useEffect(()=>{
-        console.log("useState de quizz");
         setTitle(quizz?.title || "");
         setTags(quizz?.tags || []);
         setPrivate(quizz?.private || true);
         setCreating(quizz?.title ? false : true);
 
-
-
         if (!quizz || !questionCards || !quizz?.questions) return;
-
-        console.log("la list : ", list);
         
         const toBeSeted = list
             .map((id : any) => questionCards.find((questionCard) => questionCard.getId() === Number(id)))
             .filter((questionCard : any) => questionCard !== undefined) as QuestionCard[]; // TypeScript sait que c'est sûr
-        console.log("questionCards de base");
-        toBeSeted.map((card : any) => console.log(card.getId()));
         setQuestionCardsOfQuizz(toBeSeted);
     }, [quizz, questionCardsBuild]);
     
@@ -166,8 +159,7 @@ export function QuizzCreation () {
 
     const verifyDnD = (str : string) =>{
         let retour = questionCardsOfQuizz.map((card) => card.getId());
-        console.log(str);
-        console.log(retour);
+
     }
 
     const deleteQuizz = async () => {
@@ -189,7 +181,6 @@ export function QuizzCreation () {
     const sendData = async () => {
         if (validateQuizz()) {
             if (creating){
-                console.log(questionCardsOfQuizz.length);
                 let questionList = questionCardsOfQuizz.map((card) => card.getId()); // Utilisation correcte de map()
                 const retour = await makeRequest("/quizz/create", "POST", {
                     user_id: user_id,
@@ -202,7 +193,6 @@ export function QuizzCreation () {
                     endTask();
                 }
             } else {
-                console.log("on tente d'update");
                 let questionList = questionCardsOfQuizz.map((card) => card.getId()); // Utilisation correcte de map()
                 const retour = await makeRequest("/quizz/update", "PUT", {
                     quizz_id: quizz.quizz_id,
@@ -265,14 +255,14 @@ export function QuizzCreation () {
                 />
             </div>
             <div className='privateswitch'>
-                <label className='quizzCreation-label' onClick={() => setPrivate(false)}>Question public</label>
+                <label className='quizzCreation-label' onClick={() => setPrivate(false)}>Quizz public</label>
                 <Switch
                     type='checkboxe'
                     checked={isPrivate}
                     className='isPrivate'
                     onClick={() => changePrivate()}
                 />
-                <label className='quizzCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
+                <label className='quizzCreation-label' onClick={() => setPrivate(true)}>Quizz privée</label>
             </div>
             
             <Searchbar filterData={filterData} setFilterData={setFilterData}/>

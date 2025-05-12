@@ -36,6 +36,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children })  => 
 
     // Déconnexion lors du démontage
     return () => {
+
       socketInstance.disconnect();
       console.log("Socket déconnecté lors du démontage");
     };

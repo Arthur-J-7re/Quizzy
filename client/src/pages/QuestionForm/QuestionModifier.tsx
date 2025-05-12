@@ -18,7 +18,6 @@ import makeRequest from '../../tools/requestScheme';
 export function QuestionModifier () {
     const location = useLocation();
     const question = location.state?.question || {title : "", private : false, tags : [], mode : "QCM"};
-    console.log(question);
 
     const [mode , _setMode] = useState(question.mode || "QCM");
     const [title, setTitle] = useState(question.title || "");
@@ -214,7 +213,7 @@ export function QuestionModifier () {
                 tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
                 carre={carre} setCarre={setCarre} 
                 qcmData={qcmData} setQcmData={setQcmData} />;
-            case "Free":
+            case "FREE":
                 return <CreateFreeForm 
                 question_id={question.question_id}
                 endTask={endTask}

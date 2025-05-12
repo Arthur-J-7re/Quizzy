@@ -72,15 +72,6 @@ export function CreateQCMForm({
 
     const sendQcm = async () => {
         if (validateQcm()){
-            const formattedChoices = Object.entries(carre).map(([_key,value], index) => ({
-                content: value, // Texte du choix
-                answer_num: (index + 1).toString() // ID de réponse sous forme de string
-            }));
-    
-            const formattedQcmData = {
-                ...qcmData,
-                choices: formattedChoices
-            };
             if (question_id === 0){
                 const response = await makeRequest("/question/create", "POST", qcmData);
                 if (response.success){
@@ -88,7 +79,7 @@ export function CreateQCMForm({
                 };
 
             } else {
-                const response = await  makeRequest("/question/update", "PUT", {data : formattedQcmData, question_id : question_id});
+                const response = await  makeRequest("/question/update", "PUT", {data : qcmData, question_id : question_id});
                 if (response.success){
                     endTask();
                 };
@@ -143,7 +134,7 @@ export function CreateQCMForm({
                     />
                 </div>
                 <div className='answerQcm'>
-                    <div className='headerAns' onClick={() => {console.log(qcmData);setQcmData({...qcmData, answer:2})}}>
+                    <div className='headerAns' onClick={() => {setQcmData({...qcmData, answer:2})}}>
                     <input 
                         type='checkbox' 
                         checked={qcmData.answer == 2}

@@ -20,6 +20,25 @@ routes.get("/",token.verifyToken, async (req,res) => {
     }
 });
 
+routes.get("/available-quizz", async (req,res) => {
+    console.log("appelle aux quizz available");
+    const {id} = req.query;
+    console.log(id);
+    try {
+        let retour;
+        if (id) {
+          retour = await getter.getQuizzAvailable(Number(id));
+        }
+        else {
+          retour = await getter.getQuizzAvailable();
+        }
+        res.json(retour);
+        
+    } catch (error) {
+        console.error(error);
+    }
+});
+
 routes.post("/create", async (req,res) => {
     console.log("création de question via les requête http");
     const data : any = req.body;

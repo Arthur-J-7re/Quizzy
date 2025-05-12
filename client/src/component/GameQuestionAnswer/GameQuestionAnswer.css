@@ -2,18 +2,208 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    height: 100vh;
 }
 
-.answerQcmCarreArea{
+.intitulé{
+    margin-top: 2%;
+    font-size: 180%;
+}
+
+.answerArea{
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
-    width: fit-content;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    width: 100%
 }
 
-.gameAnswerQcm{
-    flex-grow: 1;
+.gameAnswerQcm, .gameAnswerQcmShow{
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 40%;
+    height: 20vh;
+    max-height: 20vh;
     text-align: center;
-    cursor:default;
+    cursor:pointer;
+    border: solid 4px #0f1943;
+    background-color: #172764 ;
+    color : white;
+    border-radius: 2vw;
+    margin: 3%;
+    font-size: larger !important;
+}
+
+.modeSelectorDccButton{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60%;
+    margin: 2vw !important;
+    height: 15vh !important;
+    max-height: 15vh !important;
+    text-align: center;
+    text-justify: center;
+    cursor:pointer;
+    font-size: 2vw !important;
+    border: solid 4px #263FA6 !important;
+    background-color: #2A46B7 !important;
+    color : white !important;
+    border-radius: 2vw;
+    margin: 3%;
+}
+
+.modeSelectorDcc{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+@keyframes showGood {
+    0% {
+        border-color: transparent;
+        color: inherit;
+        transform: scale(1);
+    }
+    100% {
+        border-color: #28e269;
+        color: #28e269;
+        transform: scale(1.03);
+    }
+}
+
+@keyframes showWrong {
+    0% {
+        border-color: transparent;
+        color: inherit;
+        transform: scale(1);
+    }
+    100% {
+        border-color: #ee2f56;
+        color: #ee2f56;
+        transform: scale(1);
+    }
+}
+  
+
+
+.goodAnswer{
+    border : solid 4px #28e269;
+    color : #28e269;
+    animation: showGood 0.5s ease-in;
+}
+
+.wrongAnswer{
+    border : solid 4px #ee2f56;
+    color : #ee2f56;
+    animation: showWrong 0.2s ease-in;
+}
+
+.wrongAnswer::before, .wrongAnswerFree::before {
+    content: "✗ "; /* ou "X" si tu préfères */
+    color: #ee2f56;
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+.goodAnswer::before, .goodAnswerFree::before {
+    content: "✓ "; /* ou "X" si tu préfères */
+    color: #28e269;
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+.gameAnswerQcm:hover, .gaSelected{
+    border : solid 4px #FBA40E;
+    color : #FBA40E;
+}
+
+.buttonSendAnswer {
+    border-radius: 14px !important;
+    white-space: nowrap;
+    color: #5a54e8!important;
+    background-color: #54e889 !important;
+    text-transform: none !important;
+    font-size: clamp(14px, 2vw, 100px)!important;
+    font-weight: 550 !important;
+    font-family: 'Open Sans', sans-serif !important;
+    height: auto !important;
+    min-height: unset !important;
+    
+    margin: 3vw!important;
+    padding: 3vw;
+}
+
+@keyframes flashAnimation {
+    0%,50%, 100% {
+        border : solid 4px #FBA40E;
+        color : #FBA40E;
+        background-color: #FBA40E;
+    }
+    25%, 75% {
+        background-color: #fff7aa ; 
+        border : solid 4px #fff7aa;
+        color : #fff7aa
+    }
+}
+
+@keyframes flashFreeAnimation {
+    0%,50%, 100% {
+        color : #FBA40E;
+        background-color: #FBA40E;
+        border-bottom:solid 2px #FBA40E;
+    }
+    25%, 75% {
+        background-color: #fff7aa ; 
+        color : #fff7aa;
+        border-bottom: solid 2px #fff7aa;
+    }
+}
+
+.flash {
+    animation: flashAnimation 0.5s  !important;
+}
+
+.flashFree {
+    animation: flashFreeAnimation 0.5s  !important;
+}
+
+.freeAnswerInputArea, .goodAnswerFree, .wrongAnswerFree{
+    align-self: center;
+    justify-self: center;
+    background-color: #7094ff;
+    color : white;
+    border-radius: 1vw;
+    height: fit-content;
+}
+
+.goodAnswerFree, .wrongAnswerFree{
+    height: 3vh;
+    padding : max(0.7vw, 10px);
+}
+
+.freeAnswerInput{
+    background-color: transparent;
+    color : inherit;
+    margin: 0.5vw;
+    padding-bottom: 2%;
+    border : none;
+    border-bottom: solid 2px #0f1943;
+}
+
+.freeAnswerInput:focus{
+    outline: none;
+}
+
+.freeShowArea{
+    justify-self: center;
+    display : flex;
+    flex-direction: column;
+    align-items: center;
 }

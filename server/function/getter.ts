@@ -21,6 +21,20 @@ const getQuestionById = async (id : number) => {
     return retour;
 }
 
+const getQuestionAvailable = async (id : number)=>{
+    try {
+        let questOfId = await QuestionModel.find().where('author').equals(Number(id));
+        let retour  = await QuestionModel.find().where('private').equals(false).where("author").ne(id);
+        retour.forEach((quest) => {
+            questOfId.push(quest);
+            
+        })
+        return questOfId;
+    } catch (error){
+        console.error(error)
+    }
+}
+
 const getQuizzOfQuestion = async (id : number) => {
     const retour = await QuestionModel.findOne().where("question_id").equals(id);
     return retour?.quizz;
@@ -30,6 +44,28 @@ const getQuizzByOwner = async (id : number) => {
     const retour = await Quizz.find().where("creator").equals(id);
     return retour;
 };
+
+const getQuizzAvailable = async (id ?: number ) => {
+    try {
+        let retour;
+        if (id) {
+            let quizzOfId = await Quizz.find().where('creator').equals(Number(id));
+            retour  = await Quizz.find().where('private').equals(false).where("creator").ne(id);
+
+            retour.forEach((quest) => {
+                quizzOfId.push(quest);
+                
+            })
+            return quizzOfId;
+        } else {
+            retour = await Quizz.find().where('private').equals(false)
+        }
+        return retour;
+    } catch(e){
+        console.error("erreur lors du fetch des questions available : ", e)
+        return([])
+    }
+}
 
 /*const getQuizzByTags = async (tags) => {
     const retour;
@@ -86,19 +122,6 @@ const getIdByQuestionId = async (id : number)=>{
     }
 };
 
-const getQuestionAvailable = async (id : number)=>{
-    try {
-        let questOfId = await QuestionModel.find().where('author').equals(Number(id));
-        let retour  = await QuestionModel.find().where('private').equals(false).where("author").ne(id);
-        retour.forEach((quest) => {
-            questOfId.push(quest);
-            
-        })
-        return questOfId;
-    } catch (error){
-        console.error(error)
-    }
-}
 
 const getOwnerOfQuestion = async (id: String | number) => {
     try {
@@ -119,4 +142,4 @@ const getOwnerOfQuizz = async (id: String | number) => {
     }
 }
 
-export default {getQuestionsOfQuizz,getQuizzOfQuestion, getQuestionByOwner, getQuestionById, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername, getIdByQuestionId, getQuestionAvailable, getOwnerOfQuestion, getOwnerOfQuizz}
+export default {getQuestionsOfQuizz,getQuizzOfQuestion, getQuestionByOwner, getQuestionById, getQuizzByOwner, getIdByEmail, getIdByUsername, getPasswordByEmail, getPasswordByUsername, getIdByQuestionId, getQuestionAvailable, getOwnerOfQuestion, getOwnerOfQuizz, getQuizzAvailable}

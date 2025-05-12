@@ -92,24 +92,14 @@ export function CreateDCCForm({
  
     const sendDcc = async () => {
         if (validateDcc()){
-            console.log("duo carré cash envoyé");
-            const formattedcarre = Object.entries(carre).map(([_key,value], index) => ({
-                content: value, // Texte du choix
-                answer_num: (index + 1).toString() // ID de réponse sous forme de string
-            }));
-    
-            const formattedDccData = {
-                ...dccData,
-                carre: formattedcarre
-            };
             if (question_id === 0){
-                const response = await makeRequest("/question/create", "POST", formattedDccData);
+                const response = await makeRequest("/question/create", "POST", dccData);
                 if (response.success){
                     endTask();
                 };
 
             } else {
-                const response = await  makeRequest("/question/update", "PUT", {data : formattedDccData, question_id : question_id});
+                const response = await  makeRequest("/question/update", "PUT", {data : dccData, question_id : question_id});
                 if (response.success){
                     endTask();
                 };

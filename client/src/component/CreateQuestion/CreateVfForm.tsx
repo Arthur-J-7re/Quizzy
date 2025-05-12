@@ -62,7 +62,6 @@ export function CreateVfForm({
     const sendVF = async () => {
         if (validateVf()){
             if (question_id === 0){
-                console.log(vfData.mode);
                 const response = await makeRequest("/question/create", "POST", vfData);
                 if (response.success){
                     endTask();

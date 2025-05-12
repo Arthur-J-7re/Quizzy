@@ -36,7 +36,7 @@ export function Login () {
     }
     
     const registerUser = async () => {
-        const retour = await makeRequest("/login", "POST", {loginData : signupData});
+        const retour = await makeRequest("/register", "POST", {signupData : signupData});
         if (retour.success){
             const data = retour.data;
             auth?.login({id : data.id, Username : data.username, currentRoom : "", token : data.token  })

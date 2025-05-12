@@ -57,10 +57,6 @@ export function QuestionCreationForm () {
         // Nettoyage : Déconnexion du socket lors du démontage du composant
         
     }, [socket]);
-
-    useEffect(()=>{
-        console.log(mode);
-    }, [mode]);
     
     const addAnswer = (answer : string) => {
         if (!answers.includes(answer)) {
@@ -106,7 +102,6 @@ export function QuestionCreationForm () {
     };
 
     const endTask = () => {navigate(-1)};
-
 
     useEffect(() => {
         setQcmData(prev => ({

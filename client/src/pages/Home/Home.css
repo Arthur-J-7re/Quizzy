@@ -25,6 +25,16 @@
     background-color: #43bc6e !important;
 }
 
+.joinRoom {
+    display: flex;
+    
+}
+
+.roomIdInput {
+    justify-self: center;
+    align-self: center;
+}
+
 
 
 .boutonDisplay{

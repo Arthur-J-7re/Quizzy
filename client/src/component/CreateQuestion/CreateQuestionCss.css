@@ -88,7 +88,7 @@ input[type="checkbox"].custom-checkbox:checked::after {
 
 .VraiFaux{
     display: flex;
-    width: 100%;
+    width: 60%;
     justify-content: space-around;
     align-items: center;
 }

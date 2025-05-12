@@ -50,10 +50,10 @@ class QuestionCard {
 
     matchAnswers(regex : RegExp){
         switch (this.question.mode){
-            case "QCM":
-                return this.question.choices.some((element: string) => regex.test(element));
+            /*case "QCM":
+                return this.question.choices.some((element: string) => regex.test(element));*/
             case "DCC":
-                return this.question.cash.some((element: string) => regex.test(element)) || this.question.carre.some((element: string) => regex.test(element));
+                return this.question.cash.some((element: string) => regex.test(element)) /*|| this.question.carre.some((element: string) => regex.test(element))*/;
             case "FREE":
                 return this.question.answers.some((element: string) => regex.test(element));
             default:
@@ -69,7 +69,6 @@ class QuestionCard {
     
             return regex.test(this.question.title) || this.matchAnswers(regex);
         } 
-        console.log(text);
         return true;
     }
 

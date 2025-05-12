@@ -14,6 +14,7 @@ routes.post("/login",async(req, res) => {
     res.json(retour);
 });
 routes.post("/register",async(req, res) => {
+    console.log("tentative de création de compte");
     const retour = await accountCRUD.register(req.body.signupData);
     res.json(retour);
 })

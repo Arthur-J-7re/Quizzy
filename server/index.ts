@@ -6,6 +6,7 @@ import AccountCRUD from "./function/accountCRUD";
 import QuizzCRUD from "./function/quizzCRUD";
 import cors from "cors";
 import routes from "./routes/appRoutes";
+import testSocket from "./socket/testSocket";
 
 
 //const action = require('./fun.js');
@@ -16,9 +17,17 @@ import { Server } from 'socket.io';
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 import questionCRUD from "./function/questionCRUD";
+import test from "node:test";
 dotenv.config();
 
 const app = express();
+
+declare module "socket.io" {
+  interface Socket {
+    user_id: number; // ou number selon ton type
+    room_id: number
+  }
+}
 
 
 app.use(cors({ origin: "http://localhost:5180" })); 
@@ -50,16 +59,15 @@ const io = new Server(server, {
 
   
 
-io.on('connection',(socket : Socket) => {
+io.on('connection',(socket : Socket ) => {
   console.log("Un utilisateur est connecté");
-  socket.on("userInformation", (data) => console.log("connection de ", data.username));
-  socket.on("getQuestionTest",async ()=>{
-    console.log("on demande la question");
-    const question = await getter.getQuestionById(22);
-    console.log("on renvoie la question", question);
-    socket.emit("newQuestion", {question : question})
+
+  socket.on("userInformation", (data) => {console.log("connection de ", data.username, "avec", data ); socket.user_id = data.id});
+  testSocket(io, socket);
+  socket.on("disconnect", ()=>{
+    console.log("socket deconnecté", socket.room_id)
   })
-  socket.on("createVFQuestion", (data) => QuestionCRUD.createVFQuestionSocket(socket, data))
+
 });
 
 const update = async() => {
