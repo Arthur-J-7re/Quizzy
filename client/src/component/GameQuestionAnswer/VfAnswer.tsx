@@ -4,14 +4,14 @@ import "./GameQuestionAnswer.css"
 
 
 
-export default function VfAnswer( { question, socket }: { question: any, socket: any }) {
+export default function VfAnswer( { question, socket, room_id, username }: { question: any, socket: any, room_id : string, username: string }) {
     const [flash, setFlash] = useState(false);
     const [answering, setAnswering] = useState(true);
     const [selectedAnswer, setSelectedAnswer] =  useState("");
     const [answer,setAnswer] = useState("");
     
     const sendAnswer = () =>{
-        socket.emit("answerToVf", {question : question, answer : selectedAnswer});
+        socket.emit("answerToQuestion", {question : question, answer : selectedAnswer, room_id : room_id, username: username});
     }
 
     

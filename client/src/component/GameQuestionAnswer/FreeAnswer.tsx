@@ -3,13 +3,13 @@ import { useState, useEffect } from "react";
 import "./GameQuestionAnswer.css"
 
 
-export default function FreeAnswer( { question, socket }: { question: any, socket: any }) {
+export default function FreeAnswer( { question, socket, room_id, username }: { question: any, socket: any, room_id : string, username: string }) {
     const [flash, setFlash] = useState(false);
     const [answering, setAnswering] = useState(true);
     const [selectedAns, setSelectedAns] = useState("");
     const [answer, setAnswer] =  useState("");
     const sendAnswer = () =>{
-        socket.emit("answerToFree", {question : question, answer : selectedAns});
+        socket.emit("answerToQuestion", {question : question, answer : selectedAns, room_id : room_id, username: username});
     }
     
 

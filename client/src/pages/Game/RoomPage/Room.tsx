@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import RoomLink from "../../../tools/RoomLink";
 import { useSocket } from "../../../context/socketContext";
 import { AuthContext } from "../../../context/authentContext";
-import { TextField, Button } from "@mui/material";
+import { Button } from "@mui/material";
+import QuestionReceiver from "../../../component/GameQuestionAnswer/QuestionReceiver";
 
 
 export default function Room ({roomInfo, Username} : {roomInfo : any, Username : string}){
@@ -14,10 +15,12 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
     }
     const socket = useSocket();
     const auth = useContext(AuthContext);
-    const [username, setUsername] = useState(Username);
-    const [password, setPassword] = useState("");
+    const username = Username;
+
     const [roomName,setRoomName] = useState(roomInfo.name);
-    const [roomPrivate, setRoomPrivate] = useState(false);
+    const [room, setRoom] = useState({room_id:id, name: roomInfo.name, player: roomInfo.player });
+    const [isCreator, setIsCreator] = useState(false);
+    const [inGame, setInGame] = useState(false)
 
     useEffect(() => {
         /*if (socket){
@@ -27,7 +30,11 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
             socket.on("infoRoom", (data) => {
                 console.log("infoRoom : ", data);
                 setRoomName(data.name);
-                setRoomPrivate(data.isPrivate);
+                setRoom({room_id:data.room_id, name:data.name, player:data.player});
+            })
+            socket.on("ownerOfRoom", () => {
+                console.log("y a le bouton là?");
+                setIsCreator(true);
             })
             socket.on("ping", (data : any)=>{
                 alert("vous avez été ping par : " + data.name);
@@ -36,11 +43,21 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
             socket.on("aPlayerHasJoined", (data) => {
                 alert(data.name + "est dans la partie");
             })
+            socket.on("Starting game", (data) => {
+                setInGame(true);
+            })
         }
     },[socket])
 
     const ping = () => {
         socket?.emit("ping", {id : id, username : username})
+    }
+
+    const startGame = () => {
+        if (socket){ 
+            console.log("ça start là", room);
+            socket.emit("startGame", ({username : username, room_id: room.room_id}))
+        }
     }
     if (auth)
 
@@ -48,16 +65,23 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
 
     if (roomName){
         return (
+            inGame ? 
+            <div>
+                <QuestionReceiver socket={socket} room_id={id} username={username}/>
+            </div>
+            :
             <div>
                 <div>{roomName}</div>
                 <div>Votre nom inGame : {username}</div>
                 <Button onClick={() => ping()}> ping les autres personne</Button>
                 <RoomLink roomId={id} />
+                {isCreator && <Button onClick={()=>startGame()}>Commencer la partie</Button>}
             </div> 
-                
         )
     } else {
-        return (<div>Il n'y a pas de salon avec cette id</div>)
+        return (<div>Il n'y a pas de salon avec cette id</div>
+            /*<Button onClick={() => nav("/createRoom")}>Créer votre propre salon</Button>*/
+        )
     }
     
 }

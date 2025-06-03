@@ -4,7 +4,7 @@ import "../GameQuestionAnswer.css"
 
 
 
-export default function DuoAnswer( { question, socket }: { question: any, socket: any }) {
+export default function DuoAnswer( { question, socket, room_id, username }: { question: any, socket: any, room_id : string, username: string }) {
     const [flash, setFlash] = useState(false);
     const [duo, setDuo] = useState<{id : number, value : string}[]>([{id : 0, value :""},{id : 0, value : ""}]);
     const [answering, setAnswering] = useState(true);
@@ -12,7 +12,7 @@ export default function DuoAnswer( { question, socket }: { question: any, socket
     const [answer,setAnswer] = useState(0);
     
     const sendAnswer = () =>{
-        socket.emit("answerToDccDuo", {question : question, answer : selectedAnswer});
+        socket.emit("answerToQuestion", {question : question, answer : {value : selectedAnswer, mode : "DUO"}, room_id : room_id, username: username});
     }
 
     useEffect(() => {

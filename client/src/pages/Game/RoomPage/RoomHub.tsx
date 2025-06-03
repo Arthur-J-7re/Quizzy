@@ -45,6 +45,15 @@ export default function RoomHub (){
         }
     },[socket]);
 
+    useEffect(()=>{
+        if (roomInfo && auth?.user?.Username){
+            if (roomInfo.player[auth.user.Username]){
+                setInGame(true)
+                socket?.emit("autoConnect", ({username : auth.user.Username, room_id:id}))
+            }
+        }
+    },[roomInfo])
+
     console.log("roomHub montée");
 
     const joinRoom = () => {

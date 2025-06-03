@@ -165,7 +165,7 @@ export function QuizzCreation () {
     const deleteQuizz = async () => {
         const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer définitivement la question ?");
         if (confirmation) {
-            const response = await makeRequest("/quizz", "DELETE", {quizz_id : quizz.quizz_id, creator: quizz.creator});
+            const response = await makeRequest("/quizz", "DELETE", {quizz_id : quizz.quizz_id});
             if (response.success){
                 navigate("/profil")
             }
@@ -348,7 +348,7 @@ export function QuizzCreation () {
         <Banner></Banner>
         <div className='PleaseLogin'>
             <h1>Veuillez-vous inscrire pour pouvoir créer un quizz</h1>
-            <Button className='linkLogin' onClick={() => navigate("/login")}>Page de connection !</Button>
+            <Button className='linkLogin' onClick={() => navigate("/login")}>Page de connexion !</Button>
         </div>
     </div>
 

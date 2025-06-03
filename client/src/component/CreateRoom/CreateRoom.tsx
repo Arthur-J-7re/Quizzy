@@ -1,10 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { InputLabel, Select, MenuItem, Button, Switch, FormControl,Checkbox, TextField, FormHelperText} from "@mui/material";
+import { InputLabel, Select, MenuItem, Button, Switch, FormControl,Checkbox, TextField} from "@mui/material";
 import { useSocket } from "../../context/socketContext";
-import { Banner } from "../Banner/Banner";
-import RoomLink from "../../tools/RoomLink";
-import { Label } from "@mui/icons-material";
+
 import makeRequest from "../../tools/requestScheme";
 import { AuthContext } from "../../context/authentContext";
 
@@ -21,16 +19,15 @@ export default function CreateRoom () {
     const [isPrivate, setIsPrivate] = useState(false);
     const [availableQuizz, setAvailableQuizz] = useState<any[]>();
     const [password, setPassword] = useState("");
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-      };
+    const [selectedEmission, setSelectedEmission] = useState();
+
     
 
     const socket = useSocket();
     const auth = useContext(AuthContext);
     const navigate = useNavigate();
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
+
+    const [username, setUsername] = useState(auth?.user?.Username ? auth.user.Username : "")
 
     useEffect(() => {
         if (socket){
@@ -62,20 +59,36 @@ export default function CreateRoom () {
 
     }, []);
 
-    const handleCreate = () =>{
-        console.log("on tente de créer une room");
+    const createEmission = async (mode : string) => {
+        if (mode === "Points" || mode === "BR"){
+            return {
+                title: "randomPoints",
+                creator: null,
+                id : null,
+                numberOfStep: 1,
+                steps: [{
+                    title: "Points",
+                    quizz: quizzIdForModePoints,
+                    mode: mode
+                }]
+            }
+        }
+    }
+
+    const handleCreate = async () =>{
+        console.log("on tente de créer une room", username);
         if (socket){
             if (name.trim().length>0){
             const selectedQuizz = availableQuizz?.find(q => q.quizz_id === quizzIdForModePoints);
             socket.emit("createRoom", {
                 name : name,
                 isPrivate: isPrivate,
+                creator: username,
                 password: password,
                 withPresentator: withPresentator,
                 withRef: withRef,
                 numberOfParticipantMax: numberOfParticipantMax,
-                mode : mode,
-                quizzForModePoints: selectedQuizz,
+                emission: selectedEmission ? selectedEmission : await createEmission(mode),
             })
             } else {
                 alert("il faut un nom pour le salon");
@@ -108,9 +121,6 @@ export default function CreateRoom () {
         }
     }
 
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
      
     const renderMore = () => {
         switch (mode) {
@@ -155,6 +165,7 @@ export default function CreateRoom () {
             <div>
                 <TextField type="text" label="Nom de votre salon"value={name} onChange={(e) => setName(e.target.value)} required></TextField>
             </div>
+            { !(auth?.user) && <TextField type="text" label="Votre nom dans la partie"value={username} onChange={(e) => setUsername(e.target.value)} required></TextField>}
             <div>
                 <Switch
                     type='checkboxe'
@@ -190,7 +201,7 @@ export default function CreateRoom () {
                 id="demo-simple-select"
                 value={mode || "mode"}
                 label="Mode"
-                onChange={(e) => {setMode(e.target.value); handleClose()}}
+                onChange={(e) => {setMode(e.target.value)}}
                 >
                 {Mode.map((mode: string) => (
                     <MenuItem key={mode} value={mode} >

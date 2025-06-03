@@ -307,7 +307,7 @@ export function QuestionModifier () {
             <Banner></Banner>
             <div className='PleaseLogin'>
                 <h1>Veuillez-vous inscrire pour pouvoir modifier une question</h1>
-                <Button className='linkLogin' onClick={() => navigate("/login")}>Page de connection !</Button>
+                <Button className='linkLogin' onClick={() => navigate("/login")}>Page de connexion !</Button>
             </div>
         </>
         

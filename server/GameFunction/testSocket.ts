@@ -1,10 +1,10 @@
 import getter from "../function/getter";
-import room from "../GameFunction/room";
+import room from "./room";
 import { Socket } from "socket.io";
 
-const current: { [key: number]: string } = {};
+export const current: { [name: string |number]: string } = {};
 
-function normalizeText(str: string): string {
+export function normalizeText(str: string): string {
     return str
         .normalize("NFD")                  // décompose les caractères accentués
         .replace(/[\u0300-\u036f]/g, "")   // enlève les diacritiques (accents)
@@ -45,17 +45,15 @@ export default function testSocket (io : any, socket : Socket & {user_id : numbe
         }
     })
 
-    socket.on("getDccMode", () => {
-        console.log("demande du mode pour : ", socket.user_id);
-        if (current[socket.user_id]){
-            console.log("le mode est ", current[socket.user_id]);
-            socket.emit("DccMode", (current[socket.user_id]))
-        }
+    socket.on("getDccMode", (data) => {
+        const {room_id, username} = data;
+        room.getDccMode(room_id, username)
     })
 
-    socket.on("setMode", (mode) => {
-        console.log("on set le mode ", mode , "pour", socket.user_id);
-        current[socket.user_id] = mode;
+    socket.on("setMode", (data) => {
+        const {room_id, username, mode} = data;
+        console.log("on set le mode ", mode , "pour", socket.username);
+        room.setDccMode(room_id, username, mode)
     })
 
     socket.on("answerToDccCash", (data : any)=>{
@@ -99,7 +97,7 @@ export default function testSocket (io : any, socket : Socket & {user_id : numbe
 
     socket.on("createRoom",async (data) => {
         console.log("création de room");
-        await room.create(data, socket);
+        await room.create(data, socket, io);
     })
 
     socket.on("infoRoom", (roomId : string) => {
@@ -111,7 +109,20 @@ export default function testSocket (io : any, socket : Socket & {user_id : numbe
         room.connect(data, socket, io)
     })
 
+    socket.on("autoConnect",async (data)=>{
+        await room.autoConnect(data, socket)
+    })
+
+    socket.on("answerToQuestion", (data) => {
+        room.answer(data, socket);
+    })
+
     socket.on("ping", (data)=>{
         room.ping(data, socket, io);
+    })
+
+    socket.on("startGame", (data)=> {
+        console.log("on reçoit le start");
+        room.start(data, io);
     })
 }

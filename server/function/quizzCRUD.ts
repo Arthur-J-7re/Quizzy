@@ -34,14 +34,17 @@ const updateQuizz = async (information : any) =>{
     console.log("on modifie le quizz");
     try {
         let quizzObj = information;
-        let id = await getter.getIdByQuestionId(information.quizz_id);
-        const quizzUPdated = await Quizz.updateOne({ quizz_id: id},{$set : {
+        console.log("les infos de l'update", quizzObj);
+
+        console.log("l'id", quizzObj.quizz_id);
+        const quizzUPdated = await Quizz.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
             tags: quizzObj.tags,
             title: quizzObj.title,
             private: quizzObj.private,
-            questions : quizzObj.questions
+            questions : quizzObj.questionList
         }});
-        await questionCRUD.addQuizzToQuestion(quizzObj.questions, id);
+        console.log(quizzUPdated);
+        await questionCRUD.addQuizzToQuestion(quizzObj.questionList, quizzObj.quizz_id);
         return({success : true});
     } catch (error){
         if (error instanceof Error) {

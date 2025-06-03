@@ -6,7 +6,7 @@ import AccountCRUD from "./function/accountCRUD";
 import QuizzCRUD from "./function/quizzCRUD";
 import cors from "cors";
 import routes from "./routes/appRoutes";
-import testSocket from "./socket/testSocket";
+import testSocket from "./GameFunction/testSocket";
 
 
 //const action = require('./fun.js');
@@ -25,14 +25,15 @@ const app = express();
 declare module "socket.io" {
   interface Socket {
     user_id: number; // ou number selon ton type
-    room_id: number
+    room_id: number;
+    username : string;
   }
 }
 
 
 app.use(cors({ origin: "http://localhost:5180" })); 
 const server = createServer(app);
-const io = new Server(server, {
+export const io = new Server(server, {
     cors: {
         origin: "http://localhost:5180",
         methods: ["GET", "POST", "PUT", "DELETE"],
@@ -62,7 +63,7 @@ const io = new Server(server, {
 io.on('connection',(socket : Socket ) => {
   console.log("Un utilisateur est connecté");
 
-  socket.on("userInformation", (data) => {console.log("connection de ", data.username, "avec", data ); socket.user_id = data.id});
+  socket.on("userInformation", (data) => {console.log("connection de ", data.username, "avec", data ); socket.user_id = data.id; socket.username = data.username});
   testSocket(io, socket);
   socket.on("disconnect", ()=>{
     console.log("socket deconnecté", socket.room_id)

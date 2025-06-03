@@ -3,13 +3,13 @@ import { useState, useEffect } from "react";
 import "./GameQuestionAnswer.css"
 
 
-export default function QcmAnswer( { question, socket }: { question: any, socket: any }) {
+export default function QcmAnswer( { question, socket, room_id, username }: { question: any, socket: any, room_id : string, username: string }) {
     const carre = (question? question.choices : {ans1 : "", ans2 : "", ans3 : "", ans4 : ""});
     const [flash, setFlash] = useState(false);
     const [answering, setAnswering] = useState(true);
     const [selectedAns, setSelectedAns] = useState(0);
     const sendAnswer = () =>{
-        socket.emit("answerToQcm", {question : question, answer : selectedAns});
+        socket.emit("answerToQuestion", {question : question, answer : selectedAns, room_id : room_id, username: username});
     }
     
 

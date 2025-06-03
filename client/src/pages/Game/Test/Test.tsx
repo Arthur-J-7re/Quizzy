@@ -39,7 +39,7 @@ export function Test () {
         {/*<CreateRoom />*/}
         {receive ? 
             answer ? 
-                <GameQuestionAnswer question={question} socket={socket}/> : <CreateRoom />
+                <GameQuestionAnswer question={question} socket={socket} room_id={"0"} username={"test"}/> : <CreateRoom />
             : ""
         }
     </div> 

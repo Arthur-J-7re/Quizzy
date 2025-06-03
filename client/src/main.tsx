@@ -11,6 +11,7 @@ import { AccountUpdate} from './pages/Profil/AccountUpdate.tsx';
 import { QuestionModifier } from './pages/QuestionForm/QuestionModifier.tsx';
 import { QuizzCreation } from './pages/QuizzForm/QuizzCreation.tsx';
 import PlayRoutes from './PlayRoutes.tsx'
+import { EmissionCreation } from './pages/Emission/Emission.tsx';
 
 
 createRoot(document.getElementById('root')!).render(
@@ -24,7 +25,9 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/create-a-question" element={<QuestionCreationForm/>}/>
         <Route path="/create-a-quizz" element={<QuizzCreation/>}/>
         <Route path="/modify-a-quizz" element={<QuizzCreation/>}/>
-        <Route path="/Modify-a-question" element={<QuestionModifier/>}/>
+        <Route path="/modify-a-question" element={<QuestionModifier/>}/>
+        <Route path="/create-an-emission" element={<EmissionCreation/>}/>
+        <Route path="/modify-an-emission" element={<EmissionCreation/>}/>
         <Route path="/modify-account" element={<AccountUpdate/>}/>  
         <Route path="/play/*" element={<PlayRoutes/>}/>
       </Routes>

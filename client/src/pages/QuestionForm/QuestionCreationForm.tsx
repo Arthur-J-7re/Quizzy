@@ -282,7 +282,7 @@ export function QuestionCreationForm () {
             <Banner></Banner>
             <div className='PleaseLogin'>
                 <h1>Veuillez-vous inscrire pour pouvoir créer une question</h1>
-                <Button className='linkLogin' onClick={() => navigate("/login")}>Page de connection !</Button>
+                <Button className='linkLogin' onClick={() => navigate("/login")}>Page de connexion !</Button>
             </div>
         </>
         

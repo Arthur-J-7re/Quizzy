@@ -73,14 +73,22 @@ routes.delete("/", token.verifyToken,async (req,res)=>{
     console.log("api suprresion de quizz");
     const newReq : any = req;
     const data : any = req.body;
-    console.log(data);
-    let retour = {success : false};
-    if (data.creator === newReq.user.id){
-      console.log("là ça va supprimer");
-      retour = await quizzCRUD.deleteQuizz(data.quizz_id);
-      await userCRUD.deleteQuizzFromUser(Number(data.creator), Number(data.quizz_id));
+    if (!(data && data.quizz_id)){
+      res.json(false);
     }
-    res.json(retour);
+    try{
+      console.log(data);
+      const creator = await getter.getOwnerOfQuizz(data.quizz_id);
+      let retour = {success : false};
+      if (creator === newReq.user.id){
+        console.log("là ça va supprimer");
+        retour = await quizzCRUD.deleteQuizz(data.quizz_id);
+        await userCRUD.deleteQuizzFromUser(Number(creator), Number(data.quizz_id));
+      }
+      res.json(retour);
+    } catch (error){
+      console.error("erreur lors de la suppression d'un quizz : ", error);
+    }
 });
 
 export default routes;
