@@ -10,7 +10,7 @@ import { Socket } from 'socket.io-client';
 import { useContext } from "react";
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from "../../context/authentContext";
-import Toast from '../../tools/toast/toast';
+import Toast from '../../component/Tools/toast/toast';
 import { useLocation } from 'react-router-dom';
 import "../CommonCss.css";
 import makeRequest from '../../tools/requestScheme';

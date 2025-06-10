@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom"
 import { useContext, useEffect, useState, useRef, useCallback } from "react";
 import { AuthContext } from "../../context/authentContext";
 import  QuestionCard  from "../../component/QuestionCard/QuestionCard";
-import Toast from "../../tools/toast/toast"; 
+import Toast from "../../component/Tools/toast/toast"; 
 import "../CommonCss.css";
 import "../../component/QuestionCard/QuestionCard.css";
 import "./QuizzForm.css";

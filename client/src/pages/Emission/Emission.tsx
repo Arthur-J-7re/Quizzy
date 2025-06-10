@@ -4,7 +4,7 @@ import { Banner } from "../../component/Banner/Banner";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useContext, useEffect, useState, useRef } from "react";
 import { AuthContext } from "../../context/authentContext";
-import Toast from "../../tools/toast/toast";
+import Toast from "../../component/Tools/toast/toast";
 import { StepForm } from "../../component/StepForm/StepForm";
 import makeRequest from "../../tools/requestScheme";
 import "../CommonCss.css";

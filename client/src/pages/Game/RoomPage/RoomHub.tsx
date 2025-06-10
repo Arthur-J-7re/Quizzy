@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
-import RoomLink from "../../../tools/RoomLink";
+import RoomLink from "../../../component/Tools/RoomLink";
 import { useSocket } from "../../../context/socketContext";
 import { AuthContext } from "../../../context/authentContext";
 import { Button, TextField } from "@mui/material";

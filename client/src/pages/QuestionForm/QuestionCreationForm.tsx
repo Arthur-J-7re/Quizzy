@@ -9,14 +9,14 @@ import { Banner } from '../../component/Banner/Banner';
 import { useContext } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from "../../context/authentContext";
-import Toast from '../../tools/toast/toast';
+import Toast from '../../component/Tools/toast/toast';
 import "../CommonCss.css";
 import "./QuestionForm.css"
 
 
 export function QuestionCreationForm () {
     const location = useLocation();
-    const _question = location.state?.question;
+    const _question = location.state?.question; 
     const [mode , setMode] = useState(_question?.mode ||"QCM");
     const [title, setTitle] = useState(_question?.title || "");
     const [level,setLevel] = useState(_question?.level || 1);

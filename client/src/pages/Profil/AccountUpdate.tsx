@@ -4,12 +4,14 @@ import { AuthContext } from "../../context/authentContext";
 import "./profil.css"
 import { Banner } from "../../component/Banner/Banner";
 import  makeRequest  from "../../tools/requestScheme";
+import {IconeSelector} from "../../component/Tools/IconeSelector/IconeSelector";
 
 export function AccountUpdate(){
     const auth = useContext(AuthContext);
     const [username, setUsername] = useState("");
     const [changed, setChanged] = useState(false);
     const [id,setId] = useState("");
+    const [icone, setIcone] = useState("");
     
     useEffect(() => {
         if (auth?.user?.Username) {
@@ -54,6 +56,10 @@ export function AccountUpdate(){
                         onChange={(e) => {setUsername(e.target.value ); setChanged(true)}}
                         required
                     />
+                </div>
+
+                <div>
+                    <IconeSelector file={icone} setFile={setIcone} canOpenGrid={true}></IconeSelector>
                 </div>
                 <Button onClick={() => sendData()} disabled={!changed} className="update">Sauvegarder les modifications</Button>
             </div>
