@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from '@mui/material';
-import { Switch } from '@mui/material';
 import "./CreateQuestionCss.css"
 import makeRequest from '../../tools/requestScheme';
 
@@ -30,10 +29,6 @@ export function CreateQCMForm({
     endTask,
     setMessageInfo,
     setShowMessage,
-    title,
-    setTitle,
-    setPrivate,
-    changePrivate,
     tags,
     addTag,
     removeTag,
@@ -91,28 +86,6 @@ export function CreateQCMForm({
 
     return (
         <div className='formContainer'>
-            <div className='title'>
-                <label className='questionCreation-label'>Intitulé de la question</label>
-                <input
-                    type='text'
-                    id="title"
-                    value={title || ''}
-                    className='titre'
-                    onChange={(e) => setTitle(e.target.value )}
-                    autoComplete="off"
-                    required
-                />
-            </div>
-            <div className='privateswitch'>
-                <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
-                <Switch
-                    type='checkboxe'
-                    checked={qcmData.private}
-                    className='isPrivate'
-                    onClick={() => changePrivate()}
-                />
-                <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
-            </div>
             <div className='carre'>
             <h3 className='questionCreationIndication'>Complétez les différentes propositions et cochez la bonne réponse</h3>
                 <div className='answerQcm'> 
@@ -190,30 +163,30 @@ export function CreateQCMForm({
                 </div>
             </div>
             <div className='tagList'>
-                <div className='tagSpanDispencer'>
-                    {tags.map(tag => (
-                    <span key={tag} onClick={() => removeTag(tag)} className='tag'>
-                        {tag} ❌
-                    </span>
-                    ))}
-                </div>
-                {tags.length < 5 ? (
-                    <input 
-                    type="text" 
-                    className='tagInput'
-                    onKeyDown={(e) => {
-                        const inputElement = e.target as HTMLInputElement;
-                        if (e.key === "Enter" && inputElement.value.trim()) {
-                        addTag(inputElement.value.trim());
-                        inputElement.value = "";
-                        }
-                    }} 
-                    placeholder="Ajouter un tag"
-                    />
-                ) : (
-                    <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
-                )}
+            <div className='tagSpanDispencer'>
+                {tags.map(tag => (
+                <span key={tag} onClick={() => removeTag(tag)} className='tag'>
+                    {tag} ❌
+                </span>
+                ))}
             </div>
+            {tags.length < 5 ? (
+                <input 
+                type="text" 
+                className='tagInput'
+                onKeyDown={(e) => {
+                    const inputElement = e.target as HTMLInputElement;
+                    if (e.key === "Enter" && inputElement.value.trim()) {
+                    addTag(inputElement.value.trim());
+                    inputElement.value = "";
+                    }
+                }} 
+                placeholder="Ajouter un tag"
+                />
+            ) : (
+                <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
+            )}
+        </div>
             <Button className='SendButton' onClick={()=>sendQcm()}>Finaliser la création de la question</Button>
         </div>
     

@@ -1,12 +1,11 @@
 import { useState, useEffect} from 'react';
 import Button from '@mui/material/Button';
-import { useSocket } from '../../context/socketContext';
+import { Switch } from '@mui/material';
 import { CreateQCMForm } from '../../component/CreateQuestion/CreateQcmForm';
 import { CreateFreeForm } from '../../component/CreateQuestion/CreateFreeForm';
 import { CreateDCCForm } from '../../component/CreateQuestion/CreateDccForm';
 import {CreateVfForm} from '../../component/CreateQuestion/CreateVfForm'
 import { Banner } from '../../component/Banner/Banner';
-import { Socket } from 'socket.io-client';
 import { useContext } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from "../../context/authentContext";
@@ -14,50 +13,32 @@ import Toast from '../../tools/toast/toast';
 import "../CommonCss.css";
 import "./QuestionForm.css"
 
+
 export function QuestionCreationForm () {
     const location = useLocation();
-    const _question = location.state?.question || {title : "", private : false, tags : [], mode : []};
-    const [mode , setMode] = useState("QCM");
-    const [title, setTitle] = useState("");
+    const _question = location.state?.question;
+    const [mode , setMode] = useState(_question?.mode ||"QCM");
+    const [title, setTitle] = useState(_question?.title || "");
+    const [level,setLevel] = useState(_question?.level || 1);
     const [goodNews, setGoodNews] = useState(false);
-    const [tags, setTags] = useState<string[]>([]);
-    const [isPrivate, setPrivate] = useState(true);
-    const [carre, setCarre] = useState({ans1 : "", ans2 : "", ans3: "", ans4: ""});
-    const [answers, setAnswers] = useState<string[]>([]);
-    const [truth, setTruth] = useState(true);
+    const [tags, setTags] = useState<string[]>(_question?.tags || []);
+    const [isPrivate, setPrivate] = useState(_question?.private ||true);
+    const [carre, setCarre] = useState(_question?.carre || _question?.choices || {ans1 : "", ans2 : "", ans3: "", ans4: ""});
+    const [answers, setAnswers] = useState<string[]>(_question?.cash ||_question?.answers || []);
+    const [truth, setTruth] = useState(_question?.truth);
     const auth = useContext(AuthContext);
     const user_id = auth?.user?.id || "0";
     const [freeData, setFreeData] = useState({user_id : user_id,mode : "FREE",title: title, tags: tags, private:isPrivate, answers: answers});
-    const [dccData, setDccData] = useState({user_id : user_id,mode : "DCC",title: title, tags: tags, private: isPrivate, carre: carre, duo: 2, answer: 1, cash: answers});
-    const [qcmData, setQcmData] = useState({user_id : user_id,mode : "QCM",title: title, tags: tags, private: isPrivate, choices: carre, answer: 1});
+    const [dccData, setDccData] = useState({user_id : user_id,mode : "DCC",title: title, tags: tags, private: isPrivate, carre: carre, duo: _question?.duo ||2, answer: _question?.answer ||1, cash: answers});
+    const [qcmData, setQcmData] = useState({user_id : user_id,mode : "QCM",title: title, tags: tags, private: isPrivate, choices: carre, answer: _question?.answer || 1});
     const [vfData, setVfData] = useState({user_id : user_id,mode : "VF",title: title, tags: tags, private: isPrivate, truth: truth});
 
     const [messageInfo, setMessageInfo] = useState("");
     const [showMessage, setShowMessage] = useState(false);
     const navigate = useNavigate();
     //const socketRef = useRef(null);
-    const socket = useSocket();
-    useEffect(() => {
-        if (socket instanceof Socket){
-            socket.on("questionCreated", ()=> {
-                setCarre({ans1 : "", ans2 : "", ans3: "", ans4: ""});
-                setPrivate(true);
-                setAnswers([]);
-                setTags([]);
-                setTruth(true);
-                setTitle("");
-                setQcmData({...qcmData, answer : 1});
-                setDccData({...dccData, answer : 1, duo : 2});
-                setMessageInfo("Question créée avec succès");
-                setGoodNews(true);
-                setShowMessage(true);
-                
-            });
-        }
-        // Nettoyage : Déconnexion du socket lors du démontage du composant
-        
-    }, [socket]);
-    
+
+
     const addAnswer = (answer : string) => {
         if (!answers.includes(answer)) {
             setAnswers([...answers, answer]);
@@ -243,7 +224,7 @@ export function QuestionCreationForm () {
             <Banner></Banner>
             <div className="Maincontainer">
                 <div>
-                <div className="modeSelector">
+                {_question ?  "" : <div className="modeSelector">
                     <h3>Créer une question avec un format</h3>
                     <Button 
                     className = {(mode == "QCM")?"first notOutlined selectedMode":"first notOutlined notSelectedMode"}
@@ -267,6 +248,31 @@ export function QuestionCreationForm () {
                     onClick={() => setMode("VF")}>
                     Vrai ou Faux
                     </Button>
+                </div>}
+                <div className='title'>
+                    <label className='questionCreation-label'>Intitulé de la question</label>
+                    <input
+                        type='text'
+                        id="title"
+                        className='titre'
+                        value={title || ''}
+                        onChange={(e) => setTitle(e.target.value )}
+                        required
+                    />
+                </div>
+                <div className='privateswitch'>
+                    <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
+                    <Switch
+                        type='checkboxe'
+                        checked={dccData.private}
+                        className='isPrivate'
+                        onClick={() => changePrivate()}
+                    />
+                    <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
+                </div>
+                <div>
+                    {/* faire le selecteur de difficulty level ici */}
+
                 </div>
                 {renderContent()}
                 </div>

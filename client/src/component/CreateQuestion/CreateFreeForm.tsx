@@ -1,6 +1,5 @@
 import React from 'react';
 import Button from '@mui/material/Button';
-import { Switch } from '@mui/material';
 import "./CreateQuestionCss.css"
 import makeRequest from '../../tools/requestScheme';
 
@@ -31,10 +30,6 @@ export function CreateFreeForm({
     endTask,
     setMessageInfo,
     setShowMessage,
-    title,
-    setTitle,
-    setPrivate,
-    changePrivate,
     tags,
     addTag,
     removeTag,
@@ -94,27 +89,6 @@ export function CreateFreeForm({
  
     return (
     <div className='formContainer'>
-        <div className='title'>
-            <label className='questionCreation-label'>Intitulé de la question</label>
-            <input
-                type='text'
-                id="title"
-                className='titre'
-                value={title || ''}
-                onChange={(e) => setTitle(e.target.value )}
-                required
-            />
-        </div>
-        <div className='privateswitch'>
-            <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
-            <Switch
-                type='checkboxe'
-                checked={freeData.private}
-                className='isPrivate'
-                onClick={() => changePrivate()}
-            />
-            <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
-        </div>
         <div className='answersList'>
             <div className='tagSpanDispencer'>
                 {answers.map(answer => (
@@ -138,7 +112,6 @@ export function CreateFreeForm({
             />
             
         </div>
-        
         <div className='tagList'>
             <div className='tagSpanDispencer'>
                 {tags.map(tag => (
@@ -164,6 +137,7 @@ export function CreateFreeForm({
                 <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
             )}
         </div>
+        
         <Button className='SendButton' onClick={()=>sendFree()}>Finaliser la création de la question</Button>
     </div>
 

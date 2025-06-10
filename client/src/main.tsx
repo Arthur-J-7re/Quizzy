@@ -25,7 +25,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/create-a-question" element={<QuestionCreationForm/>}/>
         <Route path="/create-a-quizz" element={<QuizzCreation/>}/>
         <Route path="/modify-a-quizz" element={<QuizzCreation/>}/>
-        <Route path="/modify-a-question" element={<QuestionModifier/>}/>
+        <Route path="/modify-a-question" element={<QuestionCreationForm/>}/>
         <Route path="/create-an-emission" element={<EmissionCreation/>}/>
         <Route path="/modify-an-emission" element={<EmissionCreation/>}/>
         <Route path="/modify-account" element={<AccountUpdate/>}/>  

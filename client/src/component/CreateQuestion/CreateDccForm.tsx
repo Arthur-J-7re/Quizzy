@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '@mui/material/Button';
-import { Switch } from '@mui/material';
+
 import "./CreateQuestionCss.css"
 import makeRequest from '../../tools/requestScheme';
 
@@ -36,10 +36,6 @@ export function CreateDCCForm({
     endTask,
     setMessageInfo,
     setShowMessage,
-    title,
-    setTitle,
-    setPrivate,
-    changePrivate,
     tags,
     addTag,
     removeTag,
@@ -110,27 +106,7 @@ export function CreateDCCForm({
 
     return (
     <div className='formContainer'>
-        <div className='title'>
-            <label className='questionCreation-label'>Intitulé de la question</label>
-            <input
-                type='text'
-                id="title"
-                className='titre'
-                value={title || ''}
-                onChange={(e) => setTitle(e.target.value )}
-                required
-            />
-        </div>
-        <div className='privateswitch'>
-            <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
-            <Switch
-                 type='checkboxe'
-                 checked={dccData.private}
-                 className='isPrivate'
-                 onClick={() => changePrivate()}
-             />
-            <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
-        </div>
+        
         <div className='carre'>
             <h3 className='questionCreationIndication'>Complétez les différentes propositions et cochez la bonne réponse (à gauche) <br/>
                 et la réponse complétant le duo (à droite) </h3>
@@ -253,9 +229,8 @@ export function CreateDCCForm({
             />
             
         </div>
-        
         <div className='tagList'>
-            <div>
+            <div className='tagSpanDispencer'>
                 {tags.map(tag => (
                 <span key={tag} onClick={() => removeTag(tag)} className='tag'>
                     {tag} ❌
@@ -279,6 +254,8 @@ export function CreateDCCForm({
                 <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
             )}
         </div>
+        
+        
         <Button className='SendButton' onClick={()=>sendDcc()}>Finaliser la création de la question</Button>
     </div>
     )
