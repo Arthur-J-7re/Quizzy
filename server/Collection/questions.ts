@@ -37,7 +37,7 @@ interface IQuestionBase extends mongoose.Document {
     private: boolean;
     quizz : number[];
     playlist : number [];
-    difficultyLevel: number;
+    level: number;
     report?: { date: Date; reporter: number }[];
     played?: number;
     succeed?: number;
@@ -52,7 +52,7 @@ const QuestionSchema = new mongoose.Schema<IQuestionBase>({
     title : {type : String, required: true},
     private: {type: Boolean, required: true},
     quizz : {type: [Number], default: []},
-    difficultyLevel: {type:Number},
+    level: {type:Number},
     report: { type : [{ date: Date, reporter: Number }], default : []},
     played: {type : Number, default : 0},
     succeed: {type : Number, default : 0},

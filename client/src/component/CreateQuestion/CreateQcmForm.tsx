@@ -19,7 +19,7 @@ interface CreateQCMFormProps {
     removeTag: (tag: string) => void;
     carre: { ans1: string; ans2: string; ans3: string; ans4: string };
     setCarre: React.Dispatch<React.SetStateAction<{ ans1: string; ans2: string; ans3: string; ans4: string }>>;
-    qcmData: {user_id: string;mode : string;title: string; tags: string[];private: boolean; choices: { ans1: string; ans2: string; ans3: string; ans4: string }; answer: number };
+    qcmData: {user_id: string;mode : string;title: string;level: number; tags: string[];private: boolean; choices: { ans1: string; ans2: string; ans3: string; ans4: string }; answer: number };
     setQcmData: React.Dispatch<React.SetStateAction<CreateQCMFormProps["qcmData"]>>;
 }
   
@@ -187,7 +187,7 @@ export function CreateQCMForm({
                 <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
             )}
         </div>
-            <Button className='SendButton' onClick={()=>sendQcm()}>Finaliser la création de la question</Button>
+            <Button className='SendButton' onClick={()=>sendQcm()}>{question_id === 0 ? "Finaliser la création de" : "Sauvegarder"} la question</Button>
         </div>
     
     )

@@ -19,7 +19,7 @@ interface CreateVfFormProps {
     removeTag: (tag: string) => void;
     truth: boolean, 
     setTruth: (bool : boolean)=>void;
-    vfData: { user_id: string;mode : string;title: string; tags: string[];private: boolean; truth: boolean };
+    vfData: { user_id: string;mode : string;title: string; level: number;tags: string[];private: boolean; truth: boolean };
     setVfData: React.Dispatch<React.SetStateAction<CreateVfFormProps["vfData"]>>;
   }
   
@@ -103,7 +103,7 @@ export function CreateVfForm({
                 <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
             )}
         </div>
-            <Button className='SendButton' onClick={()=>sendVF()}>Finaliser la création de la question</Button>
+            <Button className='SendButton' onClick={()=>sendVF()}>{question_id === 0 ? "Finaliser la création de" : "Sauvegarder"} la question</Button>
         </div>
     
     )

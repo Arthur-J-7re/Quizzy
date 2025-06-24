@@ -1,6 +1,6 @@
 import { useState, useEffect} from 'react';
 import Button from '@mui/material/Button';
-import { Switch } from '@mui/material';
+import { MenuItem, Select, Switch } from '@mui/material';
 import { CreateQCMForm } from '../../component/CreateQuestion/CreateQcmForm';
 import { CreateFreeForm } from '../../component/CreateQuestion/CreateFreeForm';
 import { CreateDCCForm } from '../../component/CreateQuestion/CreateDccForm';
@@ -12,11 +12,13 @@ import { AuthContext } from "../../context/authentContext";
 import Toast from '../../tools/toast/toast';
 import "../CommonCss.css";
 import "./QuestionForm.css"
+import makeRequest from '../../tools/requestScheme';
 
 
 export function QuestionCreationForm () {
     const location = useLocation();
     const _question = location.state?.question;
+    const questionId = _question?.question_id ||0;
     const [mode , setMode] = useState(_question?.mode ||"QCM");
     const [title, setTitle] = useState(_question?.title || "");
     const [level,setLevel] = useState(_question?.level || 1);
@@ -28,10 +30,10 @@ export function QuestionCreationForm () {
     const [truth, setTruth] = useState(_question?.truth);
     const auth = useContext(AuthContext);
     const user_id = auth?.user?.id || "0";
-    const [freeData, setFreeData] = useState({user_id : user_id,mode : "FREE",title: title, tags: tags, private:isPrivate, answers: answers});
-    const [dccData, setDccData] = useState({user_id : user_id,mode : "DCC",title: title, tags: tags, private: isPrivate, carre: carre, duo: _question?.duo ||2, answer: _question?.answer ||1, cash: answers});
-    const [qcmData, setQcmData] = useState({user_id : user_id,mode : "QCM",title: title, tags: tags, private: isPrivate, choices: carre, answer: _question?.answer || 1});
-    const [vfData, setVfData] = useState({user_id : user_id,mode : "VF",title: title, tags: tags, private: isPrivate, truth: truth});
+    const [freeData, setFreeData] = useState({user_id : user_id,mode : "FREE",title: title,level:level, tags: tags, private:isPrivate, answers: answers});
+    const [dccData, setDccData] = useState({user_id : user_id,mode : "DCC",title: title,level:level, tags: tags, private: isPrivate, carre: carre, duo: _question?.duo ||2, answer: _question?.answer ||1, cash: answers});
+    const [qcmData, setQcmData] = useState({user_id : user_id,mode : "QCM",title: title,level:level, tags: tags, private: isPrivate, choices: carre, answer: _question?.answer || 1});
+    const [vfData, setVfData] = useState({user_id : user_id,mode : "VF",title: title, level:level,tags: tags, private: isPrivate, truth: truth});
 
     const [messageInfo, setMessageInfo] = useState("");
     const [showMessage, setShowMessage] = useState(false);
@@ -88,6 +90,7 @@ export function QuestionCreationForm () {
         setQcmData(prev => ({
             ...prev,
             title: title,
+            level:level,
             tags: tags,
             choices: carre,
             private: isPrivate
@@ -95,6 +98,7 @@ export function QuestionCreationForm () {
         setFreeData(prev => ({
             ...prev,
             title: title,
+            level:level,
             tags: tags,
             answers:answers,
             private: isPrivate
@@ -102,6 +106,7 @@ export function QuestionCreationForm () {
         setDccData(prev => ({
             ...prev,
             title: title,
+            level:level,
             tags: tags,
             carre: carre,
             cash:answers,
@@ -110,11 +115,12 @@ export function QuestionCreationForm () {
         setVfData(prev => ({
             ...prev,
             title: title,
+            level:level,
             tags: tags,
             private: isPrivate
         }));
         
-    }, [title, tags, carre, isPrivate, answers, mode]);
+    }, [title, tags, carre, isPrivate, answers, mode, level]);
 
     useEffect(() =>{
         if (dccData.duo==dccData.answer){
@@ -160,11 +166,21 @@ export function QuestionCreationForm () {
 
     }, [truth]);
 
+    const deleteQuestion = async () => {
+        const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer définitivement la question ?");
+        if (confirmation) {
+            const response = await makeRequest("/question?question_id=" + _question.question_id, "DELETE");
+            if (response.success){
+                navigate("/profil")
+            }
+        }
+    } 
+
     const renderContent = () => {
         switch (mode) {
             case "QCM":
                 return <CreateQCMForm 
-                question_id={0}
+                question_id={questionId}
                 endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
@@ -174,7 +190,7 @@ export function QuestionCreationForm () {
                 qcmData={qcmData} setQcmData={setQcmData} />;
             case "FREE":
                 return <CreateFreeForm 
-                question_id={0}
+                question_id={questionId}
                 endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
@@ -184,7 +200,7 @@ export function QuestionCreationForm () {
                 freeData={freeData} setFreeData={setFreeData} />;
             case "DCC":
                 return <CreateDCCForm 
-                question_id={0}
+                question_id={questionId}
                 endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
@@ -196,7 +212,7 @@ export function QuestionCreationForm () {
                 dccData={dccData} setDccData={setDccData} />;
             case "VF":
                 return <CreateVfForm
-                question_id={0}
+                question_id={questionId}
                 endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
@@ -206,7 +222,7 @@ export function QuestionCreationForm () {
                 vfData={vfData} setVfData={setVfData} />;
             default:
                 return <CreateQCMForm 
-                question_id={0}
+                question_id={questionId}
                 endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
                 title={title} setTitle={setTitle} 
@@ -270,12 +286,54 @@ export function QuestionCreationForm () {
                     />
                     <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
                 </div>
-                <div>
-                    {/* faire le selecteur de difficulty level ici */}
+                <div style={{display : "flex",justifyContent : "center"}}>
+                    <Select
+                        id="select-quizz"
+                        value={level}
+                        style={{width : '10%', textAlign: "center"}}
+                        onChange={(e) => setLevel(e.target.value)}
+                    >
+                        
+                        <MenuItem key={1} value={1} style={{ color: 'green'}}>
+                        1
+                        </MenuItem>
+                        <MenuItem key={2} value={2} style={{ color: 'green' }}>
+                        2
+                        </MenuItem>
+                        <MenuItem key={3} value={3} style={{ color: 'green' }}>
+                        3
+                        </MenuItem>
+                        <MenuItem key={4} value={4} style={{ color: 'orange' }}>
+                        4
+                        </MenuItem>
+                        <MenuItem key={5} value={5} style={{ color: 'orange' }}>
+                        5
+                        </MenuItem>
+                        <MenuItem key={6} value={6} style={{ color: 'orange' }}>
+                        6
+                        </MenuItem>
+                        <MenuItem key={7} value={7} style={{ color: 'orange' }}>
+                        7
+                        </MenuItem>
+                        <MenuItem key={8} value={8} style={{ color: 'red' }}>
+                        8
+                        </MenuItem>
+                        <MenuItem key={9} value={9} style={{ color: 'red' }}>
+                        9
+                        </MenuItem>
+                        <MenuItem key={10} value={10} style={{ color: 'red' }}>
+                        10
+                        </MenuItem>
+                        
+                        
+                    </Select>
 
                 </div>
                 {renderContent()}
                 </div>
+                {_question ? <div className='modeSelector'>
+                    <Button onClick={() => deleteQuestion()}> supprimer la question</Button>
+                </div> : ""}
                 <div className={goodNews ? 'GreenText' : 'RedText'}>{
                     showMessage &&
                     <Toast message={messageInfo} onClose={()=>{setShowMessage(false); setGoodNews(false)}} />}

@@ -21,7 +21,7 @@ interface CreatefreeFormProps {
     setAnswers: React.Dispatch<React.SetStateAction<string[]>>
     addAnswer: (answer: string) => void;
     removeAnswer: (answer: string) => void;
-    freeData: {user_id: string;mode : string; title: string; tags: string[];private: boolean; answers: string[] };
+    freeData: {user_id: string;mode : string; title: string; level: number;tags: string[];private: boolean; answers: string[] };
     setFreeData: React.Dispatch<React.SetStateAction<CreatefreeFormProps["freeData"]>>;
   }
 
@@ -138,7 +138,7 @@ export function CreateFreeForm({
             )}
         </div>
         
-        <Button className='SendButton' onClick={()=>sendFree()}>Finaliser la création de la question</Button>
+        <Button className='SendButton' onClick={()=>sendFree()}>{question_id === 0 ? "Finaliser la création de" : "Sauvegarder"} la question</Button>
     </div>
 
     
