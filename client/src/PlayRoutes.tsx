@@ -13,6 +13,8 @@ import { useEffect } from 'react';
 import Room from './pages/Game/RoomPage/Room.tsx';
 import RoomHub from './pages/Game/RoomPage/RoomHub.tsx';
 import { Joiner } from './pages/Game/HomeGame/Joiner.tsx';
+import { Start } from './pages/Game/Vianney/Start.tsx';
+import { Vianney } from './pages/Game/Vianney/Vianney.tsx';
 export default function PlayRoutes (){
     const socket = useSocket();
     const auth = useContext(AuthContext);
@@ -31,6 +33,7 @@ export default function PlayRoutes (){
                 <Route path='/test' element={<Test />} />
                 <Route path='/room/:id' element={<RoomHub/>} />
                 <Route path='/join' element={<Joiner/>}/>
+                <Route path="/Vianney" element={<Vianney/>} />
             </Routes>
             
         </SocketProvider>

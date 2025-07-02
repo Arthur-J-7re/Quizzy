@@ -5,6 +5,7 @@ import { useSocket } from "../../context/socketContext";
 
 import makeRequest from "../../tools/requestScheme";
 import { AuthContext } from "../../context/authentContext";
+import "./createRoom.css"
 
 const Mode = ['Points', 'BR', 'Personalise']
 
@@ -161,12 +162,12 @@ export default function CreateRoom () {
 
 
     return (
-        <div>
-            <div>
-                <TextField type="text" label="Nom de votre salon"value={name} onChange={(e) => setName(e.target.value)} required></TextField>
+        <div className="flex-center border qv innergap">
+            <div className="qv flex-center gap">
+                <TextField type="text" className=" flw" label="Nom de votre salon"value={name} onChange={(e) => setName(e.target.value)} required></TextField>
             </div>
             { !(auth?.user) && <TextField type="text" label="Votre nom dans la partie"value={username} onChange={(e) => setUsername(e.target.value)} required></TextField>}
-            <div>
+            <div className="flex-center ">
                 <Switch
                     type='checkboxe'
                     checked={isPrivate}
@@ -175,26 +176,26 @@ export default function CreateRoom () {
                 
                 {isPrivate ? <TextField type="text" label="mot de passe du salon"value={password} onChange={(e) => setPassword(e.target.value)}required></TextField> : ""}
             </div>
-            <div>
+            <div className="qv flex-center  flw gap">
                 <TextField type="number" label="Nbr participants Max." value={numberOfParticipantMax} onChange={(e)=>setNumberOfParticipantMax(Number(e.target.value))}/>
             </div>
-            <div>
+            <div className="flex-center  gap">
                 <div>
-                    <label>Avec un Présentateur (ne participe pas au jeu)</label>
+                    <label className="label-CR">Avec un Présentateur (ne participe pas au jeu)</label>
                     <Checkbox
                         checked={withPresentator}
                         onClick={() => handlePresentator()}
                         />
                 </div>
                 <div>
-                    <label>Avec un arbitre pour les réponses libre </label>
+                    <label className="label-CR">Avec un arbitre pour les réponses libre </label>
                     <Checkbox
                         checked={withRef}
                         onClick={() =>handleRef()}
                         />
                 </div>
             </div>
-            <div>
+            <div className="border qv gap">
                 <InputLabel id="demo-simple-select-label">Mode</InputLabel>
                 <Select
                 labelId="demo-simple-select-label"

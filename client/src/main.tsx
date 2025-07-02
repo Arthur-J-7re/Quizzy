@@ -14,6 +14,7 @@ import PlayRoutes from './PlayRoutes.tsx'
 import { EmissionCreation } from './pages/Emission/Emission.tsx';
 
 
+
 createRoot(document.getElementById('root')!).render(
     
   <AuthProvider>
@@ -30,9 +31,9 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/modify-an-emission" element={<EmissionCreation/>}/>
         <Route path="/modify-account" element={<AccountUpdate/>}/>  
         <Route path="/play/*" element={<PlayRoutes/>}/>
+        
       </Routes>
     </Router>
   </AuthProvider>
-   
-  ,
+  
 )

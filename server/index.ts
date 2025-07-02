@@ -7,6 +7,7 @@ import QuizzCRUD from "./function/quizzCRUD";
 import cors from "cors";
 import routes from "./routes/appRoutes";
 import testSocket from "./GameFunction/testSocket";
+import vianneysocket from "./socket/vianneySocket";
 
 
 //const action = require('./fun.js');
@@ -33,6 +34,7 @@ declare module "socket.io" {
 
 app.use(cors({ origin: "http://localhost:5180" })); 
 const server = createServer(app);
+
 export const io = new Server(server, {
     cors: {
         origin: "http://localhost:5180",
@@ -42,20 +44,20 @@ export const io = new Server(server, {
 });
 
 (async () => {
-    try {
-      if (!process.env.MONGO_URI) {
-        throw new Error("MONGO_URI is not defined in the environment variables.");
-      }
-      await mongoose.connect(process.env.MONGO_URI);
-      console.log("Connexion réussie avec la base de données");
-    } catch (error){
-      if (error instanceof Error) {
-        console.error(error.message);
-      } else {
-        console.error("Une erreur inconnue est survenue", error);
-      }
+  try {
+    if (!process.env.MONGO_URI) {
+      throw new Error("MONGO_URI is not defined in the environment variables.");
     }
-  })();
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("Connexion réussie avec la base de données");
+  } catch (error){
+    if (error instanceof Error) {
+      console.error(error.message);
+    } else {
+      console.error("Une erreur inconnue est survenue", error);
+    }
+  }
+})();
 
 
   
@@ -65,17 +67,12 @@ io.on('connection',(socket : Socket ) => {
 
   socket.on("userInformation", (data) => {console.log("connection de ", data.username, "avec", data ); socket.user_id = data.id; socket.username = data.username});
   testSocket(io, socket);
+  vianneysocket(io,socket);
   socket.on("disconnect", ()=>{
     console.log("socket deconnecté", socket.room_id)
   })
 
 });
-
-const update = async() => {
-  await questionCRUD.update();
-}
-
-
 
 app.use(express.json());
 

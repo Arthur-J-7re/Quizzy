@@ -1,0 +1,35 @@
+.flex-center{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.row{
+    flex-direction: row !important;
+}
+
+.border{
+    border: solid 2px;
+    border-radius: 10px;
+}
+
+.qv{
+    width: 80%;
+    justify-self: center;
+}
+
+.flw{
+    width: 80%;
+    justify-self: center;
+}
+
+.innergap{
+    padding-bottom: 2% !important;
+    padding-top: 2% !important;
+}
+
+.gap{
+    margin-top: 2% !important;
+    margin-bottom: 2% !important;
+}
