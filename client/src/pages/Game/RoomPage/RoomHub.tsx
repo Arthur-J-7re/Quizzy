@@ -5,6 +5,7 @@ import { useSocket } from "../../../context/socketContext";
 import { AuthContext } from "../../../context/authentContext";
 import { Button, TextField } from "@mui/material";
 import Room from "./Room";
+import { Clock } from "../../../component/Clock/Clock";
 
 
 export default function RoomHub (){
@@ -68,23 +69,32 @@ export default function RoomHub (){
     }
     if (auth)
 
-
+    /*return (
+       <Clock timer={10000}/> 
+    )/**/
+    
     if (socket){ 
         if (roomName){
             if (!inGame) {
                 return (
-                    <div>
-                        <div>{roomName}</div>
-                        {
-                            roomPrivate ? <TextField type="password" value={password} onChange={(e) => setPassword(e.target.value)}></TextField>: ""
-                        }
-                        
-                        {
-                            auth.user ? <div>le nom {auth.user?.Username}</div>: <TextField type="text" label="choisissez votre nom" value={name} onChange={(e) => setName(e.target.value)} ></TextField>
-                        }
-                        <Button onClick={() => joinRoom()}>Rejoindre la partie</Button>
-                        <RoomLink roomId={id} />
+                    <div className="full-heigh innergap">
+                    <div className="flex-center row border innergap t">
+                        <div className="flex-center third">
+                            <div>Bienvenue dans le Salon : {roomName}</div>
+                            {
+                                roomPrivate ? <TextField type="password" value={password} onChange={(e) => setPassword(e.target.value)}></TextField>: ""
+                            }
+                            
+                            {
+                                auth.user ? <div>Votre nom dans la partie : {auth.user?.Username}</div>: <TextField type="text" label="choisissez votre nom" value={name} onChange={(e) => setName(e.target.value)} ></TextField>
+                            }
+                            <Button className="Button gap"onClick={() => joinRoom()}>Rejoindre la partie</Button>
+                        </div>
+                        <div className="tthird">
+                            <RoomLink roomId={id} />
+                        </div>
                     </div> 
+                    </div>
                         
                 )
             } else {
@@ -96,6 +106,6 @@ export default function RoomHub (){
         }
     } else {
         return (<div>pas de socket</div>)
-    }
+    }/**/
     
 }

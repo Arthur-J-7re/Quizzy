@@ -6,7 +6,6 @@ import { AuthContext } from "../../../context/authentContext";
 import { Button } from "@mui/material";
 import QuestionReceiver from "../../../component/GameQuestionAnswer/QuestionReceiver";
 
-
 export default function Room ({roomInfo, Username} : {roomInfo : any, Username : string}){
     console.log("roomInfo dans le composant : ", roomInfo)
     const {id} = useParams();
@@ -18,19 +17,21 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
     const username = Username;
 
     const [roomName,setRoomName] = useState(roomInfo.name);
-    const [room, setRoom] = useState({room_id:id, name: roomInfo.name, player: roomInfo.player });
+    const [player, setPlayer] = useState(Object.keys(roomInfo.player) || [Username]);
+    const [room, setRoom] = useState({room_id:id, name: roomInfo.name, emission: roomInfo.emission, numberOfParticipantMax: roomInfo.numberOfParticipantMax });
     const [isCreator, setIsCreator] = useState(false);
     const [inGame, setInGame] = useState(false)
 
     useEffect(() => {
-        /*if (socket){
+        if (socket){
             socket.emit("infoRoom", id)
-        }*/
+        }
         if (socket){
             socket.on("infoRoom", (data) => {
                 console.log("infoRoom : ", data);
                 setRoomName(data.name);
-                setRoom({room_id:data.room_id, name:data.name, player:data.player});
+                setPlayer(Object.keys(data.player))
+                setRoom({room_id:data.room_id, name:data.name, emission: data.emission, numberOfParticipantMax: data.numberOfParticipantMax});
             })
             socket.on("ownerOfRoom", () => {
                 console.log("y a le bouton là?");
@@ -41,6 +42,8 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
                 console.log("vous avez été ping par : ", data.name)
             })
             socket.on("aPlayerHasJoined", (data) => {
+                console.log(data)
+                setPlayer([...player,data.name]);
                 alert(data.name + "est dans la partie");
             })
             socket.on("Starting game", (data) => {
@@ -59,6 +62,43 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
             socket.emit("startGame", ({username : username, room_id: room.room_id}))
         }
     }
+
+    const renderEmission = () => {
+        return (
+            <div>
+                {room.emission.title}
+            </div>
+        )
+    }
+
+    const renderPlayerList = () => {
+        return(
+            <div className="flex-center border innergap qv left-column">
+                {player.map((name : string)=>{
+                    return (<p className={name === username ? "blue-name" : ""}>- {name} {name === username ? "(vous)" : ""}</p>)
+                })}
+
+            </div>
+        )
+    } 
+
+    const renderPage = () => {
+        return (
+        <div className="flex-center border innergap gap qv fullHeight">
+            <div>Bienvenue dans le Salon : {roomName}</div>
+            <div>{renderEmission()}</div>
+            <div className="flex-center row">
+                <div className="flex-center third border innergap">
+                    <div>Votre nom inGame : {username}</div>
+                    {renderPlayerList()}
+                    {isCreator && <Button onClick={()=>startGame()}>Commencer la partie</Button>}
+                </div>
+                <div className="tthird">
+                    <RoomLink roomId={id} />
+                </div>
+            </div>
+        </div> )
+    }
     if (auth)
 
 
@@ -70,13 +110,7 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
                 <QuestionReceiver socket={socket} room_id={id} username={username}/>
             </div>
             :
-            <div>
-                <div>{roomName}</div>
-                <div>Votre nom inGame : {username}</div>
-                <Button onClick={() => ping()}> ping les autres personne</Button>
-                <RoomLink roomId={id} />
-                {isCreator && <Button onClick={()=>startGame()}>Commencer la partie</Button>}
-            </div> 
+            renderPage()
         )
     } else {
         return (<div>Il n'y a pas de salon avec cette id</div>

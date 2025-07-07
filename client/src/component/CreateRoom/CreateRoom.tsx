@@ -5,10 +5,15 @@ import { useSocket } from "../../context/socketContext";
 
 import makeRequest from "../../tools/requestScheme";
 import { AuthContext } from "../../context/authentContext";
+import "../../style/common.css"
+import "./createRoom.css"
+
+
 
 const Mode = ['Points', 'BR', 'Personalise']
 
 export default function CreateRoom () {
+    console.log("allô?")
     const [name, setName] = useState("");
 
     const [withRef, setWithRef] = useState(false);
@@ -161,43 +166,46 @@ export default function CreateRoom () {
 
 
     return (
-        <div>
-            <div>
-                <TextField type="text" label="Nom de votre salon"value={name} onChange={(e) => setName(e.target.value)} required></TextField>
+        <div className="flex-center gap border qv innergap">
+            <div className="qv flex-center">
+                <TextField className="qv" type="text" autoComplete="off" label="Nom de votre salon"value={name} onChange={(e) => setName(e.target.value)} required></TextField>
             </div>
             { !(auth?.user) && <TextField type="text" label="Votre nom dans la partie"value={username} onChange={(e) => setUsername(e.target.value)} required></TextField>}
-            <div>
+            <div className="flex-center border center row largeGap innergap sx">
+                <div><label>Salon privé ?</label>
                 <Switch
                     type='checkboxe'
                     checked={isPrivate}
                     className='isPrivate'
                     onClick={() => handleChangePrivate()}/>
+                </div>
                 
-                {isPrivate ? <TextField type="text" label="mot de passe du salon"value={password} onChange={(e) => setPassword(e.target.value)}required></TextField> : ""}
+                {isPrivate ? <TextField type="password" label="mot de passe du salon"value={password} onChange={(e) => setPassword(e.target.value)}required></TextField> : ""}
             </div>
-            <div>
-                <TextField type="number" label="Nbr participants Max." value={numberOfParticipantMax} onChange={(e)=>setNumberOfParticipantMax(Number(e.target.value))}/>
-            </div>
-            <div>
-                <div>
-                    <label>Avec un Présentateur (ne participe pas au jeu)</label>
-                    <Checkbox
-                        checked={withPresentator}
-                        onClick={() => handlePresentator()}
-                        />
+            <div className="flex-center twoArea row largeGap innergap qv border">
+                <div className="half flex-center qv">
+                    <TextField type="number center qv" label="Nbr participants Max." value={numberOfParticipantMax} onChange={(e)=>setNumberOfParticipantMax(Number(e.target.value))}/>
                 </div>
-                <div>
-                    <label>Avec un arbitre pour les réponses libre </label>
-                    <Checkbox
-                        checked={withRef}
-                        onClick={() =>handleRef()}
-                        />
+                <div className="half opt">
+                    <div>
+                        <label> - Avec un Présentateur (ne participe pas au jeu)</label>
+                        <Checkbox
+                            checked={withPresentator}
+                            onClick={() => handlePresentator()}
+                            />
+                    </div>
+                    <div>
+                        <label>- Avec un arbitre pour les réponses libre </label>
+                        <Checkbox
+                            checked={withRef}
+                            onClick={() =>handleRef()}
+                            />
+                    </div>
                 </div>
             </div>
-            <div>
-                <InputLabel id="demo-simple-select-label">Mode</InputLabel>
+            <div className="qv border flex-center row innergap">
+                <div className="flex-center quarter">
                 <Select
-                labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 value={mode || "mode"}
                 label="Mode"
@@ -208,11 +216,11 @@ export default function CreateRoom () {
                     {mode}
                     </MenuItem>
                 ))}
-                </Select>
-                {renderMore()}
+                </Select></div>
+                <div className="flex-center tquarter border innergap">{renderMore()}</div>
             </div>
-            <div>
-                <Button onClick={() => handleCreate()}>Créer le salon</Button>
+            <div className="topgap">
+                <Button className="createRoomButton innergap" variant="contained" onClick={() => handleCreate()}>Créer le salon</Button>
             </div>
             
         </div>

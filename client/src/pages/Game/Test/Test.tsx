@@ -23,7 +23,7 @@ export function Test () {
         }
     },[socket])
     useEffect(() => {
-        if (socket){
+        if (socket && answer){
             socket.on("newQuestion", (data) => {console.log("newQuestion arrived", data);setQuestion(data.question); setReceive(true)})
         }
     }, [socket])
@@ -37,10 +37,10 @@ export function Test () {
         {dev ? <Banner></Banner> : "future timer"}
 
         {/*<CreateRoom />*/}
-        {receive ? 
-            answer ? 
-                <GameQuestionAnswer question={question} socket={socket} room_id={"0"} username={"test"}/> : <CreateRoom />
-            : ""
+        {answer ? 
+            receive ?
+                <GameQuestionAnswer question={question} socket={socket} room_id={"0"} username={"test"}/>: "": <CreateRoom />
+            
         }
     </div> 
     )

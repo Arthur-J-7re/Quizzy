@@ -1,0 +1,20 @@
+.opt{
+    font-size: small;
+}
+
+.createRoomButton{
+    width: 500% !important;
+    font-size: larger !important;
+    color : #5a54e8 !important;
+    background-color:#54e889 !important;
+    
+}
+
+.blue-name{
+    color: #5a54e8 !important
+}
+
+input:-internal-autofill-selected {
+    background-image: none !important;
+    background-color: none !important;
+}

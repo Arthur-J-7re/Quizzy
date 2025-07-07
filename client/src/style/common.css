@@ -1,0 +1,107 @@
+.flex-center{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.center{
+    justify-self: center;
+    align-self: center;
+    justify-content: center !important;
+}
+
+.full-height{
+    height: 100vh;
+}
+
+.row{
+    flex-direction: row !important;
+}
+
+.left-column{
+    align-items: flex-start;
+}
+
+.border, .wborder{
+    border: solid 2px !important;
+    border-radius: 10px !important;
+}
+
+.wborder{
+    border : white
+}
+
+.curved-border{
+    border-radius: 10px !important;
+}
+
+.underline{
+    border-bottom: solid 2px !important;
+}
+
+.wbg{
+    background-color: white;
+}
+
+.qv{
+    width: 80%;
+}
+
+.sx{
+    width: 60%;
+}
+
+.qv, .sx{
+    justify-self: center;
+}
+
+
+.innergap{
+    padding: 2% !important;
+}
+
+.gap{
+    margin-bottom: 2% !important;
+}
+
+.topgap,.gap{
+    margin-top: 2% !important;
+}
+
+.twoArea{
+    flex-wrap: nowrap;
+}
+
+.half{
+    width: 50%;
+}
+
+.third{
+    width: 33%;
+    flex-grow: 1;
+}
+
+.tthird{
+    width: 66%;
+    flex-grow: 1;
+}
+
+.quarter{
+    width: 25%;
+}
+
+.tquarter{
+    width: 75%;
+}
+
+.largeGap{
+    margin-top: 5% !important;
+    margin-bottom: 5% !important;
+}
+
+.Button{
+    color : #5a54e8 !important;
+    background-color:#54e889 !important;
+    
+}
