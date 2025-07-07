@@ -4,7 +4,7 @@ import "../GameQuestionAnswer.css"
 
 
 
-export default function DuoAnswer( { question, socket, room_id, username }: { question: any, socket: any, room_id : string, username: string }) {
+export default function DuoAnswer( { question, socket, room_id, username, canAnswer }: { question: any, socket: any, room_id : string, username: string, canAnswer: boolean }) {
     const [flash, setFlash] = useState(false);
     const [duo, setDuo] = useState<{id : number, value : string}[]>([{id : 0, value :""},{id : 0, value : ""}]);
     const [answering, setAnswering] = useState(true);
@@ -61,7 +61,8 @@ export default function DuoAnswer( { question, socket, room_id, username }: { qu
                 </div>
                 )}
             </div>
-            <Button className="buttonSendAnswer" onClick={()=>sendAnswer()}>Valider votre réponse</Button>
+            {canAnswer && 
+            <Button className="buttonSendAnswer" onClick={()=>sendAnswer()}>Valider votre réponse</Button>}
         </div>
 
         : 

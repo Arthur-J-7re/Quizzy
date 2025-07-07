@@ -8,8 +8,8 @@ import QuestionReceiver from "../../../component/GameQuestionAnswer/QuestionRece
 
 export default function Room ({roomInfo, Username} : {roomInfo : any, Username : string}){
     console.log("roomInfo dans le composant : ", roomInfo)
-    const {id} = useParams();
-    if (!id){
+    const {room_id} = useParams();
+    if (!room_id){
         return(<div>Cette page n'existe pas</div>)
     }
     const socket = useSocket();
@@ -18,13 +18,13 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
 
     const [roomName,setRoomName] = useState(roomInfo.name);
     const [player, setPlayer] = useState(Object.keys(roomInfo.player) || [Username]);
-    const [room, setRoom] = useState({room_id:id, name: roomInfo.name, emission: roomInfo.emission, numberOfParticipantMax: roomInfo.numberOfParticipantMax });
+    const [room, setRoom] = useState({room_id:room_id, name: roomInfo.name, emission: roomInfo.emission, numberOfParticipantMax: roomInfo.numberOfParticipantMax });
     const [isCreator, setIsCreator] = useState(false);
     const [inGame, setInGame] = useState(false)
 
     useEffect(() => {
         if (socket){
-            socket.emit("infoRoom", id)
+            socket.emit("infoRoom", room_id)
         }
         if (socket){
             socket.on("infoRoom", (data) => {
@@ -53,7 +53,7 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
     },[socket])
 
     const ping = () => {
-        socket?.emit("ping", {id : id, username : username})
+        socket?.emit("ping", {room_id : room_id, username : username})
     }
 
     const startGame = () => {
@@ -94,7 +94,7 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
                     {isCreator && <Button onClick={()=>startGame()}>Commencer la partie</Button>}
                 </div>
                 <div className="tthird">
-                    <RoomLink roomId={id} />
+                    <RoomLink roomId={room_id} />
                 </div>
             </div>
         </div> )
@@ -107,7 +107,7 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
         return (
             inGame ? 
             <div>
-                <QuestionReceiver socket={socket} room_id={id} username={username}/>
+                <QuestionReceiver socket={socket} room_id={room_id} username={username}/>
             </div>
             :
             renderPage()

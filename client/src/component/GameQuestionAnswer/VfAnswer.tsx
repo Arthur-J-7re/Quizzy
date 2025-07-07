@@ -4,7 +4,7 @@ import "./GameQuestionAnswer.css"
 
 
 
-export default function VfAnswer( { question, socket, room_id, username }: { question: any, socket: any, room_id : string, username: string }) {
+export default function VfAnswer( { question, socket, room_id, username, canAnswer }: { question: any, socket: any, room_id : string, username: string, canAnswer: boolean }) {
     const [flash, setFlash] = useState(false);
     const [answering, setAnswering] = useState(true);
     const [selectedAnswer, setSelectedAnswer] =  useState("");
@@ -50,7 +50,8 @@ export default function VfAnswer( { question, socket, room_id, username }: { que
                     Faux
                 </div>
             </div>
-            <Button className="buttonSendAnswer" onClick={()=>sendAnswer()}>Valider votre réponse</Button>
+            {canAnswer && 
+            <Button className="buttonSendAnswer" onClick={()=>sendAnswer()}>Valider votre réponse</Button>}
         </div>
 
         : 

@@ -29,7 +29,7 @@ export default function PlayRoutes (){
             <Routes>
                 <Route path="/" element={<GameHome />} />
                 <Route path='/test' element={<Test />} />
-                <Route path='/room/:id' element={<RoomHub/>} />
+                <Route path='/room/:room_id' element={<RoomHub/>} />
                 <Route path='/join' element={<Joiner/>}/>
             </Routes>
             

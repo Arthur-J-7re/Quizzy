@@ -110,7 +110,8 @@ export default function testSocket (io : any, socket : Socket & {user_id : numbe
     })
 
     socket.on("autoConnect",async (data)=>{
-        await room.autoConnect(data, socket)
+        console.log(data)
+        await room.autoConnect(data, socket, io)
     })
 
     socket.on("answerToQuestion", (data) => {

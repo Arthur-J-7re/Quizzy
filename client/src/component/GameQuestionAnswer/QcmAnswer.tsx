@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import "./GameQuestionAnswer.css"
 
 
-export default function QcmAnswer( { question, socket, room_id, username }: { question: any, socket: any, room_id : string, username: string }) {
+export default function QcmAnswer( { question, socket, room_id, username, canAnswer }: { question: any, socket: any, room_id : string, username: string, canAnswer:boolean }) {
     const carre = (question? question.choices : {ans1 : "", ans2 : "", ans3 : "", ans4 : ""});
     const [flash, setFlash] = useState(false);
     const [answering, setAnswering] = useState(true);
@@ -43,7 +43,8 @@ export default function QcmAnswer( { question, socket, room_id, username }: { qu
                     {carre.ans4}
                 </div>
             </div>
-            <Button className="buttonSendAnswer"onClick={()=>sendAnswer()}>Valider votre réponse</Button>
+            {canAnswer && 
+            <Button className="buttonSendAnswer"onClick={()=>sendAnswer()}>Valider votre réponse</Button>}
         </div>
 
         : 

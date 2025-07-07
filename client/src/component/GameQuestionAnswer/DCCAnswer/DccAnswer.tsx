@@ -5,7 +5,7 @@ import CarreAnswer from "./CarreAnswer";
 import DuoAnswer from "./DuoAnswer";
 import CashAnswer from "./CashAnswer";
 
-export default function DccAnswer( { question, socket, room_id, username }: { question: any, socket: any, room_id : string, username: string }) {
+export default function DccAnswer( { question, socket, room_id, username, canAnswer }: { question: any, socket: any, room_id : string, username: string, canAnswer : boolean }) {
     const [selectedMode, setSelectedMode] = useState("");
 
     useEffect(() => {
@@ -43,11 +43,11 @@ export default function DccAnswer( { question, socket, room_id, username }: { qu
                     </div>
                 )
             case "Duo":
-                return (<DuoAnswer question={question} socket={socket} room_id={room_id} username={username}/>)
+                return (<DuoAnswer question={question} socket={socket} room_id={room_id} username={username} canAnswer={canAnswer}/>)
             case "Carre":
-                return (<CarreAnswer question={question} socket={socket} room_id={room_id} username={username}/>)
+                return (<CarreAnswer question={question} socket={socket} room_id={room_id} username={username} canAnswer={canAnswer}/>)
             case "Cash":
-                return (<CashAnswer question={question} socket={socket} room_id={room_id} username={username}/>)
+                return (<CashAnswer question={question} socket={socket} room_id={room_id} username={username} canAnswer={canAnswer}/>)
         }
 
     }

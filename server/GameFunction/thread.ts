@@ -6,8 +6,8 @@ import quizzCRUD from "../function/quizzCRUD";
 interface dccAnswer {mode : string, answer : string |number}
 
 interface Step {mode : string,quizz : any, place : number, keep : boolean, dccAs : string, last : boolean, played : boolean}
+interface User  {name:string, role : string,socketId:string, id?:number, hasAnswered:boolean, answer:any , score:number, life : number, connected: boolean}
 
-interface User  {name:string, role : string,socketId:string, id?:number, hasAnswered:boolean, answer:any , score:number, life : number}
 interface Room { room_id: number | string,name: string,mode: string, isPrivate: boolean, password:string,emission:any,currentQuestion: number,withRef : boolean, withPresentator: boolean,numberOfParticipantMax : number, player: {[name : string]: User}, defaultLife : number }
 
 export default class Thread {
@@ -39,6 +39,11 @@ export default class Thread {
         }
     }
 
+    public setPlayer(player: {[name : string]: User}){
+        console.log("on change la valeur de player")
+        this.players = player;
+    }
+
     public async setUpStep(){
         console.log("le thread start (", this.room.room_id, ")")
         switch (this.currentStep.mode){
@@ -61,6 +66,10 @@ export default class Thread {
         } else {
             return this.currentStep.dccAs
         }
+    }
+
+    public getCurrentQuestion(){
+        return this.currentQuestion
     }
 
     public setDccMode(name: string, mode: string){
@@ -110,7 +119,7 @@ export default class Thread {
             if (questionToSend){
                 this.currentQuestion = questionToSend;
                 
-                io.to(String(this.room.room_id)).emit("newQuestion", questionToSend);
+                io.to(String(this.room.room_id)).emit("newQuestion", {question :questionToSend, canAnswer: true});
 
                 await new Promise(resolve => setTimeout(resolve, 10000)); // modifier les temps de réponse ici 
 

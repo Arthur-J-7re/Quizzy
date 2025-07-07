@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import "../GameQuestionAnswer.css"
 
 
-export default function CashAnswer( { question, socket, room_id, username }: { question: any, socket: any, room_id : string, username: string }) {
+export default function CashAnswer( { question, socket, room_id, username, canAnswer }: { question: any, socket: any, room_id : string, username: string, canAnswer:boolean }) {
     const [flash, setFlash] = useState(false);
     const [answering, setAnswering] = useState(true);
     const [selectedAns, setSelectedAns] = useState("");
@@ -59,7 +59,8 @@ export default function CashAnswer( { question, socket, room_id, username }: { q
                     <input className={"freeAnswerInput "}onChange={(e) => setSelectedAns(e.target.value)} value={selectedAns}></input>
                 </div>
             </div>
-            <Button className="buttonSendAnswer" onClick={()=>sendAnswer()}>Valider votre réponse</Button>
+            {canAnswer && 
+            <Button className="buttonSendAnswer" onClick={()=>sendAnswer()}>Valider votre réponse</Button>}
         </div>
 
         : 

@@ -9,11 +9,11 @@ import { Clock } from "../../../component/Clock/Clock";
 
 
 export default function RoomHub (){
-    const {id} = useParams();
-    if (!id){
+    const {room_id} = useParams();
+    if (!room_id){
         return(<div>Cette page n'existe pas</div>)
     } else {
-        console.log(id);
+        console.log(room_id);
     }
     const socket = useSocket();
     const auth = useContext(AuthContext);
@@ -26,7 +26,7 @@ export default function RoomHub (){
 
     useEffect(() => {
         if (socket){
-            socket.emit("infoRoom", id)
+            socket.emit("infoRoom", room_id)
         }
         if (socket){
             socket.on("infoRoom", (data) => {
@@ -50,7 +50,7 @@ export default function RoomHub (){
         if (roomInfo && auth?.user?.Username){
             if (roomInfo.player[auth.user.Username]){
                 setInGame(true)
-                socket?.emit("autoConnect", ({username : auth.user.Username, room_id:id}))
+                socket?.emit("autoConnect", ({username : auth.user.Username, room_id:room_id}))
             }
         }
     },[roomInfo])
@@ -60,7 +60,7 @@ export default function RoomHub (){
     const joinRoom = () => {
         if (socket){
             socket.emit("tryConnect", ({
-                id: id,
+                room_id: room_id,
                 player : name,
                 userId : auth?.user ? auth.user.id : "not connected",
                 password: password
@@ -91,7 +91,7 @@ export default function RoomHub (){
                             <Button className="Button gap"onClick={() => joinRoom()}>Rejoindre la partie</Button>
                         </div>
                         <div className="tthird">
-                            <RoomLink roomId={id} />
+                            <RoomLink roomId={room_id} />
                         </div>
                     </div> 
                     </div>

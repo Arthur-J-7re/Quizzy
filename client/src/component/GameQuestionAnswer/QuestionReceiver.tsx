@@ -10,9 +10,10 @@ export default function QuestionReceiver({ socket, room_id, username }: {socket:
     const [question, setQuestion] = useState<any>();
     const [receive, setReceive] = useState(false);
     const [result, setResult] = useState<any>(null);
+    const [canAnswer, setCanAnswer] = useState(false)
     useEffect(()=>{
         if (socket){
-            socket.on("newQuestion", (data : any) => {console.log("newQuestion arrived", data);setQuestion(data); setReceive(true); setResult(null)})
+            socket.on("newQuestion", (data : any) => {console.log("newQuestion arrived", data.question);setQuestion(data.question);setCanAnswer(data.canAnswer) ;setReceive(true); setResult(null)})
             socket.on("PointsResult", (data : any) => {console.log("on recoit le scoreboard",(data));setResult(data)})
         }
 
@@ -25,7 +26,7 @@ export default function QuestionReceiver({ socket, room_id, username }: {socket:
         
         return (
         <>
-            {receive? <GameQuestionAnswer question={question} socket={socket} room_id={room_id} username={username}/>:""}
+            {receive? <GameQuestionAnswer question={question} socket={socket} room_id={room_id} canAnswer={canAnswer} username={username}/>:""}
         </>
     );
     } 

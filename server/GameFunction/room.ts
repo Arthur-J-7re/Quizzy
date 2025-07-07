@@ -1,10 +1,11 @@
 import { stringify } from "querystring";
 import questions from "../Collection/questions";
 import Thread from "./thread";
+import { stat } from "fs";
 
 interface Step {mode : string,quizz : any, place : number, keep : boolean, last : boolean, played : boolean}
 
-interface User  {name:string, role : string,socketId:string | number, id?:number, hasAnswered:boolean, answer:any , score:number, life : number, connected: boolean}
+interface User  {name:string, role : string,socketId:string, id?:number, hasAnswered:boolean, answer:any , score:number, life : number, connected: boolean}
 interface Room { room_id: number | string,name: string,creator:string, isPrivate: boolean, password:string,emission:any,currentQuestion: number,withRef : boolean, withPresentator: boolean,numberOfParticipantMax : number, player: {[name : string]: User}, defaultLife : number }
 const rooms: {[roomId: string]: {room : Room, thread : Thread}} = {};
 
@@ -27,29 +28,35 @@ const create = async (data : any, socket : any, io : any) => {
     }
 }
 
-const getInfo = (roomId : string, socket : any) => {
+const getInfo = async (roomId : string, socket : any) => {
     if (rooms[roomId]){
-        //console.log(rooms[roomId]);
+        //console.log(rooms[roomId]); 
         socket.emit("infoRoom", rooms[roomId].room);
+        const question = rooms[roomId].thread.getCurrentQuestion();
+        if (question){
+            socket.emit("Starting game");
+            await new Promise(r => setTimeout(r, 200));
+            socket.emit("newQuestion", {question :question, canAnswer: false})
+        }
     }
 }
 
 const connect = (data: any, socket: any, io : any) => {
-    if (!rooms[data.id]){
+    if (!rooms[data.room_id]){
         socket.emit("connexion", ({success : false, message: "No room with this id."}))
     } 
     if (data.password.length > 0){
-        if (!rooms[data.id].room.isPrivate){
+        if (!rooms[data.room_id].room.isPrivate){
             socket.emit("connexion",({success : false, message: "This room doesn't need a password."}))
         }
-        else if (rooms[data.id].room.password === data.password){
+        else if (rooms[data.room_id].room.password === data.password){
             joinRoom(socket,data, io);
         } else {
             socket.emit("connexion", ({success: false, message: "Mauvais mot de passe."}))
         }
     } 
     else {
-        if (rooms[data.id].room.isPrivate){
+        if (rooms[data.room_id].room.isPrivate){
             socket.emit("connexion", ({success:false, message : "This room need a password."}))
         } else {
             joinRoom(socket,data, io);
@@ -57,7 +64,7 @@ const connect = (data: any, socket: any, io : any) => {
     }
 }
 
-const autoConnect = async (data:any, socket: any) => {
+const autoConnect = async (data:any, socket: any, io : any) => {
     const {username, room_id}= data;
     const room = rooms[room_id];
     if (room){
@@ -65,6 +72,10 @@ const autoConnect = async (data:any, socket: any) => {
         if (player && player[username]){
             player[username].socketId = socket.id;
             player[username].connected = true;
+            await socket.join(room_id);
+            socket.room_id = data.room_id;
+            socket.username = username;
+            console.log(username, "connecté à la room ",room_id )
             if (player[username].role === "creator"){
                 socket.emit("ownerOfRoom");
             }
@@ -99,19 +110,21 @@ const createUser = async (socket: any, data : any, io : any, room : Room, role :
             connected:true
         }  
         console.log("le newUser", newUser)
-        room.player[name] = newUser;
-        socket.room_id = data.id;
-        socket.username = name;
-        await socket.join(data.id);
-        const roomSize = io.sockets.adapter.rooms.get(data.id)?.size || 0;
-        console.log(`Il y a ${roomSize} joueurs connectés.`);
-        //socket.to(data.id).emit("aPlayerHasJoined", ({name : name}))
-        socket.emit("connexion", ({success :true}))
+        if(newUser.name){
+            room.player[name] = newUser;
+            socket.room_id = data.room_id;
+            socket.username = name;
+            await socket.join(data.room_id);
+            const roomSize = io.sockets.adapter.rooms.get(data.room_id)?.size || 0;
+            console.log(`Il y a ${roomSize} joueurs connectés.`);
+            socket.to(data.room_id).emit("aPlayerHasJoined", ({name : name}))
+            socket.emit("connexion", ({success :true}))
+        }
 }
 
 const joinRoom = async (socket : any, data : any, io : any) => {
-    console.log("dans join room");
-    const room = rooms[data.id];
+    console.log("dans join room", data);
+    const room = rooms[data.room_id];
     if (room && room.room.creator === data.player ){
         await createUser(socket, data, io, room.room, "creator");
         socket.emit("ownerOfRoom");
@@ -148,7 +161,7 @@ const answer = (data : any, socket: any) => {
 
 const ping = async (data : any,socket :any, io : any) => {
     console.log("on tente de ping");
-    let id = data.id;
+    let id = data.room_id;
     if (id && rooms[id]){
         socket.to(id).emit("ping", ({name : data.username}));
         console.log("le ping est partie pour la room : ", id)
