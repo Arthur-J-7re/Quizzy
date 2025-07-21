@@ -4,13 +4,6 @@ import { Socket } from "socket.io";
 
 export const current: { [name: string |number]: string } = {};
 
-export function normalizeText(str: string): string {
-    return str
-        .normalize("NFD")                  // décompose les caractères accentués
-        .replace(/[\u0300-\u036f]/g, "")   // enlève les diacritiques (accents)
-        .replace(/\s+/g, "")               // enlève tous les espaces
-        .toLowerCase();                    // met tout en minuscule
-}
 
 export default function testSocket (io : any, socket : Socket & {user_id : number}) {
     socket.on("getQuestionTest",async ()=>{
@@ -20,79 +13,11 @@ export default function testSocket (io : any, socket : Socket & {user_id : numbe
         //const question = {"_id":{"$oid":"6807c431dd38dffad0bb9848"},"author":{"$numberInt":"5"},"mode":"FREE","title":"Quand est mort le Pape François ?","private":true,"quizz":[],"played":{"$numberInt":"0"},"succeed":{"$numberInt":"0"},"tags":["Histoire"],"__t":"Free","answers":["21/04/2025","le 21 avril 2025","21 avril 2025"],"report":[],"question_id":{"$numberInt":"24"},"__v":{"$numberInt":"0"}}
         socket.emit("newQuestion", {question : question})
     })
-    socket.on("answerToQcm", (data : any) => {
-        data.answer === data.question.answer ? 
-        socket.emit("show Answer", {answer : data.question.answer}) :
-        socket.emit("show Answer", {answer : data.question.answer})
-    })
-
-    socket.on("answerToFree", (data : any)=>{
-        let success = false;
-        let normalizedUserAnswer = normalizeText(data.answer);
-
-        data.question.answers.forEach((answer: string) => {
-            const normalizedExpectedAnswer = normalizeText(answer);
-
-            if (normalizedUserAnswer === normalizedExpectedAnswer) {
-                success = true;
-            }
-        });
-
-        if (success) {
-            socket.emit("good answer");
-        } else {
-            socket.emit("wrong answer", { answer: data.question.answers[0] });
-        }
-    })
-
-    socket.on("getDccMode", (data) => {
-        const {room_id, username} = data;
-        room.getDccMode(room_id, username)
-    })
 
     socket.on("setMode", (data) => {
         const {room_id, username, mode} = data;
         console.log("on set le mode ", mode , "pour", socket.username);
         room.setDccMode(room_id, username, mode)
-    })
-
-    socket.on("answerToDccCash", (data : any)=>{
-        let success = false;
-        let normalizedUserAnswer = normalizeText(data.answer);
-
-        data.question.cash.forEach((answer: string) => {
-            const normalizedExpectedAnswer = normalizeText(answer);
-
-            if (normalizedUserAnswer === normalizedExpectedAnswer) {
-                success = true;
-            }
-        });
-
-        if (success) {
-            socket.emit("good answer");
-        } else {
-            socket.emit("wrong answer", { answer: data.question.cash[0] });
-        }
-    })
-
-    socket.on("answerToDccCarre", (data : any) => {
-        data.answer === data.question.answer ? 
-        socket.emit("show Answer", {answer : data.question.answer}) :
-        socket.emit("show Answer", {answer : data.question.answer})
-    })
-
-    socket.on("answerToDccDuo", (data : any) => {
-        data.answer === data.question.answer ? 
-        socket.emit("show Answer", {answer : data.question.answer}) :
-        socket.emit("show Answer", {answer : data.question.answer})
-    })
-
-    socket.on("answerToVf", (data)=>{
-        if ((data.answer === "vrai" && data.question.truth) || (data.answer === "faux" && (!data.question.truth)) ){
-            socket.emit("good answer")
-        } else {
-            socket.emit("wrong answer", (data.question.truth))
-        }
     })
 
     socket.on("createRoom",async (data) => {

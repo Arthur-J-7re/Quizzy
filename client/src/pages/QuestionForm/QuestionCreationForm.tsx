@@ -1,6 +1,6 @@
 import { useState, useEffect} from 'react';
 import Button from '@mui/material/Button';
-import { MenuItem, Select, Switch } from '@mui/material';
+import { MenuItem, Select, Switch, InputLabel } from '@mui/material';
 import { CreateQCMForm } from '../../component/CreateQuestion/CreateQcmForm';
 import { CreateFreeForm } from '../../component/CreateQuestion/CreateFreeForm';
 import { CreateDCCForm } from '../../component/CreateQuestion/CreateDccForm';
@@ -13,6 +13,7 @@ import Toast from '../../tools/toast/toast';
 import "../CommonCss.css";
 import "./QuestionForm.css"
 import makeRequest from '../../tools/requestScheme';
+
 
 
 export function QuestionCreationForm () {
@@ -289,6 +290,7 @@ export function QuestionCreationForm () {
                 <div style={{display : "flex",justifyContent : "center"}}>
                     <Select
                         id="select-quizz"
+                        labelId="difficulty-level"
                         value={level}
                         style={{width : '10%', textAlign: "center"}}
                         onChange={(e) => setLevel(e.target.value)}

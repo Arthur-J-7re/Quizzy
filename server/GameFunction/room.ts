@@ -1,12 +1,15 @@
 import { stringify } from "querystring";
 import questions from "../Collection/questions";
-import Thread from "./thread";
+import ThreadPoints from "../Class/Thread/threadPoints";
+import Thread from "../Class/Thread/Thread";
 import { stat } from "fs";
+import ThreadBr from "../Class/Thread/ThreadBr";
 
 interface Step {mode : string,quizz : any, place : number, keep : boolean, last : boolean, played : boolean}
 
 interface User  {name:string, role : string,socketId:string, id?:number, hasAnswered:boolean, answer:any , score:number, life : number, connected: boolean}
 interface Room { room_id: number | string,name: string,creator:string, isPrivate: boolean, password:string,emission:any,currentQuestion: number,withRef : boolean, withPresentator: boolean,numberOfParticipantMax : number, player: {[name : string]: User}, defaultLife : number }
+
 const rooms: {[roomId: string]: {room : Room, thread : Thread}} = {};
 
 const create = async (data : any, socket : any, io : any) => {
@@ -18,13 +21,29 @@ const create = async (data : any, socket : any, io : any) => {
         }
         if (data.emission){
             const newRoom = {...data,room_id : id, player:{},creator:data.creator, emission: data.emission, currentQuestion:0};
-            const newThread = new Thread(newRoom);
+            const newThread = createThread(newRoom);
+            if (newThread)
             rooms[id] = {room : newRoom, thread : newThread};
         }
         console.log("la room crée ressemble à ça", rooms[id]);
         socket.emit("roomCreated", ({
             roomId : String(id)
         }))
+    }
+}
+
+const createThread = (room : Room) => {
+    if (room && room.emission){
+        if (room.emission.id){
+            return 
+        } else {
+            switch(room.emission.title){
+                case "randomPoints":
+                    return new ThreadPoints(room)
+                case "randomBr":
+                    return new ThreadBr(room)
+            }
+        }
     }
 }
 

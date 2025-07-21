@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { InputLabel, Select, MenuItem, Button, Switch, FormControl,Checkbox, TextField} from "@mui/material";
+import { InputLabel, Select, MenuItem, Button, Switch, FormControl,Checkbox, TextField, Input} from "@mui/material";
 import { useSocket } from "../../context/socketContext";
 
 import makeRequest from "../../tools/requestScheme";
@@ -18,6 +18,7 @@ export default function CreateRoom () {
 
     const [withRef, setWithRef] = useState(false);
     const [mode,setMode] = useState("Points");
+    const [numberOfLife, setLife] = useState(3)
     const [quizzIdForModePoints, setQuizzIdForModePoints] = useState<string>("");
     const [withPresentator, setWithPresentator] = useState(false);
     const [numberOfParticipantMax, setNumberOfParticipantMax] = useState(10);
@@ -65,7 +66,7 @@ export default function CreateRoom () {
     }, []);
 
     const createEmission = async (mode : string) => {
-        if (mode === "Points" || mode === "BR"){
+        if (mode === "Points"){
             return {
                 title: "randomPoints",
                 creator: null,
@@ -75,6 +76,19 @@ export default function CreateRoom () {
                     title: "Points",
                     quizz: quizzIdForModePoints,
                     mode: mode
+                }]
+            }
+        } else if (mode === "BR"){
+            return {
+                title: "randomBr",
+                creator: null,
+                id : null,
+                numberOfStep: 1,
+                steps: [{
+                    title: "Endurance",
+                    quizz: quizzIdForModePoints,
+                    mode: mode,
+                    other :{lp: numberOfLife}
                 }]
             }
         }
@@ -132,10 +146,34 @@ export default function CreateRoom () {
             case "Personalise": 
                 return <div>Choisissez une emission</div>
             case "BR":
+                return (
+                    <div className="flex-center row">
+                    <FormControl>
+                        <InputLabel id="select-quizz-label">Choisissez un quizz</InputLabel>
+                        <Select
+                            labelId="select-quizz-label"
+                            id="select-quizz"
+                            value={quizzIdForModePoints}
+                            label="Choose a quizz"
+                            onChange={(e) => setQuizzIdForModePoints(e.target.value)}
+                        >
+                            {availableQuizz?.map((quizz: any) => (
+                            <MenuItem key={quizz.quizz_id} value={quizz.quizz_id}>
+                                {quizz.title}
+                            </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <FormControl>
+                        <Input type="number" value={numberOfLife} onChange={(e)=>setLife(Number(e.target.value))}/>
+                    </FormControl>
+                    </div>
+
+                ) 
             case "Points":
                 return (
                     <FormControl>
-                        <InputLabel id="select-quizz-label">Choose a quizz</InputLabel>
+                        <InputLabel id="select-quizz-label">Choisissez un quizz</InputLabel>
                         <Select
                             labelId="select-quizz-label"
                             id="select-quizz"
