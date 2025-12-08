@@ -13,17 +13,25 @@ export function Banner () {
     const auth = useContext(AuthContext);
     const navigate = useNavigate();
 
-    /*if (auth){
-        const { user, login, logout } = auth;
-    }*/
     return (
         <div className='bannerContainer'>
-            <div>
-                <img className='logoBanner' src={logo} alt="logo Quizzi" onClick={() => navigate("/") }></img>
+            <div className='logoSection' onClick={() => navigate("/")}>
+                <img className='logoBanner' src={logo} alt="logo Quizzi" />
+                {/*<span className='brandName'>QUIZZY</span>*/}
             </div>
             <div className='menuButtonContainer'>
                 <CreateMenu/>
-                {(auth && auth.user) ?  <ProfileMenu /> : <Button className="Connexion" onClick={() => navigate("/login")}> Se connecter</Button>}
+                {(auth && auth.user) ? (
+                    <ProfileMenu />
+                ) : (
+                    <Button 
+                        variant="contained" 
+                        className="connexionButton" 
+                        onClick={() => navigate("/login")}
+                    >
+                        Se connecter
+                    </Button>
+                )}
             </div>
         </div>
     )

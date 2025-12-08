@@ -1,51 +1,131 @@
-.bannerContainer{
-    border-bottom:solid 1px #e88954;
-    background-color: #c6d4ff;
+.bannerContainer {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    padding: 15px 40px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: solid 2px transparent;
+    border-image: linear-gradient(90deg, #667eea 0%, #764ba2 100%) 1;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
 }
 
-.logoBanner{
+.bannerContainer:hover {
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Section Logo */
+.logoSection {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.logoSection:hover {
+    transform: scale(1.05);
+}
+
+.logoBanner {
     max-height: 15vh;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
 }
 
-.Connexion {
-    border-radius: 15px !important;
-    white-space: nowrap;
-    color: #5a54e8!important;
-    background-color: #54e889 !important;
+.logoSection:hover .logoBanner {
+    transform: rotate(5deg);
+}
+
+.brandName {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+}
+
+/* Menu et boutons */
+.menuButtonContainer {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    width: auto;
+}
+
+.connexionButton {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 12px 30px !important;
+    border-radius: 25px !important;
+    font-weight: 600 !important;
     text-transform: none !important;
-    font-size: clamp(14px, 2vw, 100px)!important;
-    font-weight: 550 !important;
+    font-size: clamp(14px, 1.2vw, 18px) !important;
     font-family: 'Open Sans', sans-serif !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+    transition: all 0.3s ease !important;
+    white-space: nowrap;
     height: auto !important;
     min-height: unset !important;
-    
-    margin: 3vw;
-    padding: 3vw;
 }
 
-.menuButtonContainer{
-    display: flex;
-    width: 22%;/* 35% si en mobile à faire*/
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
-.Connexion:hover {
-    background-color: #43bc6e !important;
+.connexionButton:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a3d92 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
 }
 
-/*@media (max-width: 1400px) { 
-        font-size: clamp(14px, 5vw, 24px)!important;
-        font-weight: 550 !important;
+/* Responsive */
+@media (max-width: 768px) {
+    .bannerContainer {
+        padding: 12px 20px;
+    }
+
+    .brandName {
+        display: none;
+    }
+
+    .logoBanner {
+        max-height: 12vh;
+    }
+
+    .menuButtonContainer {
+        gap: 10px;
+        width: auto;
+    }
+
+    .connexionButton {
+        padding: 10px 20px !important;
+        font-size: clamp(12px, 3vw, 16px) !important;
     }
 }
 
-@media (min-width : 1400px) {
-    .Connexion{
-        font-size: 5vw!important;
-        font-weight: 550 !important;
+@media (max-width: 480px) {
+    .bannerContainer {
+        padding: 10px 15px;
     }
-}*/
+
+    .logoBanner {
+        max-height: 10vh;
+    }
+
+    .connexionButton {
+        padding: 8px 16px !important;
+        font-size: clamp(11px, 3.5vw, 14px) !important;
+    }
+
+    .menuButtonContainer {
+        gap: 8px;
+    }
+}

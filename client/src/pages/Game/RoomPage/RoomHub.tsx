@@ -6,6 +6,7 @@ import { AuthContext } from "../../../context/authentContext";
 import { Button, TextField } from "@mui/material";
 import Room from "./Room";
 import { Clock } from "../../../component/Clock/Clock";
+import { UsernameContext } from "../../../context/usernameContext";
 
 
 export default function RoomHub (){
@@ -17,6 +18,7 @@ export default function RoomHub (){
     }
     const socket = useSocket();
     const auth = useContext(AuthContext);
+    const uncontext = useContext(UsernameContext);
     const [name, setName] = useState(auth?.user ? auth.user.Username : "");
     const [inGame, setInGame] = useState(false);
     const [password, setPassword] = useState("");
@@ -67,6 +69,12 @@ export default function RoomHub (){
             }))
         }
     }
+    useEffect(()=>{
+        if (uncontext){
+            uncontext.setName(name);
+        }
+    },[name])
+
     if (auth)
 
     /*return (

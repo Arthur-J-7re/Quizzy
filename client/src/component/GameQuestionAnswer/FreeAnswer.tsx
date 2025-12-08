@@ -1,9 +1,10 @@
 import { Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import "./GameQuestionAnswer.css"
+import { Socket } from "socket.io-client";
 
 
-export default function FreeAnswer( { question, socket, room_id, username, canAnswer }: { question: any, socket: any, room_id : string, username: string, canAnswer: boolean }) {
+export default function FreeAnswer( { question, socket, room_id, username, canAnswer }: { question: unknown, socket: Socket, room_id : string, username: string, canAnswer: boolean }) {
     const [flash, setFlash] = useState(false);
     const [answering, setAnswering] = useState(true);
     const [selectedAns, setSelectedAns] = useState("");

@@ -1,10 +1,14 @@
 import { Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import "../GameQuestionAnswer.css"
+import { Question } from "shared-types";
 
 
 
-export default function DuoAnswer( { question, socket, room_id, username, canAnswer }: { question: any, socket: any, room_id : string, username: string, canAnswer: boolean }) {
+export default function DuoAnswer( { question, socket, room_id, username, canAnswer }: { question: Question, socket: any, room_id : string, username: string, canAnswer: boolean }) {
+    if (!(question.mode === "DCC")){
+        return
+    }
     const [flash, setFlash] = useState(false);
     const [duo, setDuo] = useState<{id : number, value : string}[]>([{id : 0, value :""},{id : 0, value : ""}]);
     const [answering, setAnswering] = useState(true);

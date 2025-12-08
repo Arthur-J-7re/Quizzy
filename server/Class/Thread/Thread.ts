@@ -47,6 +47,11 @@ export default class Thread{
         await this.play()
     }
 
+    public getGameMode(){
+        console.log(this.currentStep);
+        return this.currentStep.mode;
+    }
+
     public getDccMode(name : string){
         if (this.currentStep.dccAs === "DCC"){
             if (this.dccMode[name]){
@@ -99,7 +104,7 @@ export default class Thread{
         }
     }
 
-    public sendAll(message : string, obj : any){
+    public sendAll(message : string, obj : any = null){
         io.to(String(this.room.room_id)).emit(message, obj);
     }
 

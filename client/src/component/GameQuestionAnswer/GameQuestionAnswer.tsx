@@ -4,9 +4,9 @@ import QcmAnswer from "./QcmAnswer";
 import FreeAnswer from "./FreeAnswer";
 import DccAnswer from "./DCCAnswer/DccAnswer";
 import VfAnswer from "./VfAnswer";
+import {Question} from "shared-types"
 
-
-function renderComponent(mode: string, question: any, socket: any, room_id : string, username: string, canAnswer: boolean) {
+function renderComponent(mode: string, question: Question, socket: any, room_id : string, username: string, canAnswer: boolean) {
     switch (mode) {
         case "QCM":
             return <QcmAnswer question={question} socket={socket} room_id={room_id} username={username} canAnswer={canAnswer}/>;
@@ -23,7 +23,7 @@ function renderComponent(mode: string, question: any, socket: any, room_id : str
     }
 }
 
-export default function GameQuestionAnswer({ question, socket, room_id, username, canAnswer }: { question: any, socket: any, room_id : string, username: string, canAnswer:boolean }) {
+export default function GameQuestionAnswer({ question, socket, room_id, username, canAnswer }: { question: Question, socket: any, room_id : string, username: string, canAnswer:boolean }) {
     return (
         <>
             {renderComponent(question.mode, question, socket, room_id, username, canAnswer)}

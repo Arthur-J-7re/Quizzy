@@ -203,4 +203,13 @@ const setDccMode = async (room_id :string, username:string, mode: string) => {
     }
 }
 
-export default {create, getInfo, connect,ping,start,answer, autoConnect, getDccMode, setDccMode};
+const getGameMode = (room_id : number) => {
+    var room = rooms[room_id];
+    if (room){
+        const mode = room.thread.getGameMode();
+        console.log("room : ",mode)
+        return mode;
+    }
+}
+
+export default {create, getInfo, connect,ping,start,answer, autoConnect, getDccMode, setDccMode, getGameMode};

@@ -4,9 +4,11 @@ import RoomLink from "../../../tools/RoomLink";
 import { useSocket } from "../../../context/socketContext";
 import { AuthContext } from "../../../context/authentContext";
 import { Button } from "@mui/material";
-import QuestionReceiver from "../../../component/GameQuestionAnswer/QuestionReceiver";
+import QuestionReceiver from "../../../component/GameQuestionAnswer/Mode/QuestionReceiver";
+
 
 export default function Room ({roomInfo, Username} : {roomInfo : any, Username : string}){
+
     console.log("roomInfo dans le composant : ", roomInfo)
     const {room_id} = useParams();
     if (!room_id){
@@ -37,24 +39,16 @@ export default function Room ({roomInfo, Username} : {roomInfo : any, Username :
                 console.log("y a le bouton là?");
                 setIsCreator(true);
             })
-            socket.on("ping", (data : any)=>{
-                alert("vous avez été ping par : " + data.name);
-                console.log("vous avez été ping par : ", data.name)
-            })
             socket.on("aPlayerHasJoined", (data) => {
                 console.log(data)
                 setPlayer([...player,data.name]);
                 alert(data.name + "est dans la partie");
             })
-            socket.on("Starting game", (data) => {
+            socket.on("Starting game", () => {
                 setInGame(true);
             })
         }
     },[socket])
-
-    const ping = () => {
-        socket?.emit("ping", {room_id : room_id, username : username})
-    }
 
     const startGame = () => {
         if (socket){ 

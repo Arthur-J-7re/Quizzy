@@ -1,9 +1,13 @@
 import { Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import "./GameQuestionAnswer.css"
+import { IQCMQuestion, Question } from "shared-types";
 
 
-export default function QcmAnswer( { question, socket, room_id, username, canAnswer }: { question: any, socket: any, room_id : string, username: string, canAnswer:boolean }) {
+export default function QcmAnswer( { question, socket, room_id, username, canAnswer }: { question: Question, socket: any, room_id : string, username: string, canAnswer:boolean }) {
+    if (!(question.mode === "QCM")){
+        return
+    }
     const carre = (question? question.choices : {ans1 : "", ans2 : "", ans3 : "", ans4 : ""});
     const [flash, setFlash] = useState(false);
     const [answering, setAnswering] = useState(true);

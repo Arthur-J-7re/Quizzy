@@ -6,7 +6,7 @@ import AccountCRUD from "./function/accountCRUD";
 import QuizzCRUD from "./function/quizzCRUD";
 import cors from "cors";
 import routes from "./routes/appRoutes";
-import testSocket from "./GameFunction/testSocket";
+import testSocket from "./GameFunction/RoomFunction";
 
 
 //const action = require('./fun.js');

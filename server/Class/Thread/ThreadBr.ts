@@ -94,11 +94,12 @@ export default class ThreadBr extends Thread{
                 }
                 console.log("bonne réponse ? ",presentatorAnswers);
                 console.log("lifeboard", this.lifeBoard)
-                this.sendAll("result of BR round", this.lifeBoard)
                 if (!this.check(newLifeBoard)){
                     this.lifeBoard = newLifeBoard
-                    this.sendAll("newLifeboard", this.lifeBoard)
+                    this.sendAll("result of BR round", {"newlifeboard":this.lifeBoard,"newanswers":presentatorAnswers});
                     await new Promise(resolve => setTimeout(resolve, 5000));
+                } else {
+                    this.sendAll("All Wrong");
                 }
                 if (this.currentPlayer.length === 1){
                     breaked = true;
@@ -109,19 +110,14 @@ export default class ThreadBr extends Thread{
                 } else {
                     console.log(this.currentQuestion.mode)
                 }
-
-                
             }
             if (breaked){
                 break;
-            }
-               
+            }     
         }
         this.sendAll("winner of BR", this.currentPlayer)
         
         console.log("on envoie le scoreboard aux joueurs");
-        
-
     }
 
     public check(lifeboard : any){
@@ -145,6 +141,10 @@ export default class ThreadBr extends Thread{
 
     public canAnswer(playername : string){
         return this.currentPlayer.includes(playername)    
+    }
+
+    public manageLifeboard(){
+        this.lifeBoard
     }
 
     public newQuestion(question : any){

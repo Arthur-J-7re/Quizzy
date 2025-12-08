@@ -4,8 +4,9 @@ import "../GameQuestionAnswer.css"
 import CarreAnswer from "./CarreAnswer";
 import DuoAnswer from "./DuoAnswer";
 import CashAnswer from "./CashAnswer";
+import { DCCMode, Question } from "shared-types";
 
-export default function DccAnswer( { question, socket, room_id, username, canAnswer }: { question: any, socket: any, room_id : string, username: string, canAnswer : boolean }) {
+export default function DccAnswer( { question, socket, room_id, username, canAnswer }: { question: Question, socket: any, room_id : string, username: string, canAnswer : boolean }) {
     const [selectedMode, setSelectedMode] = useState("");
 
     useEffect(() => {
@@ -14,7 +15,7 @@ export default function DccAnswer( { question, socket, room_id, username, canAns
     }, []);
 
     useEffect(() => {
-        socket.on("DccMode", (mode : any) => {
+        socket.on("DccMode", (mode : DCCMode) => {
             console.log(mode);
             if (mode){
                 setSelectedMode(mode);

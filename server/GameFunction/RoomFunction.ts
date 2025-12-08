@@ -14,6 +14,12 @@ export default function testSocket (io : any, socket : Socket & {user_id : numbe
         socket.emit("newQuestion", {question : question})
     })
 
+    socket.on("Wich mode",(room_id)=>{
+        var mode = room.getGameMode(room_id);
+        console.log("roomFunction", mode);
+        socket.emit("Mode",mode);
+    })
+
     socket.on("setMode", (data) => {
         const {room_id, username, mode} = data;
         console.log("on set le mode ", mode , "pour", socket.username);

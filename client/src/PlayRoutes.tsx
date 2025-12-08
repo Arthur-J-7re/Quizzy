@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { useSocket } from './context/socketContext.tsx';
 import { SocketProvider } from './context/socketContext.tsx'
+import { UsernameProvider } from './context/usernameContext.tsx';
 import { useContext } from "react";
 import { AuthContext } from "./context/authentContext";
 
@@ -25,13 +26,14 @@ export default function PlayRoutes (){
 
     return (
         <SocketProvider>
-            
-            <Routes>
-                <Route path="/" element={<GameHome />} />
-                <Route path='/test' element={<Test />} />
-                <Route path='/room/:room_id' element={<RoomHub/>} />
-                <Route path='/join' element={<Joiner/>}/>
-            </Routes>
+            <UsernameProvider>
+                <Routes>
+                    <Route path="/" element={<GameHome />} />
+                    <Route path='/test' element={<Test />} />
+                    <Route path='/room/:room_id' element={<RoomHub/>} />
+                    <Route path='/join' element={<Joiner/>}/>
+                </Routes>
+            </UsernameProvider>
             
         </SocketProvider>
     )

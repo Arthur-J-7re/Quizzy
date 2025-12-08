@@ -10,7 +10,7 @@ class QuestionCard {
     private owner : number;
     private showing : boolean = false;
 
-    constructor(question : any, action : any, text : any, owner : number, couleur : string = 'Green'){
+    constructor(question : any, action : any, text : string, owner : number, couleur : string = 'Green'){
         this.question = question;
         this.buttonAction = action;
         this.buttonText = text;
@@ -26,7 +26,7 @@ class QuestionCard {
         return this.question;
     }
 
-    setButtonText(message : any){
+    setButtonText(message : string){
         this.buttonText = message;
     }
 
