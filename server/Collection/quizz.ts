@@ -1,6 +1,13 @@
 import mongoose from "../db";
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 
+export enum Mode {
+    LIST = "list",
+    GRID = "grid",
+    PICKANDBAN = "pickandban",
+    BIGBUCKET = "bigbucket",
+}
+
 const QuizzSchema = new mongoose.Schema({
     quizz_id: Number, 
     creator: Number,

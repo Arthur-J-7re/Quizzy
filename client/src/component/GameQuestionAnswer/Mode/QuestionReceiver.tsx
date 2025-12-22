@@ -1,9 +1,6 @@
 
 import { useState, useEffect } from "react";
 import "../GameQuestionAnswer.css"
-
-import GameQuestionAnswer from "../GameQuestionAnswer";
-import { PointResult } from "../../Result/PointResult";
 import PointReceiver from "./PointReceiver";
 import BattleRoyalReceiver from "./BattleRoyalReceiver";
 

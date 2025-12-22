@@ -1,9 +1,7 @@
 import Quizz from '../Collection/quizz';
 import User from "../Collection/user";
 import Emission from "../Collection/emission";
-import Quest from '../Collection/questions';
-
-const { QuestionModel, QCMModel, FreeModel, DCCModel } = Quest;
+import {QuestionModel, QCMModel, FreeModel, DCCModel } from '../Collection/questions';
 
 const getQuestionByOwner =async (id : number) => {
     const retour = await QuestionModel.find().where('author').equals(Number(id));

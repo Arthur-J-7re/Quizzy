@@ -1,14 +1,11 @@
 import mongoose from "../db";
 const AutoIncrement = require('mongoose-sequence')(mongoose);
-import Quizz from "./quizz"
-
-const StepSchema = new mongoose.Schema({mode : String, quizz:Quizz, inputCount:Number, outputCount: Number, keep : Boolean, last : Boolean, played : Boolean})
 
 const EmissionSchema = new mongoose.Schema({
     emission_id: Number, 
     creator: Number,
     numberOfStep: Number,
-    steps : [StepSchema],
+    step_ids : [Number],
     keepPoint : [Boolean],
     player : [Number],
     ranking: [Number],
@@ -18,6 +15,6 @@ const EmissionSchema = new mongoose.Schema({
 
 EmissionSchema.plugin(AutoIncrement, { inc_field: 'emission_id' });
 
-const model = mongoose.model("questions",EmissionSchema);
+const model = mongoose.model("emission",EmissionSchema);
 
 export default model;

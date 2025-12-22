@@ -5,25 +5,13 @@ import { Socket } from "socket.io";
 export const current: { [name: string |number]: string } = {};
 
 
-export default function testSocket (io : any, socket : Socket & {user_id : number}) {
+export default function roomSocket (io : any, socket : Socket & {user_id : number}) {
     socket.on("getQuestionTest",async ()=>{
         console.log("getQuestionTest appelé");
         const question = await getter.getQuestionById(25);
         //const question = {"_id":{"$oid":"6807c494dd38dffad0bb9849"},"author":{"$numberInt":"5"},"mode":"DCC","title":"À quel pays est rattaché l'archipel des galapagos","private":true,"played":{"$numberInt":"0"},"succeed":{"$numberInt":"0"},"tags":["Géographie"],"__t":"DCC","carre":[{"content":"Chili","answer_num":"1","_id":{"$oid":"67f58e800df69a5dcf83fe63"}},{"content":"Équateur","answer_num":"2","_id":{"$oid":"67f58e800df69a5dcf83fe64"}},{"content":"Papouasie-Nouvelle-Guinée","answer_num":"3","_id":{"$oid":"67f58e800df69a5dcf83fe65"}},{"content":"Royaume-Uni","answer_num":"4","_id":{"$oid":"67f58e800df69a5dcf83fe66"}}],"cash":["Équateur","équateur","Equateur","equateur","l'équateur","l'equateur"],"duo":{"$numberInt":"1"},"answer":{"$numberInt":"2"},"report":[],"question_id":{"$numberInt":"4"},"__v":{"$numberInt":"0"},"quizz":[]}
         //const question = {"_id":{"$oid":"6807c431dd38dffad0bb9848"},"author":{"$numberInt":"5"},"mode":"FREE","title":"Quand est mort le Pape François ?","private":true,"quizz":[],"played":{"$numberInt":"0"},"succeed":{"$numberInt":"0"},"tags":["Histoire"],"__t":"Free","answers":["21/04/2025","le 21 avril 2025","21 avril 2025"],"report":[],"question_id":{"$numberInt":"24"},"__v":{"$numberInt":"0"}}
         socket.emit("newQuestion", {question : question})
-    })
-
-    socket.on("Wich mode",(room_id)=>{
-        var mode = room.getGameMode(room_id);
-        console.log("roomFunction", mode);
-        socket.emit("Mode",mode);
-    })
-
-    socket.on("setMode", (data) => {
-        const {room_id, username, mode} = data;
-        console.log("on set le mode ", mode , "pour", socket.username);
-        room.setDccMode(room_id, username, mode)
     })
 
     socket.on("createRoom",async (data) => {
@@ -45,16 +33,7 @@ export default function testSocket (io : any, socket : Socket & {user_id : numbe
         await room.autoConnect(data, socket, io)
     })
 
-    socket.on("answerToQuestion", (data) => {
-        room.answer(data, socket);
-    })
-
     socket.on("ping", (data)=>{
         room.ping(data, socket, io);
-    })
-
-    socket.on("startGame", (data)=> {
-        console.log("on reçoit le start");
-        room.start(data, io);
     })
 }

@@ -3,20 +3,13 @@ import { normalizeText, verify, getValueOfQuestion } from "../../GameFunction/th
 import {io} from "../../index"
 import quizzCRUD from "../../function/quizzCRUD";
 import Thread from "./Thread";
-
-interface dccAnswer {mode : string, answer : string |number}
-
-interface Step {mode : string,quizz : any, place : number, keep : boolean, dccAs : string, last : boolean, played : boolean, other : any}
-interface User  {name:string, role : string,socketId:string, id?:number, hasAnswered:boolean, answer:any , connected: boolean}
-
-interface Room { room_id: number | string,name: string,creator: string, isPrivate: boolean, password:string,emission:any,currentQuestion: number,withRef : boolean, withPresentator: boolean,numberOfParticipantMax : number, player: {[name : string]: User}, defaultLife : number }
+import Room from "../../Interface/Room";
 
 export default class ThreadPoints extends Thread{
 
     protected scoreboard = <{[name : string] : number}>{};
     protected lifeBoard = <{[name: string] : number}>{};
     protected dccMode = <{[name: string]: string}>{};
-    protected currentAnswer = <{[name : string] : {answer : string | number |dccAnswer, hasAnswered : boolean}}>{};
 
     protected currentQuestion : any;
 
@@ -27,7 +20,7 @@ export default class ThreadPoints extends Thread{
     public override async play(){
         
 
-        for (let playername  in this.room.player){
+        for (let playername  in this.room.players){
             this.scoreboard[playername] = 0;
         }
 
@@ -42,7 +35,7 @@ export default class ThreadPoints extends Thread{
 
             console.log("passe à la question suivante : ", question)
             
-            for (let playername  in this.room.player){
+            for (let playername  in this.room.players){
                 this.currentAnswer[playername] = {answer : "", hasAnswered : false}
             }
             const questionToSend = await getter.getQuestionById(question);
@@ -53,7 +46,7 @@ export default class ThreadPoints extends Thread{
 
                 await new Promise(resolve => setTimeout(resolve, 10000)); // modifier les temps de réponse ici 
 
-                for (let playername in this.room.player){
+                for (let playername in this.room.players){
                     if (!this.currentAnswer[playername].hasAnswered){
                         console.log("on tente de récup la réponse de ", playername);
                         io.to(this.players[playername].socketId).emit("getQuestion")
@@ -64,7 +57,7 @@ export default class ThreadPoints extends Thread{
 
                 let presentatorAnswers = <{[name : string] : boolean}>{};
                 console.log("on passe à la vérification des réponses");
-                for (let playername  in this.room.player){
+                for (let playername  in this.room.players){
                     if (this.currentAnswer[playername].hasAnswered){
                         if (verify(playername, this.currentQuestion, this.currentAnswer[playername].answer)){
                             this.scoreboard[playername] += getValueOfQuestion(this.currentQuestion);

@@ -1,5 +1,4 @@
 import mongoose from "../db";
-import questions from "./questions";
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const UserSchema = new mongoose.Schema({

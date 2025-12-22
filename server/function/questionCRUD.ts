@@ -1,12 +1,11 @@
 import Quizz from '../Collection/quizz';
 import User from "../Collection/user";
 import Emission from "../Collection/emission";
-import Question from '../Collection/questions';
+import {Mode, QuestionModel, QCMModel, FreeModel, DCCModel, VFModel }  from '../Collection/questions';
 import getter from './getter';
 import { Socket } from 'socket.io';
 import quizzCRUD from './quizzCRUD';
 
-const {Mode, QuestionModel, QCMModel, FreeModel, DCCModel, VFModel } = Question;
 const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const createQCMQuestion = async ( questionObj : any) =>{
@@ -61,7 +60,7 @@ const updateQCMQuestion = async ( information : any) =>{
 const createFreeQuestion = async( questionObj : any) => {
     try {
         const newQuest = await FreeModel.create({
-            author: Number(questionObj.user_id),
+            author: Number(questionObj.user_id),    
             tags: questionObj.tags,
             title: questionObj.title,
             level: questionObj.level,

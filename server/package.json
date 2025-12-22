@@ -28,6 +28,7 @@
     "mongoose": "^8.9.6",
     "mongoose-sequence": "^6.0.1",
     "socket.io": "^4.8.1",
+    "uuid": "^13.0.0",
     "wscat": "^6.0.1"
   }
 }

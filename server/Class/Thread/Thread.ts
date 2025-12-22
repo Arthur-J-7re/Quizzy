@@ -1,15 +1,9 @@
 import getter from "../../function/getter";
 import {io} from "../../index"
 import quizzCRUD from "../../function/quizzCRUD";
-
-interface dccAnswer {mode : string, answer : string |number}
-
-interface Step {mode : string,quizz : any, place : number, keep : boolean, dccAs : string, last : boolean, played : boolean, other: any}
-interface User  {name:string, role : string,socketId:string, id?:number, hasAnswered:boolean, answer:any , connected: boolean}
-
-interface Room { room_id: number | string,name: string,creator: string, isPrivate: boolean, password:string,emission:any,currentQuestion: number,withRef : boolean, withPresentator: boolean,numberOfParticipantMax : number, player: {[name : string]: User}, defaultLife : number }
-
-
+import User from "../../Interface/User";
+import Room from "../../Interface/Room";
+import DccAnswer from "../../Interface/DccAnswer"; 
 export default class Thread{
     protected room;
     protected players;
@@ -17,21 +11,21 @@ export default class Thread{
     protected answers = <{[question_id : number | string] : []}>{}
 
     protected dccMode = <{[name: string]: string}>{};
-    protected currentAnswer = <{[name : string] : {answer : string | number |dccAnswer, hasAnswered : boolean}}>{};
+    protected currentAnswer = <{[name : string] : {answer : string | number |DccAnswer, hasAnswered : boolean}}>{};
 
     protected currentQuestion : any;
 
     constructor(room : Room) {
         this.room = room;
-        this.players = room.player;
+        this.players = room.players;
         this.currentStep = room.emission.steps[0];
     }
 
     public async start(username : string){
         console.log("on tente de start la game");
-        console.log("les players : ", this.room.player);
-        console.log("notre player : ", this.room.player[username]);
-        if (this.room.player[username].role === "creator"){
+        console.log("les players : ", this.room.players);
+        console.log("notre player : ", this.room.players[username]);
+        if (this.room.players[username].role === "creator"){
             io.to(String(this.room.room_id)).emit("Starting game");
             await this.setUpStep();
         }
@@ -74,7 +68,7 @@ export default class Thread{
 
     public resetDccMode(){
         console.log("on reset ça ",this.dccMode);
-        for (let playername  in this.room.player){
+        for (let playername  in this.room.players){
             this.dccMode[playername] = "";
             io.to(this.players[playername].socketId).emit("DccMode","")
         }
@@ -96,7 +90,7 @@ export default class Thread{
 
 
     public sendPresentator(emit : string, obj : any){
-        const players = this.room.player;
+        const players = this.room.players;
         for( let player in players){
             if (players[player].role === "presentator"){
                 io.to(String(players[player].socketId)).emit(emit, obj);
