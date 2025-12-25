@@ -1,20 +1,19 @@
 import mongoose from "../db";
+import { Document } from "mongoose";
+import Emission from "../Interface/Emission";
+
 const AutoIncrement = require('mongoose-sequence')(mongoose);
+export type EmissionDocument = Document & Emission;
 
 const EmissionSchema = new mongoose.Schema({
     emission_id: Number, 
     creator: Number,
-    numberOfStep: Number,
-    step_ids : [Number],
+    steps : [Number],
     keepPoint : [Boolean],
-    player : [Number],
-    ranking: [Number],
-    winner : Number,
-     
 });
 
 EmissionSchema.plugin(AutoIncrement, { inc_field: 'emission_id' });
 
-const model = mongoose.model("emission",EmissionSchema);
+const EmissionModel = mongoose.model("Emission",EmissionSchema);
 
-export default model;
+export default EmissionModel;

@@ -1,7 +1,8 @@
-import Quizz from '../Collection/quizz';
+import {QuizzModel} from '../Collection/quizz';
 import User from "../Collection/user";
 import Emission from "../Collection/emission";
-import {Mode, QuestionModel, QCMModel, FreeModel, DCCModel, VFModel }  from '../Collection/questions';
+import {QuestionModel, QCMModel, FreeModel, DCCModel, VFModel }  from '../Collection/questions';
+import { QuestionMode } from '../Interface/Question';
 import getter from './getter';
 import { Socket } from 'socket.io';
 import quizzCRUD from './quizzCRUD';
@@ -17,7 +18,7 @@ const createQCMQuestion = async ( questionObj : any) =>{
             title: questionObj.title,
             level: questionObj.level,
             private: questionObj.private,
-            mode: Mode.QCM,
+            mode: QuestionMode.QCM,
             choices: questionObj.choices,
             answer: questionObj.answer,
         });
@@ -42,7 +43,7 @@ const updateQCMQuestion = async ( information : any) =>{
             title: questionObj.title,
             level: questionObj.level,
             private: questionObj.private,
-            mode: Mode.QCM,
+            mode: QuestionMode.QCM,
             choices: questionObj.choices,
             answer: questionObj.answer,
         }});
@@ -65,7 +66,7 @@ const createFreeQuestion = async( questionObj : any) => {
             title: questionObj.title,
             level: questionObj.level,
             private: questionObj.private,
-            mode: Mode.FREE,
+            mode: QuestionMode.FREE,
             answers: questionObj.answers,
         });
         return({success : true, creator : newQuest.author, question_id : newQuest.question_id});
@@ -89,7 +90,7 @@ const updateFreeQuestion = async ( information : any) =>{
             title: questionObj.title,
             level: questionObj.level,
             private: questionObj.private,
-            mode: Mode.FREE,
+            mode: QuestionMode.FREE,
             answers: questionObj.answers,
         }});
         return({success : true});
@@ -111,7 +112,7 @@ const createDCCQuestion = async( questionObj : any) => {
             title: questionObj.title,
             level: questionObj.level,
             private: questionObj.private,
-            mode: Mode.DCC,
+            mode: QuestionMode.DCC,
             carre: questionObj.carre,
             duo: questionObj.duo,
             answer: questionObj.answer,
@@ -140,7 +141,7 @@ const updateDCCQuestion = async ( information : any) =>{
             title: questionObj.title,
             level: questionObj.level,
             private: questionObj.private,
-            mode: Mode.DCC,
+            mode: QuestionMode.DCC,
             carre: questionObj.carre,
             duo: questionObj.duo,
             answer: questionObj.answer,
@@ -168,7 +169,7 @@ const createVFQuestion = async(questionObj : any) => {
             title: questionObj.title,
             level: questionObj.level,
             private: questionObj.private,
-            mode: Mode.VF,
+            mode: QuestionMode.VF,
             truth: questionObj.truth,
         });
         return({success : true, creator : newQuest.author, question_id : newQuest.question_id});  
@@ -193,7 +194,7 @@ const createVFQuestionSocket = async(socket : any, questionObj : any) => {
             title: questionObj.title,
             level: questionObj.level,
             private: questionObj.private,
-            mode: Mode.VF,
+            mode: QuestionMode.VF,
             truth: questionObj.truth,
         });
         socket.emit("questionCreated");
@@ -218,7 +219,7 @@ const updateVFQuestion = async ( information : any) =>{
             title: questionObj.title,
             level: questionObj.level,
             private: questionObj.private,
-            mode: Mode.VF,
+            mode: QuestionMode.VF,
             truth: questionObj.truth,
         }});
         return({success : true});

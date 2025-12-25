@@ -1,4 +1,4 @@
-import Quizz from "./Quizz";
+import {Quizz} from "./Quizz";
 
 export default interface Step {
     mode : string,

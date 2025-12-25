@@ -1,12 +1,12 @@
 import Room from "../Class/Room";
-//import { v4 as uuidv4 } from "uuid";
-const uuidv4 = () => {return ""};
+import createId from "../utils/createId";
+
 const rooms = new Map<string, Room>();
 
 const create = async (data : any, socket : any, io : any) => {
     console.log("ça create avec cette data : ", data);
     if (data){
-        let roomId = uuidv4();
+        let roomId = createRoomId();
         if (data.emission){
             const newRoom = new Room(roomId, data.name, data.creator, data.isPrivate,
                 data.password, data.emission, data.withRef, data.withPresentator, data.numberOfParticipantMax, {},
@@ -19,6 +19,14 @@ const create = async (data : any, socket : any, io : any) => {
             roomId : String(roomId)
         }))
     }
+}
+
+const createRoomId = () : string => {
+    var roomId = createId();
+    while (rooms.has(roomId)){
+        roomId = createId();
+    }
+    return roomId;
 }
 
 const getInfo = async (roomId : string, socket : any) => {

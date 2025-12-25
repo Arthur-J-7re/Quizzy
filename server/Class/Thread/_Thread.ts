@@ -1,7 +1,7 @@
 import Room from "../Room";
 import User from "../../Interface/User";
 import Helper from "../Helper.ts/Helper";
-import HelperPoint from "../Helper.ts/HelperPoint";
+import HelperList from "../Helper.ts/HelperList";
 
 export default class Thread {
     public room:Room;
@@ -19,8 +19,8 @@ export default class Thread {
     public changeHelper(): void{
         if (this.room && this.room.emission){
             switch (this.room.emission.getCurrentStepType(this.currentStep)){
-                case "POINTS":
-                    this.helper = new HelperPoint(this, this.players, this.room.emission[this.currentStep]);
+                case "LIST":
+                    this.helper = new HelperList(this, this.players, this.room.emission[this.currentStep]);
                     break;
                 default:
                     break;

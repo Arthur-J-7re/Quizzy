@@ -1,13 +1,10 @@
 import mongoose from "../db";
 import { Document } from "mongoose";
+import { QuestionMode } from "../Interface/Question";
+import { Question } from "../Interface/Question";
 const AutoIncrement = require("mongoose-sequence")(mongoose);
 
-export enum Mode {
-    QCM = "QCM",
-    FREE = "FREE",
-    DCC = "DCC",
-    VF = "VF",
-}
+
 
 const Answers4 = {
     ans1: { type: String, required: true },
@@ -16,27 +13,12 @@ const Answers4 = {
     ans4: { type: String, required: true },
 };
 
-interface IQuestionBase {
-    question_id: number;
-    author: number;
-    mode: Mode;
-    title: string;
-    private: boolean;
-    quizz: number[];
-    playlist: number[];
-    level?: number;
-    report?: { date: Date; reporter: number }[];
-    played?: number;
-    succeed?: number;
-    tags?: string[];
-}
-
-export type QuestionDocument = Document & IQuestionBase;
+export type QuestionDocument = Document & Question;
 
 const QuestionSchema = new mongoose.Schema<QuestionDocument>({
     question_id: Number,
     author: { type: Number, required: true },
-    mode: { type: String, enum: Object.values(Mode), required: true },
+    mode: { type: String, enum: Object.values(QuestionMode), required: true },
     title: { type: String, required: true },
     private: { type: Boolean, required: true },
     quizz: { type: [Number], default: [] },
