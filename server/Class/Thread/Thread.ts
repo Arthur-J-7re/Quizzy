@@ -1,6 +1,5 @@
-import getter from "../../function/getter";
 import {io} from "../../index"
-import quizzCRUD from "../../function/quizzCRUD";
+import quizzManager from "../../function/quizzManager";
 import User from "../../Interface/User";
 import Room from "../../Interface/Room";
 import DccAnswer from "../../Interface/DccAnswer"; 

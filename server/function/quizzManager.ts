@@ -1,7 +1,6 @@
 import {QuizzModel, ListQuizzModel, GridQuizzModel, PickAndBanQuizzModel, BigBucketQuizzModel} from "../Collection/quizz";
 import { QuizzMode } from "../Interface/Quizz";
-import getter from "../function/getter";
-import questionCRUD from "./questionCRUD";
+import questionManager from "./questionManager";
 import { Socket } from 'socket.io';
 
 const createQuizz = async ( data : any) => {
@@ -28,7 +27,7 @@ const createListQuizz = async (data : any) =>{
         let newQuizz;
                 
         newQuizz = await ListQuizzModel.create({
-            creator: Number(data.user_id),
+            creator: Number(data.creator),
             mode: QuizzMode.LIST,
             tags: data.tags,
             title: data.title,
@@ -36,7 +35,7 @@ const createListQuizz = async (data : any) =>{
             questions : data.questions
         });
         console.log("après la création List");
-        await questionCRUD.addQuizzToQuestion(data.questionList, newQuizz.quizz_id);
+        await questionManager.addQuizzToQuestion(data.questions, newQuizz.quizz_id);
         return ({success : true, quizz_id : newQuizz.quizz_id, creator:newQuizz.creator})
         
             
@@ -51,17 +50,22 @@ const createListQuizz = async (data : any) =>{
 }
 
 const updateListQuizzObj = async (quizzObj : any) =>{
-    console.log("les infos de l'update", quizzObj);
-    console.log("l'id", quizzObj.quizz_id);
-    const quizzUPdated = await ListQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
-        tags: quizzObj.tags,
-        title: quizzObj.title,
-        private: quizzObj.private,
-        questions : quizzObj.questions
-    }});
-    console.log(quizzUPdated);
-    await questionCRUD.addQuizzToQuestion(quizzObj.questionList, quizzObj.quizz_id);
-    return({success : true});
+    try {
+        console.log("les infos de l'update", quizzObj);
+        console.log("l'id", quizzObj.quizz_id);
+        const quizzUPdated = await ListQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
+            tags: quizzObj.tags,
+            title: quizzObj.title,
+            private: quizzObj.private,
+            questions : quizzObj.questions
+        }});
+        console.log(quizzUPdated);
+        await questionManager.addQuizzToQuestion(quizzObj.questionList, quizzObj.quizz_id);
+        return({success : true});
+    } catch (error) {
+        console.error("Erreur lors de l'update du quizz liste", error);
+        return({success : false});
+    }
 }
 
 const createGridQuizz = async (data : any) =>{
@@ -69,7 +73,7 @@ const createGridQuizz = async (data : any) =>{
         let newQuizz;
                 
         newQuizz = await GridQuizzModel.create({
-            creator: Number(data.user_id),
+            creator: Number(data.creator),
             mode: QuizzMode.GRID,
             tags: data.tags,
             title: data.title,
@@ -93,18 +97,23 @@ const createGridQuizz = async (data : any) =>{
 }
 
 const updateGridQuizzObj = async (quizzObj : any) =>{
-    console.log("les infos de l'update", quizzObj);
-    console.log("l'id", quizzObj.quizz_id);
-    const quizzUPdated = await GridQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
-        tags: quizzObj.tags,
-        title: quizzObj.title,
-        private: quizzObj.private,
-        themes : quizzObj.themes,
-        themeSize : quizzObj.themeSize,
-        gridSize : quizzObj.gridSize
-    }});
-    console.log(quizzUPdated);
-    return({success : true});
+    try {
+        console.log("les infos de l'update", quizzObj);
+        console.log("l'id", quizzObj.quizz_id);
+        const quizzUPdated = await GridQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
+            tags: quizzObj.tags,
+            title: quizzObj.title,
+            private: quizzObj.private,
+            themes : quizzObj.themes,
+            themeSize : quizzObj.themeSize,
+            gridSize : quizzObj.gridSize
+        }});
+        console.log(quizzUPdated);
+        return({success : true});
+    } catch (error) {
+        console.error("Erreur lors de l'update du quizz grille", error);
+        return({success : false});
+    }
 }
 
 const createPickAndBanQuizz = async (data : any) =>{
@@ -112,7 +121,7 @@ const createPickAndBanQuizz = async (data : any) =>{
         let newQuizz;
                 
         newQuizz = await PickAndBanQuizzModel.create({
-            creator: Number(data.user_id),
+            creator: Number(data.creator),
             mode: QuizzMode.PICKANDBAN,
             tags: data.tags,
             title: data.title,
@@ -135,17 +144,22 @@ const createPickAndBanQuizz = async (data : any) =>{
 }
 
 const updatePickAndBanQuizzObj = async (quizzObj : any) =>{
-    console.log("les infos de l'update", quizzObj);
-    console.log("l'id", quizzObj.quizz_id);
-    const quizzUPdated = await PickAndBanQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
-        tags: quizzObj.tags,
-        title: quizzObj.title,
-        private: quizzObj.private,
-        themes : quizzObj.themes,
-        size : quizzObj.size
-    }});
-    console.log(quizzUPdated);
-    return({success : true});
+    try {
+        console.log("les infos de l'update", quizzObj);
+        console.log("l'id", quizzObj.quizz_id);
+        const quizzUPdated = await PickAndBanQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
+            tags: quizzObj.tags,
+            title: quizzObj.title,
+            private: quizzObj.private,
+            themes : quizzObj.themes,
+            size : quizzObj.size
+        }});
+        console.log(quizzUPdated);
+        return({success : true});
+    } catch (error) {
+        console.error("Erreur lors de l'update du quizz pick and ban", error);
+        return({success : false});
+    }
 }
 
 const createBigBucketQuizz = async (data : any) =>{
@@ -153,7 +167,7 @@ const createBigBucketQuizz = async (data : any) =>{
         let newQuizz;
                 
         newQuizz = await BigBucketQuizzModel.create({
-            creator: Number(data.user_id),
+            creator: Number(data.creator),
             mode: QuizzMode.BIGBUCKET,
             tags: data.tags,
             title: data.title,
@@ -177,18 +191,23 @@ const createBigBucketQuizz = async (data : any) =>{
 }
 
 const updateBigBucketQuizzObj = async (quizzObj : any) =>{
-    console.log("les infos de l'update", quizzObj);
-    console.log("l'id", quizzObj.quizz_id);
-    const quizzUPdated = await BigBucketQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
-        tags: quizzObj.tags,
-        title: quizzObj.title,
-        private: quizzObj.private,
-        themes : quizzObj.themes,
-        width : quizzObj.width,
-        height : quizzObj.height
-    }});
-    console.log(quizzUPdated);
-    return({success : true});
+    try {
+        console.log("les infos de l'update", quizzObj);
+        console.log("l'id", quizzObj.quizz_id);
+        const quizzUPdated = await BigBucketQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
+            tags: quizzObj.tags,
+            title: quizzObj.title,
+            private: quizzObj.private,
+            themes : quizzObj.themes,
+            width : quizzObj.width,
+            height : quizzObj.height
+        }});
+        console.log(quizzUPdated);
+        return({success : true});
+    } catch (error) {
+        console.error("Erreur lors de l'update du quizz big bucket", error);
+        return({success : false});
+    }
 }
 
 const updateQuizz = async (information : any) =>{
@@ -208,6 +227,8 @@ const updateQuizz = async (information : any) =>{
             case "BIGBUCKET":
                 return updateBigBucketQuizzObj(quizzObj);
                 break;
+            default:
+                return ({success:false})
         }
     } catch (error){
         if (error instanceof Error) {
@@ -222,10 +243,10 @@ const updateQuizz = async (information : any) =>{
 
 const deleteQuizz = async (quizzId : string) => {
     try {
-        const questionsToUpdate =await getter.getQuestionsOfQuizz(Number(quizzId));
+        const questionsToUpdate =await getQuestionsOfQuizz(Number(quizzId));
         await QuizzModel.deleteOne({quizz_id : quizzId});
         if (questionsToUpdate){
-            await questionCRUD.handleDeletedQuizz(questionsToUpdate, Number(quizzId));
+            await questionManager.handleDeletedQuizz(questionsToUpdate, Number(quizzId));
         }
         return ({success : true});
     } catch (error) {
@@ -234,12 +255,12 @@ const deleteQuizz = async (quizzId : string) => {
     }
 };
 
-const handleDeletedQuestion = async (quizzIds: number[], questionId: number) => {
+const handleDeletedQuestion = async (quizzIds: number[], question_id: number) => {
     try {
-        await Promise.all(quizzIds.map(async (quizzId: number) => {
+        await Promise.all(quizzIds.map(async (quizz_id: number) => {
             await QuizzModel.updateOne(
-                { quizz_id: quizzId },
-                { $pull: { questions: questionId } }
+                { quizz_id: quizz_id },
+                { $pull: { questions: question_id } }
             );
         }));
         return { success: true };
@@ -249,6 +270,57 @@ const handleDeletedQuestion = async (quizzIds: number[], questionId: number) => 
     }
 };
 
+const getQuestionsOfQuizz = async (id : number) => {
+    const retour = await  ListQuizzModel.findOne().where("quizz_id").equals(id);
+    return retour?.questions;
+};
+const getQuizzByCreator = async (id : number) => {
+    const retour = await  QuizzModel.find().where("creator").equals(id);
+    return retour;
+};
+
+const getAvailableQuizz = async (id ?: number ) => {
+    try {
+        let retour;
+        if (id) {
+            let quizzOfId = await  QuizzModel.find().where('creator').equals(Number(id));
+            retour  = await  QuizzModel.find().where('private').equals(false).where("creator").ne(id);
+
+            retour.forEach((quest) => {
+                quizzOfId.push(quest);
+                
+            })
+            return quizzOfId;
+        } else {
+            retour = await  QuizzModel.find().where('private').equals(false)
+        }
+        return retour;
+    } catch(e){
+        console.error("erreur lors du fetch des questions available : ", e)
+        return([])
+    }
+};
+
+const getPublicQuizz = async () => {
+    try {
+        const retour = await  QuizzModel.find().where('private').equals(false);
+        return retour;
+    }catch(e){
+        console.error("erreur lors du fetch des questions public : ", e)
+        return([])
+    }
+};
+
+const getCreatorOfQuizz = async (id: String | number) => {
+    try {
+        let retour = await  QuizzModel.findOne().where('quizz_id').equals(id);
+        return retour?.creator;
+    } catch (error) {
+        console.error("erreur lors de la récupération du créateur", error);
+    }
+}
 
 
-export default{createQuizz,updateQuizz,deleteQuizz, handleDeletedQuestion};
+export default{createQuizz,updateQuizz,deleteQuizz,
+handleDeletedQuestion, getQuestionsOfQuizz,getPublicQuizz,
+getQuizzByCreator, getAvailableQuizz, getCreatorOfQuizz};

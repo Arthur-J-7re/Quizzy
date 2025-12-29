@@ -17,7 +17,7 @@ export type QuestionDocument = Document & Question;
 
 const QuestionSchema = new mongoose.Schema<QuestionDocument>({
     question_id: Number,
-    author: { type: Number, required: true },
+    creator: { type: Number, required: true },
     mode: { type: String, enum: Object.values(QuestionMode), required: true },
     title: { type: String, required: true },
     private: { type: Boolean, required: true },

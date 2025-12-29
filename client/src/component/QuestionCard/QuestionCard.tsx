@@ -5,12 +5,12 @@ import "./QuestionCard.css";
 class QuestionCard {
     private buttonAction;
     private question;
-    private buttonText;
+    private buttonText :any;
     private couleur : String;
     private owner : number;
     private showing : boolean = false;
 
-    constructor(question : any, action : any, text : string, owner : number, couleur : string = 'Green'){
+    constructor(question : any, action : any, text : any, owner : number, couleur : string = 'Green'){
         this.question = question;
         this.buttonAction = action;
         this.buttonText = text;
@@ -26,7 +26,7 @@ class QuestionCard {
         return this.question;
     }
 
-    setButtonText(message : string){
+    setButtonText(message : any){
         this.buttonText = message;
     }
 
@@ -48,19 +48,27 @@ class QuestionCard {
         return true;
     }
 
-    matchAnswers(regex : RegExp){
+    matchAnswers(regex : RegExp): boolean{
         switch (this.question.mode){
-            /*case "QCM":
-                return this.question.choices.some((element: string) => regex.test(element));*/
+            case "QCM":
+                return this.matchArrayAnswer(this.question.choices,regex);
             case "DCC":
-                return this.question.cash.some((element: string) => regex.test(element)) /*|| this.question.carre.some((element: string) => regex.test(element))*/;
+                return this.matchListAnswer(this.question.cash,regex) || 
+                this.matchArrayAnswer(this.question.carre,regex);
             case "FREE":
-                return this.question.answers.some((element: string) => regex.test(element));
+                return this.matchListAnswer(this.question.answers,regex);
             default:
                 return false;
-
-
         }
+    }
+
+    matchListAnswer(list : string[], regex : RegExp): boolean{
+        return list.some((element: string) => regex.test(element));
+    }
+
+    matchArrayAnswer(array : Object, regex : RegExp): boolean{
+        let list : string[] = Object.values(array);
+        return this.matchListAnswer(list,regex)
     }
 
     matchText(text: string): boolean {

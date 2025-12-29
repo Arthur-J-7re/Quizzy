@@ -10,7 +10,7 @@ import "./profil.css";
 import "../../component/QuestionCard/QuestionCard.css";
 import makeRequest from "../../tools/requestScheme";
 
-export function Profil () {
+export function   Profil () {
     const auth = useContext(AuthContext);
     const [questions, setQuestions] = useState([]);
     const [questionCards, setQuestionCards] = useState<QuestionCard[]>([]);

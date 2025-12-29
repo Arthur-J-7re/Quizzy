@@ -7,7 +7,7 @@ export enum QuestionMode {
 
 export interface Question {
     question_id: number;
-    author: number;
+    creator: number;
     mode: QuestionMode;
     title: string;
     private: boolean;

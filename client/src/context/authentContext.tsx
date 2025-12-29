@@ -2,7 +2,7 @@ import { createContext, useState, useEffect, ReactNode } from "react";
 
 // Définition du type User
 interface User {
-  id: string;
+  id: number;
   Username: string;
   currentRoom : string;
   token: string;

@@ -7,7 +7,7 @@ const makeRequest = async (url: string, method: string = "GET", data: object = {
 
         const storedUser = localStorage.getItem("user");
         const token = storedUser ? JSON.parse(storedUser).token : null;
-        //console.log(token);
+        console.log(token);
 
         const headers: HeadersInit = {
             "Content-Type": "application/json",
@@ -16,7 +16,7 @@ const makeRequest = async (url: string, method: string = "GET", data: object = {
         // Si un token est présent, on l'ajoute dans l'en-tête Authorization
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
-            //console.log(headers);
+            console.log(headers);
         }
 
         if (method === "GET") {

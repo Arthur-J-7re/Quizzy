@@ -30,11 +30,12 @@ export function QuestionCreationForm () {
     const [answers, setAnswers] = useState<string[]>(_question?.cash ||_question?.answers || []);
     const [truth, setTruth] = useState(_question?.truth);
     const auth = useContext(AuthContext);
-    const user_id = auth?.user?.id || "0";
-    const [freeData, setFreeData] = useState({user_id : user_id,mode : "FREE",title: title,level:level, tags: tags, private:isPrivate, answers: answers});
-    const [dccData, setDccData] = useState({user_id : user_id,mode : "DCC",title: title,level:level, tags: tags, private: isPrivate, carre: carre, duo: _question?.duo ||2, answer: _question?.answer ||1, cash: answers});
-    const [qcmData, setQcmData] = useState({user_id : user_id,mode : "QCM",title: title,level:level, tags: tags, private: isPrivate, choices: carre, answer: _question?.answer || 1});
-    const [vfData, setVfData] = useState({user_id : user_id,mode : "VF",title: title, level:level,tags: tags, private: isPrivate, truth: truth});
+    const user_id = auth?.user?.id || 0;
+
+    const [freeData, setFreeData] = useState({creator : user_id,mode : "FREE",title: title,level:level, tags: tags, private:isPrivate, answers: answers});
+    const [dccData, setDccData] = useState({creator : user_id,mode : "DCC",title: title,level:level, tags: tags, private: isPrivate, carre: carre, duo: _question?.duo ||2, answer: _question?.answer ||1, cash: answers});
+    const [qcmData, setQcmData] = useState({creator : user_id,mode : "QCM",title: title,level:level, tags: tags, private: isPrivate, choices: carre, answer: _question?.answer || 1});
+    const [vfData, setVfData] = useState({creator : user_id,mode : "VF",title: title, level:level,tags: tags, private: isPrivate, truth: truth});
 
     const [messageInfo, setMessageInfo] = useState("");
     const [showMessage, setShowMessage] = useState(false);
@@ -143,19 +144,19 @@ export function QuestionCreationForm () {
     useEffect(() => {
         setQcmData(prev => ({
             ...prev,
-            user_id: user_id
+            creator: user_id
         }));
         setFreeData(prev => ({
             ...prev,
-            user_id: user_id
+            creator: user_id
         }));
         setDccData(prev => ({
             ...prev,
-            user_id: user_id
+            creator: user_id
         }));
         setVfData(prev => ({
             ...prev,
-            user_id: user_id
+            creator: user_id
         }));
     }, [user_id])
 

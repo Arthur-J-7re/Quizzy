@@ -1,18 +1,24 @@
 import { Router } from "express";
-import getter from "../function/getter";
-import quizzCRUD from "../function/quizzCRUD";
+import quizzManager from "../function/quizzManager";
 import token from '../utils/jwt';
-import questionCRUD from "../function/questionCRUD";
-import userCRUD from "../function/accountCRUD";
+import questionManager from "../function/questionManager";
+import userManager from "../function/userManager";
+import getIdFromReq from '../utils/getIdFromReq';
+
+const checkCreator = async (req:any, quizz_id:number) => {
+    let newReq : any= req;
+    const user = newReq.user;
+    const creator = await quizzManager.getCreatorOfQuizz(quizz_id);
+    return user.id === creator;
+}
 
 const routes = Router();
 
 routes.get("/",token.verifyToken, async (req,res) => {
     console.log("appelle au quizz");
-    const newReq : any= req;
-    const id = Number(newReq.user.id);
+    const id = getIdFromReq(req);
     try {
-      const retour =await getter.getQuizzByOwner(id);
+      const retour =await quizzManager.getQuizzByCreator(id);
       res.json(retour);
       
     } catch (error) {
@@ -20,75 +26,73 @@ routes.get("/",token.verifyToken, async (req,res) => {
     }
 });
 
-routes.get("/available-quizz", async (req,res) => {
+routes.get("/available-quizz",token.verifyToken, async (req,res) => {
     console.log("appelle aux quizz available");
-    const {id} = req.query;
-    console.log(id);
+    const id = getIdFromReq(req);
+    let retour = null;
     try {
-        let retour;
-        if (id) {
-          retour = await getter.getQuizzAvailable(Number(id));
-        }
-        else {
-          retour = await getter.getQuizzAvailable();
-        }
-        res.json(retour);
-        
+        retour = await quizzManager.getAvailableQuizz(Number(id));
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
+    res.json(retour);
+});
+
+routes.get("/public-quizz", async (req,res) => {
+    console.log("appelle aux quizz public");
+    let retour;
+    try {
+      retour = await quizzManager.getPublicQuizz();
+    } catch (error) {
+      console.error(error);
+    }
+    res.json(retour);
 });
 
 routes.post("/create", async (req,res) => {
     console.log("création de question via les requête http");
     const data : any = req.body;
-    
-    const retour = await quizzCRUD.createQuizz(data);
-    await questionCRUD.addQuizzToQuestion(data.questionList, retour?.quizz_id);
-    await userCRUD.addQuizzToUser(Number(retour?.creator), Number(retour?.quizz_id));
+    data.creator = getIdFromReq(req);
+    const retour = await quizzManager.createQuizz(data);
+    await questionManager.addQuizzToQuestion(data.questionList, retour?.quizz_id);
+    await userManager.addQuizzToUser(Number(retour?.creator), Number(retour?.quizz_id));
     res.json(retour);
 });
 
 routes.put("/update",token.verifyToken, async (req,res) => {
     console.log("modification de quizz via les requête http");
     const data : any = req.body;
-    console.log(data);
-    let newReq : any= req;
-    const owner = await getter.getOwnerOfQuizz(Number(data.quizz_id));
+    data.creator = getIdFromReq(req);
     let retour = {success :false}
-    console.log(owner, newReq.user.id,newReq.user.id === owner);
-    if(newReq.user.id === owner){  
+    if(await checkCreator(req, Number(data.quizz_id))){  
       console.log("là ça va update le quizz normalement");
-      retour = await quizzCRUD.updateQuizz(req.body);
+      retour = await quizzManager.updateQuizz(req.body);
     }
     console.log(retour);
     res.json(retour);
 });
   
-  
-  
-
-
 routes.delete("/", token.verifyToken,async (req,res)=>{
     console.log("api suprresion de quizz");
     const newReq : any = req;
+    const user = newReq.user;
     const data : any = req.body;
+    let retour = {success : false};
     if (!(data && data.quizz_id)){
-      res.json(false);
+      res.json(retour);
     }
     try{
       console.log(data);
-      const creator = await getter.getOwnerOfQuizz(data.quizz_id);
-      let retour = {success : false};
-      if (creator === newReq.user.id){
+      const creator = await quizzManager.getCreatorOfQuizz(data.quizz_id);
+      if (creator === user.id){
         console.log("là ça va supprimer");
-        retour = await quizzCRUD.deleteQuizz(data.quizz_id);
-        await userCRUD.deleteQuizzFromUser(Number(creator), Number(data.quizz_id));
+        retour = await quizzManager.deleteQuizz(data.quizz_id);
+        await userManager.deleteQuizzFromUser(Number(creator), Number(data.quizz_id));
       }
-      res.json(retour);
     } catch (error){
       console.error("erreur lors de la suppression d'un quizz : ", error);
     }
+    res.json(retour);
 });
 
 export default routes;

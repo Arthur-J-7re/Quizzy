@@ -13,9 +13,10 @@ const verifyToken = (req : any, res : any, next : any) => {
   try {
     const secret = process.env.JWT_SECRET || "votre_clé_secrète"; // idéalement depuis .env
     const decoded = jwt.verify(token, secret);
-    req.user = decoded; // On stocke les infos du token dans req.user
-    next(); // On continue vers la route suivante
+    req.user = decoded; 
+    next();
   } catch (err) {
+    console.error(err);
     return res.status(403).json({ message: "Token invalide ou expiré." });
   }
 };

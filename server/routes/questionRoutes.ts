@@ -1,17 +1,24 @@
 import { Router } from "express";
-import getter from "../function/getter"
-import questionCRUD from "../function/questionCRUD";
+import questionManager from "../function/questionManager";
 import token from '../utils/jwt';
-import userCRUD from '../function/accountCRUD';
+import userManager from '../function/userManager';
+import getIdFromReq from '../utils/getIdFromReq';
+
+const checkCreator = async (req:any, question_id:number) => {
+    let newReq : any= req;
+    const user = newReq.user;
+    const creator = await questionManager.getCreatorOfQuestion(question_id);
+    return user.id === creator;
+}
 
 const routes = Router();
 
 routes.get("/", token.verifyToken,async (req,res) => {
     console.log("appelle aux questions");
-    let newReq : any = req;
-    const id = Number(newReq.user.id);
+    const id = getIdFromReq(req);
+    console.log(id)
     try {
-        const retour =await getter.getQuestionByOwner(id);
+        const retour =await questionManager.getQuestionByCreator(id);
         res.json(retour);
 
     } catch (error) {
@@ -19,12 +26,11 @@ routes.get("/", token.verifyToken,async (req,res) => {
     }
 });
 
-routes.get("/questionsAvailable",token.verifyToken, async (req,res) => {
+routes.get("/available-questions",token.verifyToken, async (req,res) => {
     console.log("appelle aux questions mais dans le router");
-    let newReq : any = req;
-    const id = Number(newReq.user.id);
+    const id = getIdFromReq(req);
     try {
-        const retour = await getter.getQuestionAvailable(id);
+        const retour = await questionManager.getAvailableQuestions(id);
         res.json(retour);
         
     } catch (error) {
@@ -32,35 +38,41 @@ routes.get("/questionsAvailable",token.verifyToken, async (req,res) => {
     }
 });
 
+routes.get("/public-questions", async (req,res) => {
+    console.log("appelle aux questions publiques");
+    let retour;
+    try {
+      retour = await questionManager.getPublicQuestions();
+    } catch (error) {
+      console.error(error);
+    }
+    res.json(retour);
+});
+
 routes.post("/create", token.verifyToken, async (req,res) => {
     console.log("création de question via les requête http");
     const data : any = req.body;
-    console.log("data c'est ça : ", data);
-    let newReq : any= req;
-    const owner = data.user_id;
-    let retour = {success :false, creator : 0, question_id : 0}
-    console.log(newReq.user);
-    console.log(newReq.user.id);
-    console.log(owner);
-    if(newReq.user.id === owner){
+    data.creator = getIdFromReq(req);
+    let retour = {success :false, creator : data.creator, question_id : 0}
+    if (data && data.mode){
         switch (data.mode){
             case "QCM":
-                retour = await questionCRUD.createQCMQuestion(data);
+                retour = await questionManager.createQCMQuestion(data);
                 break;
             case "FREE":
-                retour = await questionCRUD.createFreeQuestion(data);
+                retour = await questionManager.createFreeQuestion(data);
                 break;
             case "VF": 
-                retour = await questionCRUD.createVFQuestion(data);
+                retour = await questionManager.createVFQuestion(data);
                 break;
             case "DCC":
-                retour = await questionCRUD.createDCCQuestion(data);
+                retour = await questionManager.createDCCQuestion(data);
                 break;
             default :
                 return;
         }
         console.log("après le switchcase");
-        await userCRUD.addQuestionToUser(Number(retour?.creator), Number(retour?.question_id));
+        await userManager.addQuestionToUser(Number(retour?.creator), Number(retour?.question_id));
     }
     res.json(retour);
 });
@@ -68,23 +80,21 @@ routes.post("/create", token.verifyToken, async (req,res) => {
 routes.put("/update",token.verifyToken, async (req,res) => {
     console.log("modification de question via les requête http");
     const {question_id, data} : any = req.body;
-    let newReq : any= req;
-    const owner = await getter.getOwnerOfQuestion(question_id);
+    data.creator = getIdFromReq(req);
     let retour = {success :false}
-    console.log(newReq.user.id === owner);
-    if(newReq.user.id === owner){  
+    if(await checkCreator(req, question_id)){  
         switch (data.mode){
             case "QCM":
-                retour = await questionCRUD.updateQCMQuestion(req.body);
+                retour = await questionManager.updateQCMQuestion(req.body);
                 break;
             case "FREE":
-                retour = await questionCRUD.updateFreeQuestion(req.body);
+                retour = await questionManager.updateFreeQuestion(req.body);
                 break;
             case "VF": 
-                retour = await questionCRUD.updateVFQuestion(req.body);
+                retour = await questionManager.updateVFQuestion(req.body);
                 break;
             case "DCC":
-                retour = await questionCRUD.updateDCCQuestion(req.body);
+                retour = await questionManager.updateDCCQuestion(req.body);
                 break;
             default :
                 return;
@@ -97,13 +107,12 @@ routes.put("/update",token.verifyToken, async (req,res) => {
 routes.delete("/",token.verifyToken, async (req,res)=>{
     console.log("api suprresion de question");
     const data : any = req.query;
-    let newReq : any= req;
-    const owner = await getter.getOwnerOfQuestion(data.question_id);
+    const creator = await questionManager.getCreatorOfQuestion(data.question_id);
     let retour = {success :false}
-    if(newReq.user.id === owner){
-        retour = await questionCRUD.deleteQuestion(data.question_id);
+    if(await checkCreator(req, data.question_id)){
+        retour = await questionManager.deleteQuestion(data.question_id);
         if (retour.success){
-            await userCRUD.deleteQuestionFromUser(Number(owner), Number(data.question_id))
+            await userManager.deleteQuestionFromUser(Number(creator), Number(data.question_id))
         }
     }
     res.json(retour);

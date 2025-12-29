@@ -1,7 +1,7 @@
 import getter from "../../function/getter";
 import { normalizeText, verify, getValueOfQuestion } from "../../GameFunction/threadHelper";
 import {io} from "../../index"
-import quizzCRUD from "../../function/quizzCRUD";
+import quizzManager from "../../function/quizzManager";
 import Thread from "./Thread";
 import Room from "../../Interface/Room";
 

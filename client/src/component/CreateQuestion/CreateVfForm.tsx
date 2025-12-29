@@ -19,7 +19,7 @@ interface CreateVfFormProps {
     removeTag: (tag: string) => void;
     truth: boolean, 
     setTruth: (bool : boolean)=>void;
-    vfData: { user_id: string;mode : string;title: string; level: number;tags: string[];private: boolean; truth: boolean };
+    vfData: { creator: number;mode : string;title: string; level: number;tags: string[];private: boolean; truth: boolean };
     setVfData: React.Dispatch<React.SetStateAction<CreateVfFormProps["vfData"]>>;
   }
   

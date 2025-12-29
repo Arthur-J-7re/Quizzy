@@ -1,4 +1,3 @@
-import getter from "../function/getter";
 import room from "./room";
 import { Socket } from "socket.io";
 

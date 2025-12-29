@@ -21,7 +21,8 @@ const UserSchema = new mongoose.Schema({
     currentRoom : String,
     questions: {type : [Number],default :  []},
     quizz: {type : [Number],default :  []},
-    emissions : {type : [Number],default :  []},
+    emissions: {type : [Number],default :  []},
+    themes: {type : [Number],default :  []},
     questPlayed: {type : Number, dafault : 0},
     goodAnswer: {type :Number, default: 0}
 });

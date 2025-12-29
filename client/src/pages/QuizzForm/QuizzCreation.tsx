@@ -68,7 +68,7 @@ export function QuizzCreation () {
         const fetchData = async () => {
             if (auth?.user?.id) {
               try {
-                const responseQuestions = await makeRequest("/question/questionsAvailable?id=" + auth.user.id);
+                const responseQuestions = await makeRequest("/question/available-questions?id=" + auth.user.id);
                 setQuestions(responseQuestions);
               } catch (error) {
                 console.error("Erreur lors du fetch :", error);
@@ -183,7 +183,7 @@ export function QuizzCreation () {
             if (creating){
                 let questionList = questionCardsOfQuizz.map((card) => card.getId()); // Utilisation correcte de map()
                 const retour = await makeRequest("/quizz/create", "POST", {
-                    user_id: user_id,
+                    creator: user_id,
                     title: title,
                     private: isPrivate, 
                     tags: tags,
@@ -196,7 +196,7 @@ export function QuizzCreation () {
                 let questionList = questionCardsOfQuizz.map((card) => card.getId()); // Utilisation correcte de map()
                 const retour = await makeRequest("/quizz/update", "PUT", {
                     quizz_id: quizz.quizz_id,
-                    user_id: user_id,
+                    creator: user_id,
                     title: title,
                     private: isPrivate, 
                     tags: tags,

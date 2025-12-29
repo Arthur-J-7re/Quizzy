@@ -21,7 +21,7 @@ interface CreatefreeFormProps {
     setAnswers: React.Dispatch<React.SetStateAction<string[]>>
     addAnswer: (answer: string) => void;
     removeAnswer: (answer: string) => void;
-    freeData: {user_id: string;mode : string; title: string; level: number;tags: string[];private: boolean; answers: string[] };
+    freeData: {creator: number; mode : string; title: string; level: number;tags: string[];private: boolean; answers: string[] };
     setFreeData: React.Dispatch<React.SetStateAction<CreatefreeFormProps["freeData"]>>;
   }
 

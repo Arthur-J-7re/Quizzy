@@ -27,7 +27,7 @@ interface CreatefreeFormProps {
     duoContain: (nombre: number) => boolean;
     manageDuo: (nombre: number) => void; 
     resetDuo: (nombre : number) => void;   
-    dccData:{user_id: string; mode : string;title: string;level: number; tags: string[];private: boolean; carre: { ans1: string; ans2: string; ans3: string; ans4: string };duo: number, answer: number; cash : string[] };
+    dccData:{creator: number; mode : string;title: string;level: number; tags: string[];private: boolean; carre: { ans1: string; ans2: string; ans3: string; ans4: string };duo: number, answer: number; cash : string[] };
     setDccData: React.Dispatch<React.SetStateAction<CreatefreeFormProps["dccData"]>>;
   }
 

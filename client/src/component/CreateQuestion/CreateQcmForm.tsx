@@ -19,7 +19,7 @@ interface CreateQCMFormProps {
     removeTag: (tag: string) => void;
     carre: { ans1: string; ans2: string; ans3: string; ans4: string };
     setCarre: React.Dispatch<React.SetStateAction<{ ans1: string; ans2: string; ans3: string; ans4: string }>>;
-    qcmData: {user_id: string;mode : string;title: string;level: number; tags: string[];private: boolean; choices: { ans1: string; ans2: string; ans3: string; ans4: string }; answer: number };
+    qcmData: {creator: number;mode : string;title: string;level: number; tags: string[];private: boolean; choices: { ans1: string; ans2: string; ans3: string; ans4: string }; answer: number };
     setQcmData: React.Dispatch<React.SetStateAction<CreateQCMFormProps["qcmData"]>>;
 }
   

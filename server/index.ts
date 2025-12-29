@@ -1,30 +1,20 @@
 import { Socket } from "socket.io";
 import mongoose from "./db";
-import getter from "./function/getter";
-import QuestionCRUD from "./function/questionCRUD";
-import AccountCRUD from "./function/accountCRUD";
-import QuizzCRUD from "./function/quizzCRUD";
 import cors from "cors";
 import routes from "./routes/appRoutes";
 import testSocket from "./GameFunction/RoomFunction";
-
-
-//const action = require('./fun.js');
-//const database = require('./QuestionCRUD.js');
 import express from 'express';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
-import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
-import questionCRUD from "./function/questionCRUD";
-import test from "node:test";
+import questionManager from "./function/questionManager";
 dotenv.config();
 
 const app = express();
 
 declare module "socket.io" {
   interface Socket {
-    user_id: number; // ou number selon ton type
+    user_id: number; 
     room_id: number;
     username : string;
   }
@@ -72,7 +62,7 @@ io.on('connection',(socket : Socket ) => {
 });
 
 const update = async() => {
-  await questionCRUD.update();
+  await questionManager.update();
 }
 
 
