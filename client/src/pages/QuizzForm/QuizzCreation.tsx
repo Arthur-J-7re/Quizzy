@@ -4,10 +4,10 @@ import { Banner } from "../../component/Banner/Banner"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useContext, useEffect, useState, useRef, useCallback } from "react";
 import { AuthContext } from "../../context/authentContext";
-import  QuestionCard  from "../../component/QuestionCard/QuestionCard";
+import  QuestionCard  from "../../component/Card/EntityCard/QuestionCard";
 import Toast from "../../tools/toast/toast"; 
 import "../CommonCss.css";
-import "../../component/QuestionCard/QuestionCard.css";
+import "../../component/Card/Card.css";
 import "./QuizzForm.css";
 import { Searchbar } from "../../component/Searchbar/Searchbar";
 import makeRequest from "../../tools/requestScheme";

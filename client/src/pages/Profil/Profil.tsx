@@ -4,10 +4,12 @@ import { Banner } from "../../component/Banner/Banner"
 import { useNavigate } from "react-router-dom"
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authentContext";
-import  QuestionCard  from "../../component/QuestionCard/QuestionCard";
+import  QuestionCard  from "../../component/Card/EntityCard/QuestionCard";
+import ThemeCard from "../../component/Card/EntityCard/ThemeCard";
+import EmissionCard from "../../component/Card/EntityCard/EmissionCard";
 import "../CommonCss.css";
 import "./profil.css";
-import "../../component/QuestionCard/QuestionCard.css";
+import "../../component/Card/Card.css";
 import makeRequest from "../../tools/requestScheme";
 
 export function   Profil () {
@@ -16,6 +18,10 @@ export function   Profil () {
     const [questionCards, setQuestionCards] = useState<QuestionCard[]>([]);
     const [quizz,setQuizz] = useState([]);
     const [quizzCards, setQuizzCards] = useState<QuestionCard[]>([]);
+    const [themes, setThemes] = useState([]);
+    const [themeCards, setThemeCards] = useState<ThemeCard[]>([]);
+    const [emissions, setEmissions] = useState([]);
+    const [emissionCards, setEmissionCards] = useState<EmissionCard[]>([]);
     const navigate = useNavigate();
 
     const buttonPressedQuestion = (questionCard : QuestionCard) => {
@@ -26,15 +32,27 @@ export function   Profil () {
       navigate("/modify-a-quizz", {state : {quizz : questionCard.getContent()}});
     }
 
+    const buttonPressedTheme = (themeCard : ThemeCard) => {
+      navigate("/modify-a-theme", {state : {theme : themeCard.getContent()}});
+    }
+
+    const buttonPressedEmission = (emissionCard : EmissionCard) => {
+      navigate("/modify-an-emission", {state: {emission : emissionCard.getContent()}});
+    }
+
     useEffect(() => {
       const fetchData = async () => {
         if (auth?.user?.id) {
           try {
-            const responseQuestions = await makeRequest("/question?id=" + auth.user.id);
+            const responseQuestions = await makeRequest("/question");
+            const responseQuizz = await makeRequest("/quizz");
+            const responseTheme = await makeRequest("/theme");
+            const responseEmission = await makeRequest("/emission");
+
             setQuestions(responseQuestions);
-    
-            const responseQuizz = await makeRequest("/quizz?id=" + auth.user.id);
             setQuizz(responseQuizz);
+            setThemes(responseTheme);
+            setEmissions(responseEmission);
           } catch (error) {
             console.error("Erreur lors du fetch :", error);
           }
@@ -46,19 +64,6 @@ export function   Profil () {
     
     useEffect(() => {
       setQuestionCards([]);
-      /*if (questions.length === 0){
-        let listNum = [1,2,3,4,5,6,7,8,9,10,11,12];
-        listNum.map((i : number) => {
-          let newQC = new QuestionCard({
-            id : i,
-            title : "titre mias genre en un peu plus long, t'sais si le mec il a pas dosé et tout genre malade mental quoi le gars mdr. nan plus sérieusement qu'est ce qu'il se passerait si l'intitulé de la question était immense, il faudrait le bloqué nan ? "+  i,
-            mode : "QCM",
-            private : false
-          }, buttonPressed, <Edit/>, 0);
-          setQuestionCards((prevCards) => [...prevCards, newQC])
-      
-        })
-      }*/
       if (questions){
         questions.map((question : any) =>{
           let newQC = new QuestionCard(question, buttonPressedQuestion, <Edit className="ActionIcon"/>,  Number(auth?.user?.id));
@@ -69,19 +74,6 @@ export function   Profil () {
 
     useEffect(() => {
       setQuizzCards([]);
-      /*if (questions.length === 0){
-        let listNum = [1,2,3,4,5,6,7,8,9,10,11,12];
-        listNum.map((i : number) => {
-          let newQC = new QuestionCard({
-            id : i,
-            title : "titre mias genre en un peu plus long, t'sais si le mec il a pas dosé et tout genre malade mental quoi le gars mdr. nan plus sérieusement qu'est ce qu'il se passerait si l'intitulé de la question était immense, il faudrait le bloqué nan ? "+  i,
-            mode : "QCM",
-            private : false
-          }, buttonPressed, <Edit/>, 0);
-          setQuestionCards((prevCards) => [...prevCards, newQC])
-      
-        })
-      }*/
       if (quizz){
         quizz.map((quizz : any) =>{
           let newQC = new QuestionCard(quizz, buttonPressedQuizz, <Edit className="ActionIcon"/>,  Number(auth?.user?.id));
@@ -89,6 +81,26 @@ export function   Profil () {
         });
       }
     }, [quizz]);
+
+    useEffect(() => {
+      setThemeCards([]);
+      if (themes){
+        themes.map((theme : any)=>{
+          let newTC = new ThemeCard(theme, buttonPressedTheme, <Edit className="ActionIcon"/>, Number(auth?.user?.id));
+          setThemeCards((prevCards) => [...prevCards, newTC])
+        });
+      }
+    },[themes])
+
+    useEffect(() => {
+      setEmissionCards([]);
+      if (emissions){
+        emissions.map((emission : any) => {
+          let newEC = new EmissionCard(emission, buttonPressedEmission, <Edit className="ActionIcon"/>, Number(auth?.user?.id));
+          setEmissionCards((prevCards) => [...prevCards, newEC])
+        });
+      }
+    },[emissions])
 
 
     return (
@@ -109,6 +121,24 @@ export function   Profil () {
           <div className="questionCardArea">
           {quizzCards.map((quizzCard : QuestionCard) => (
               quizzCard.show()
+            ))}
+          </div>
+        </div>
+
+        <div className="profilBlock">
+          <div className="subTitle"> Vos Themes</div>
+          <div className="questionCardArea">
+          {themeCards.map((themeCard : ThemeCard) => (
+              themeCard.show()
+            ))}
+          </div>
+        </div>
+
+        <div className="profilBlock">
+          <div className="subTitle"> Vos Emissions</div>
+          <div className="questionCardArea">
+          {emissionCards.map((emissionCard : EmissionCard) => (
+              emissionCard.show()
             ))}
           </div>
         </div>

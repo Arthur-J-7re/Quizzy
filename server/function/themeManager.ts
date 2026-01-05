@@ -6,7 +6,7 @@ const create = async (data : any) =>{
         const newTheme = await ThemeModel.create({
             imgOrString: data.imgOrString || false,
             img: data.img,
-            name: data.name,
+            title: data.title,
             creator: data.creator,
             private: data.private,
             questions: data.questions || [],
@@ -23,7 +23,7 @@ const update = async (data : any) =>{
         await ThemeModel.updateOne({theme_id: data.theme_id}, {
             imgOrString: data.imgOrString,
             img: data.img,
-            name: data.name,
+            title: data.title,
             private: data.private,
             questions: data.questions || [],
             tags: data.tags || []
@@ -60,9 +60,9 @@ const getThemeByCreator = async (creator_id : number, min : number) =>{
                 $gte: [{ $size: "$questions" }, min]
             }
         });
-        return {themes};
+        return themes;
     } catch (error) {
-        return {themes: []};
+        return [];
     }
 }
 
@@ -74,11 +74,32 @@ const getPublicThemes = async (min : number) => {
                 $gte: [{ $size: "$questions" }, min]
             }
         });
-        return {themes};
+        return themes;
     } catch (error) {
-        return {themes: []};
+        return [];
     }
 }
+
+const getAvailableThemes = async (id: number, min : number) => {
+    try {
+        let retour;
+        const CreatorThemes = await getThemeByCreator(id, min);
+        const PublicThemes = await getPublicThemes(min);
+
+        const existingThemeIds = new Set(
+            PublicThemes.map((t: any) => t.theme_id)
+        );
+
+        const filteredCreatorThemes = CreatorThemes.filter(
+            (t: any) => !existingThemeIds.has(t.theme_id)
+        );
+        
+        return [...PublicThemes, ...filteredCreatorThemes];
+    } catch (error) {
+        console.error("erreur lors de la récupération des thèmes disponibles", error);
+        return [];
+    }
+};
 
 const getCreatorOfTheme = async (id: number) => {
     try {
@@ -89,29 +110,6 @@ const getCreatorOfTheme = async (id: number) => {
         console.error("erreur lors de la récupération du créateur", error);
     }
 }
-
-const getAvailableThemes = async (id: number, min : number) => {
-    try {
-        const CreatorThemes = await getThemeByCreator(id, min);
-        const PublicThemes = await getPublicThemes(min);
-
-        const existingThemeIds = new Set(
-            PublicThemes.themes.map((t: any) => t.theme_id)
-        );
-
-        const filteredCreatorThemes = CreatorThemes.themes.filter(
-            (t: any) => !existingThemeIds.has(t.theme_id)
-        );
-
-        return {
-            themes: [...PublicThemes.themes, ...filteredCreatorThemes],
-        };
-    } catch (error) {
-        console.error("erreur lors de la récupération des thèmes disponibles", error);
-        return { themes: []};
-    }
-};
-
 
 export default{
     create,

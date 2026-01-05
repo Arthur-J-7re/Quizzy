@@ -10,7 +10,7 @@ export const ThemeSchema = new mongoose.Schema({
     private: Boolean,
     imgOrString: { type: Boolean, default: false },
     img: { type: String },
-    name: { type: String, required: true },
+    title: { type: String, required: true },
     questions: { type: [Number], default: [] },
     tags: { type: [String], default: [] }
 });

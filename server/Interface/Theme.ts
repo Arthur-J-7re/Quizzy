@@ -1,7 +1,7 @@
 export interface Theme {
     theme_id: number,
     creator: number,
-    name: string,
+    title: string,
     questions: number[],
 }
 

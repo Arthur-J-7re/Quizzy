@@ -1,21 +1,19 @@
-import { Button } from "@mui/material";
-import {Https, Public} from "@mui/icons-material"
-import "./QuestionCard.css";
+
+import "../Card.css";
+import Card from "../Card";
 
 class QuestionCard {
-    private buttonAction;
     private question;
-    private buttonText :any;
-    private couleur : String;
     private owner : number;
     private showing : boolean = false;
+    private Card : Card;
 
     constructor(question : any, action : any, text : any, owner : number, couleur : string = 'Green'){
         this.question = question;
-        this.buttonAction = action;
-        this.buttonText = text;
-        this.couleur = couleur;
         this.owner = owner;
+        this.Card = new Card(question.title, question,action,text,
+            this.owner === question.creator,question.private,question.mode
+        )
     }
 
     getId(){
@@ -27,11 +25,11 @@ class QuestionCard {
     }
 
     setButtonText(message : any){
-        this.buttonText = message;
+        this.Card.setButtonText(message);
     }
 
     setColor(couleur : String){
-        this.couleur = couleur;
+        this.Card.setColor(couleur);
     }
 
     isShowing(){
@@ -63,6 +61,11 @@ class QuestionCard {
     }
 
     matchListAnswer(list : string[], regex : RegExp): boolean{
+        if (!this.owner === this.question.creator){
+            console.log(this.question.title);
+        } else {
+            console.log(this.owner);
+        }
         return list.some((element: string) => regex.test(element));
     }
 
@@ -108,18 +111,7 @@ class QuestionCard {
 
     show(){
         return (
-            <div onClick={() => {this.showing = !this.showing}} className={(Number(this.question.author) === this.owner || Number(this.question.creator) === this.owner) ? "questionCardContainer owned"  : "questionCardContainer notOwned"  }>
-                <div className="top">
-                    <h2>{this.tronced(this.question.title || "")}</h2>
-                    <Button className={"modify " + this.couleur} onClick={()=> this.buttonAction(this)}>{this.buttonText}</Button>
-                    
-                </div>
-                <div className="bottom">
-                    <div className="mode"><h3>{this.question.mode || ""}</h3></div>
-                    <div className="mode"><h3>{this.question.tags.length || ""}</h3></div>
-                    <div className="privateiIcon">{this.question.private ? <Https className="privateIcon"/> : <Public className="privateIcon"/>}</div>
-                </div>
-            </div>
+            this.Card.show()
         )
     }
 }
