@@ -2,27 +2,34 @@
 import "../Card.css";
 import Card from "../Card";
 
-class ThemeCard {
-    private theme;
+class QuizzCard {
+    private quizz;
     private owner : number;
     private showing : boolean = false;
     private Card : Card;
 
-    constructor(theme : any, action : any, text : any, owner : number, couleur : string = 'Green'){
-        let question : number[] = theme.questions;
-        this.theme = theme;
+    constructor(quizz : any, action : any, text : any, owner : number, couleur : string = 'Green'){
+        this.quizz = quizz;
         this.owner = owner;
-        this.Card = new Card(theme.title,theme.theme_id, theme,action,text,
-            this.owner === theme.creator,theme.isPrivate,"size :"+String(question.length),couleur
+        this.Card = new Card(quizz.title,quizz.quizz_id, quizz,action,text,
+            this.owner === quizz.creator,quizz.private,quizz.mode,couleur
         )
     }
 
     getId(){
-        return this.theme.theme_id;
+        return this.Card.getId()
     }
 
     getContent(){
-        return this.theme;
+        return this.Card.getContent()
+    }
+
+    setButtonText(message : any){
+        this.Card.setButtonText(message);
+    }
+
+    setColor(couleur : String){
+        this.Card.setColor(couleur);
     }
 
     isShowing(){
@@ -33,24 +40,10 @@ class ThemeCard {
         if (text.length > 0) {
             const regex = new RegExp(text, "i"); // "i" pour ignorer la casse
     
-            return this.theme.tags.some((element: string) => regex.test(element));
+            return this.quizz.tags.some((element: string) => regex.test(element));
         } 
     
         return true;
-    }
-
-    matchAnswers(regex : RegExp): boolean{
-        switch (this.theme.mode){
-            case "QCM":
-                return this.matchArrayAnswer(this.theme.choices,regex);
-            case "DCC":
-                return this.matchListAnswer(this.theme.cash,regex) || 
-                this.matchArrayAnswer(this.theme.carre,regex);
-            case "FREE":
-                return this.matchListAnswer(this.theme.answers,regex);
-            default:
-                return false;
-        }
     }
 
     matchListAnswer(list : string[], regex : RegExp): boolean{
@@ -66,13 +59,13 @@ class ThemeCard {
         if (text.length > 0) {
             const regex = new RegExp(text, "i"); // "i" pour ignorer la casse
     
-            return regex.test(this.theme.title) || this.matchAnswers(regex);
+            return regex.test(this.quizz.title);
         } 
         return true;
     }
 
     match(data : any): boolean{
-        if (data.themeType == "any" || data.themeType == this.theme.mode){
+        if (data.quizzType == "any" || data.quizzType == this.quizz.mode){
             switch (data.scope){
                 default:
                     return this.matchTags(data.searchText) || this.matchText(data.searchText);
@@ -105,4 +98,4 @@ class ThemeCard {
 }
 
 
-export default ThemeCard;
+export default QuizzCard;

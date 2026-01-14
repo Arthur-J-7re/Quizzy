@@ -4,7 +4,8 @@ import { Banner } from "../../component/Banner/Banner"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useContext, useEffect, useState, useRef, useCallback } from "react";
 import { AuthContext } from "../../context/authentContext";
-import  QuestionCard  from "../../component/Card/EntityCard/QuestionCard";
+import QuestionCard from "../../component/Card/EntityCard/QuestionCard";
+import Card from "../../component/Card/Card";
 import Toast from "../../tools/toast/toast"; 
 import "../CommonCss.css";
 import "../../component/Card/Card.css";
@@ -112,6 +113,7 @@ export function QuizzCreation () {
     
     const buttonPressed = useCallback((questionCard: QuestionCard) => {
         setQuestionCardsOfQuizz(prevCards => {
+            console.log("Quiz creation : ",questionCard.getId());
             const found = prevCards.find(card => card.getId() === questionCard.getId());
             if (found) {
                 questionCard.setButtonText(<Add className="ActionIcon"/>);

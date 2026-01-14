@@ -5,6 +5,7 @@ import "./Card.css";
 class Card {
     private buttonAction;
     private title;
+    private entityId;
     private icon :any;
     private content;
     private bottomText : string;
@@ -13,10 +14,12 @@ class Card {
     private showing : boolean = false;
     private private : boolean;
 
-    constructor(title : any,content : any, action : any, icon : any, owned: boolean, isPrivate : boolean,bottomText : string, couleur : string = 'Green'){
+    constructor(title : any,entityId : number,content : any, action : any, icon : any, owned: boolean, isPrivate : boolean,bottomText : string, couleur : string = 'Green'){
         this.title = title;
+        this.entityId = entityId;
         this.content = content;
         this.buttonAction = action;
+        console.log(action);
         this.icon = icon;
         this.couleur = couleur;
         this.owned = owned;
@@ -25,6 +28,7 @@ class Card {
     }
 
     getId(){
+        return this.entityId;
     }
 
     getContent(){

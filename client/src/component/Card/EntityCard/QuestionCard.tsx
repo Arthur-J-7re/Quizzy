@@ -11,12 +11,13 @@ class QuestionCard {
     constructor(question : any, action : any, text : any, owner : number, couleur : string = 'Green'){
         this.question = question;
         this.owner = owner;
-        this.Card = new Card(question.title, question,action,text,
-            this.owner === question.creator,question.private,question.mode
+        this.Card = new Card(question.title,question.question_id, question,action,text,
+            this.owner === question.creator,question.private,question.mode,couleur
         )
     }
 
     getId(){
+        console.log("QuestionCard:",this.question);
         return this.question.question_id;
     }
 
@@ -61,11 +62,6 @@ class QuestionCard {
     }
 
     matchListAnswer(list : string[], regex : RegExp): boolean{
-        if (!this.owner === this.question.creator){
-            console.log(this.question.title);
-        } else {
-            console.log(this.owner);
-        }
         return list.some((element: string) => regex.test(element));
     }
 

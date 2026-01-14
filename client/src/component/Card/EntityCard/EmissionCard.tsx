@@ -11,8 +11,8 @@ class EmissionCard {
     constructor(emission : any, action : any, text : any, owner : number, couleur : string = 'Green'){
         this.emission = emission;
         this.owner = owner;
-        this.Card = new Card(emission.title, emission,action,text,
-            this.owner === emission.creator,emission.isPrivate,"size :"+emission.steps.length    
+        this.Card = new Card(emission.title, emission.emission_id,emission,action,text,
+            this.owner === emission.creator,emission.isPrivate,"size :"+emission.steps.length ,couleur   
         )
     }
 

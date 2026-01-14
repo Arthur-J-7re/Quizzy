@@ -11,13 +11,14 @@ import "../CommonCss.css";
 import "./profil.css";
 import "../../component/Card/Card.css";
 import makeRequest from "../../tools/requestScheme";
+import QuizzCard from "../../component/Card/EntityCard/QuizzCard";
 
 export function   Profil () {
     const auth = useContext(AuthContext);
     const [questions, setQuestions] = useState([]);
     const [questionCards, setQuestionCards] = useState<QuestionCard[]>([]);
     const [quizz,setQuizz] = useState([]);
-    const [quizzCards, setQuizzCards] = useState<QuestionCard[]>([]);
+    const [quizzCards, setQuizzCards] = useState<QuizzCard[]>([]);
     const [themes, setThemes] = useState([]);
     const [themeCards, setThemeCards] = useState<ThemeCard[]>([]);
     const [emissions, setEmissions] = useState([]);
@@ -76,7 +77,7 @@ export function   Profil () {
       setQuizzCards([]);
       if (quizz){
         quizz.map((quizz : any) =>{
-          let newQC = new QuestionCard(quizz, buttonPressedQuizz, <Edit className="ActionIcon"/>,  Number(auth?.user?.id));
+          let newQC = new QuizzCard(quizz, buttonPressedQuizz, <Edit className="ActionIcon"/>,  Number(auth?.user?.id));
           setQuizzCards((prevCards) => [...prevCards, newQC])
         });
       }
@@ -119,7 +120,7 @@ export function   Profil () {
         <div className="profilBlock">
           <div className="subTitle"> Vos Quizz</div>
           <div className="questionCardArea">
-          {quizzCards.map((quizzCard : QuestionCard) => (
+          {quizzCards.map((quizzCard : QuizzCard) => (
               quizzCard.show()
             ))}
           </div>
