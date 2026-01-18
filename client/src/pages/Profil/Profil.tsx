@@ -12,6 +12,7 @@ import "./profil.css";
 import "../../component/Card/Card.css";
 import makeRequest from "../../tools/requestScheme";
 import QuizzCard from "../../component/Card/EntityCard/QuizzCard";
+import { CardArea } from "../../component/Card/CardArea/CardArea";
 
 export function   Profil () {
     const auth = useContext(AuthContext);
@@ -109,39 +110,23 @@ export function   Profil () {
     <div>
         <Banner></Banner>
         <div className="profilBlock">
-          <div className="subTitle"> Vos Questions</div>
-          <div className="questionCardArea">
-          {questionCards.map((questionCard : QuestionCard) => (
-              questionCard.show()
-            ))}
-          </div>
+          <CardArea title="Vos questions" emptyText="Creez vos premières questions"
+          cards={questionCards} link="/create-a-question" draggable={false} setUsedCard={()=>{}}/>
         </div>
         
         <div className="profilBlock">
-          <div className="subTitle"> Vos Quizz</div>
-          <div className="questionCardArea">
-          {quizzCards.map((quizzCard : QuizzCard) => (
-              quizzCard.show()
-            ))}
-          </div>
+          <CardArea title="Vos quizz" emptyText="Creez vos premiers quizz"
+          cards={quizzCards} link="/create-a-quizz" draggable={false} setUsedCard={()=>{}}/>
         </div>
 
         <div className="profilBlock">
-          <div className="subTitle"> Vos Themes</div>
-          <div className="questionCardArea">
-          {themeCards.map((themeCard : ThemeCard) => (
-              themeCard.show()
-            ))}
-          </div>
+          <CardArea title="Vos thèmes" emptyText="Creez vos premiers themes"
+          cards={themeCards} link="/create-a-theme" draggable={false} setUsedCard={()=>{}}/>
         </div>
 
         <div className="profilBlock">
-          <div className="subTitle"> Vos Emissions</div>
-          <div className="questionCardArea">
-          {emissionCards.map((emissionCard : EmissionCard) => (
-              emissionCard.show()
-            ))}
-          </div>
+          <CardArea title="Vos Émissions" emptyText="Créez vos premières émissions"
+          cards={emissionCards} link="/create-an-emission" draggable={false} setUsedCard={()=>{}}/>
         </div>
     </div> 
     : 

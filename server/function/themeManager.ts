@@ -2,6 +2,7 @@ import { get } from "mongoose";
 import { ThemeModel } from "../Collection/theme";
 
 const create = async (data : any) =>{
+    console.log("tentative de création de theme avec la data : ", data);
     try {
         const newTheme = await ThemeModel.create({
             imgOrString: data.imgOrString || false,

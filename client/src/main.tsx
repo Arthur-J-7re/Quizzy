@@ -11,6 +11,7 @@ import { Profil } from './pages/Profil/Profil.tsx'
 import { AccountUpdate} from './pages/Profil/AccountUpdate.tsx';
 import { QuestionModifier } from './pages/QuestionForm/QuestionModifier.tsx';
 import { QuizzCreation } from './pages/QuizzForm/QuizzCreation.tsx';
+import { ThemeCreation } from './pages/ThemeCreation/ThemeCreation.tsx';
 import PlayRoutes from './PlayRoutes.tsx'
 import { EmissionCreation } from './pages/Emission/Emission.tsx';
 
@@ -28,6 +29,8 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/modify-a-question" element={<QuestionCreationForm/>}/>
         <Route path="/create-a-quizz" element={<QuizzCreation/>}/>
         <Route path="/modify-a-quizz" element={<QuizzCreation/>}/>
+        <Route path="/create-a-theme" element={<ThemeCreation/>}/>
+        <Route path="/modify-a-theme" element={<ThemeCreation/>}/>
         <Route path="/create-an-emission" element={<EmissionCreation/>}/>
         <Route path="/modify-an-emission" element={<EmissionCreation/>}/>
         <Route path="/modify-account" element={<AccountUpdate/>}/>  

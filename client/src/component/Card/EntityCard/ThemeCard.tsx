@@ -2,105 +2,44 @@
 import "../Card.css";
 import Card from "../Card";
 
-class ThemeCard {
+class ThemeCard extends Card{ 
     private theme;
-    private owner : number;
-    private showing : boolean = false;
-    private Card : Card;
+    private questions;
 
     constructor(theme : any, action : any, text : any, owner : number, couleur : string = 'Green'){
-        let question : number[] = theme.questions;
-        this.theme = theme;
-        this.owner = owner;
-        this.Card = new Card(theme.title,theme.theme_id, theme,action,text,
-            this.owner === theme.creator,theme.isPrivate,"size :"+String(question.length),couleur
+        super(theme.title,action,text,
+            owner === theme.creator,theme.isPrivate,"size :"+String(theme.questions.length),couleur
         )
+        this.questions= theme.questions;
+        this.theme = theme;
     }
 
-    getId(){
+    override getId(){
         return this.theme.theme_id;
     }
 
-    getContent(){
+    override getContent(){
         return this.theme;
     }
 
-    isShowing(){
-        return this.showing;
+    getQuestions(){
+        return this.questions
     }
 
-    matchTags(text: string): boolean {
-        if (text.length > 0) {
-            const regex = new RegExp(text, "i"); // "i" pour ignorer la casse
-    
-            return this.theme.tags.some((element: string) => regex.test(element));
-        } 
-    
-        return true;
-    }
-
-    matchAnswers(regex : RegExp): boolean{
-        switch (this.theme.mode){
-            case "QCM":
-                return this.matchArrayAnswer(this.theme.choices,regex);
-            case "DCC":
-                return this.matchListAnswer(this.theme.cash,regex) || 
-                this.matchArrayAnswer(this.theme.carre,regex);
-            case "FREE":
-                return this.matchListAnswer(this.theme.answers,regex);
-            default:
-                return false;
-        }
-    }
-
-    matchListAnswer(list : string[], regex : RegExp): boolean{
-        return list.some((element: string) => regex.test(element));
-    }
-
-    matchArrayAnswer(array : Object, regex : RegExp): boolean{
-        let list : string[] = Object.values(array);
-        return this.matchListAnswer(list,regex)
-    }
-
-    matchText(text: string): boolean {
-        if (text.length > 0) {
-            const regex = new RegExp(text, "i"); // "i" pour ignorer la casse
-    
-            return regex.test(this.theme.title) || this.matchAnswers(regex);
-        } 
-        return true;
-    }
-
-    match(data : any): boolean{
-        if (data.themeType == "any" || data.themeType == this.theme.mode){
+    override match(data : any): boolean{
+        const regex = new RegExp(data.searchText, "i");
+        if (data.type == "any" || data.type == this.theme.mode){
             switch (data.scope){
                 default:
-                    return this.matchTags(data.searchText) || this.matchText(data.searchText);
+                    return this.matchList(this.theme.tags,regex) || this.matchText(this.theme.title,regex);
                 case "tags": 
-                    return this.matchTags(data.searchText);
+                    return this.matchList(this.theme.tags, regex);
                 case "statement":
-                    return this.matchText(data.searchText);
+                    return this.matchText(this.theme.title, regex);
 
             }
         }
         return false
-    }
-
-    tronced(str : String, length : number = 35){
-        if (str){
-            if (str.length < length){
-                return str;
-            } 
-            return str.slice(0, length) + "...";
-        } 
-        return ""
-    }
-
-
-    show(){
-        return (
-            this.Card.show()
-        )
     }
 }
 

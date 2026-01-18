@@ -2,98 +2,39 @@
 import "../Card.css";
 import Card from "../Card";
 
-class QuizzCard {
+class QuizzCard extends Card{
     private quizz;
-    private owner : number;
-    private showing : boolean = false;
-    private Card : Card;
 
     constructor(quizz : any, action : any, text : any, owner : number, couleur : string = 'Green'){
-        this.quizz = quizz;
-        this.owner = owner;
-        this.Card = new Card(quizz.title,quizz.quizz_id, quizz,action,text,
-            this.owner === quizz.creator,quizz.private,quizz.mode,couleur
+        super(quizz.title,action,text,
+            owner === quizz.creator,
+            quizz.private,quizz.mode,couleur
         )
+        this.quizz = quizz;
     }
 
-    getId(){
-        return this.Card.getId()
+    override getId(){
+        return this.quizz.quizz_id
     }
 
-    getContent(){
-        return this.Card.getContent()
+    override getContent(){
+        return this.quizz
     }
 
-    setButtonText(message : any){
-        this.Card.setButtonText(message);
-    }
-
-    setColor(couleur : String){
-        this.Card.setColor(couleur);
-    }
-
-    isShowing(){
-        return this.showing;
-    }
-
-    matchTags(text: string): boolean {
-        if (text.length > 0) {
-            const regex = new RegExp(text, "i"); // "i" pour ignorer la casse
-    
-            return this.quizz.tags.some((element: string) => regex.test(element));
-        } 
-    
-        return true;
-    }
-
-    matchListAnswer(list : string[], regex : RegExp): boolean{
-        return list.some((element: string) => regex.test(element));
-    }
-
-    matchArrayAnswer(array : Object, regex : RegExp): boolean{
-        let list : string[] = Object.values(array);
-        return this.matchListAnswer(list,regex)
-    }
-
-    matchText(text: string): boolean {
-        if (text.length > 0) {
-            const regex = new RegExp(text, "i"); // "i" pour ignorer la casse
-    
-            return regex.test(this.quizz.title);
-        } 
-        return true;
-    }
-
-    match(data : any): boolean{
-        if (data.quizzType == "any" || data.quizzType == this.quizz.mode){
+    override match(data : any): boolean{
+        const regex = new RegExp(data.searchText, "i");
+        if (data.type == "any" || data.type == this.quizz.mode){
             switch (data.scope){
                 default:
-                    return this.matchTags(data.searchText) || this.matchText(data.searchText);
+                    return this.matchList(this.quizz.tags,regex) || this.matchText(this.quizz.title,regex);
                 case "tags": 
-                    return this.matchTags(data.searchText);
+                    return this.matchList(this.quizz.tags,regex);
                 case "statement":
-                    return this.matchText(data.searchText);
+                    return this.matchText(this.quizz.title, regex);
 
             }
         }
         return false
-    }
-
-    tronced(str : String, length : number = 35){
-        if (str){
-            if (str.length < length){
-                return str;
-            } 
-            return str.slice(0, length) + "...";
-        } 
-        return ""
-    }
-
-
-    show(){
-        return (
-            this.Card.show()
-        )
     }
 }
 

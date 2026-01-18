@@ -5,13 +5,13 @@ import { useNavigate, useLocation } from "react-router-dom"
 import { useContext, useEffect, useState, useRef, useCallback } from "react";
 import { AuthContext } from "../../context/authentContext";
 import QuestionCard from "../../component/Card/EntityCard/QuestionCard";
-import Card from "../../component/Card/Card";
 import Toast from "../../tools/toast/toast"; 
 import "../CommonCss.css";
 import "../../component/Card/Card.css";
 import "./QuizzForm.css";
 import { Searchbar } from "../../component/Searchbar/Searchbar";
 import makeRequest from "../../tools/requestScheme";
+import { getQuestionFilter } from "../../tools/props/Props";
 
 
 export function QuizzCreation () {
@@ -31,7 +31,7 @@ export function QuizzCreation () {
     const [tags, setTags] = useState<string[]>(quizz?.tags || []);
     const [messageInfo, setMessageInfo] = useState("");
     const [showMessage, setShowMessage] = useState(false);
-    const [filterData, setFilterData] = useState({ questionType : "any", scope : "all", searchText : ""});
+    const [filterData, setFilterData] = useState(getQuestionFilter());
     const [questionCardsBuild, setQuestionCardsBuild] = useState(false);
     const [endTaskToast, setEndTaskToast] = useState(() => {});
 
@@ -48,17 +48,13 @@ export function QuizzCreation () {
     const handleDrop = (event: React.DragEvent<HTMLDivElement>, newIndex: number) => {
         event.preventDefault();
         const oldIndex = Number(event.dataTransfer.getData("index"));
-    
         // Réorganise la liste des questions
-        verifyDnD("avant");
         setQuestionCardsOfQuizz((prevCards) => {
             const updatedCards = [...prevCards];
             const [movedCard] = updatedCards.splice(oldIndex, 1);
             updatedCards.splice(newIndex, 0, movedCard);
             return updatedCards;
         });
-        verifyDnD("après");
-
     };    
 
 
@@ -159,11 +155,6 @@ export function QuizzCreation () {
         return true;
     }
 
-    const verifyDnD = (str : string) =>{
-        let retour = questionCardsOfQuizz.map((card) => card.getId());
-
-    }
-
     const deleteQuizz = async () => {
         const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer définitivement la question ?");
         if (confirmation) {
@@ -213,19 +204,6 @@ export function QuizzCreation () {
 
     useEffect(() => {
         setQuestionCards([]);
-        /*if (questions.length === 0){
-        let listNum = [1,2,3,4,5,6,7,8,9,10,11,12];
-        listNum.map((i : number) => {
-            let newQC = new QuestionCard({
-            question_id : i,
-            title : "titre mias genre en un peu plus long, t'sais si le mec il a pas dosé et tout genre malade mental quoi le gars mdr. nan plus sérieusement qu'est ce qu'il se passerait si l'intitulé de la question était immense, il faudrait le bloqué nan ? "+  i,
-            mode : "QCM",
-            private : false
-            }, buttonPressed, <Add/>, (0);
-            setQuestionCards((prevCards) => [...prevCards, newQC])
-        
-        })
-        }*/
         if (questions){
             questions.map((question : any) =>{
                 const {button, couleur} = list?.includes(question.question_id) ? {button : <Remove className="ActionIcon"/>,couleur : "Red"}:{button : <Add className="ActionIcon"/>, couleur : 'Green'};
@@ -241,7 +219,7 @@ export function QuizzCreation () {
     }, [questionCards, questionCardsOfQuizz])
 
 
-
+    console.log(filterData);
     return (
     (auth && auth.user) ? 
     <div >

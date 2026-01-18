@@ -11,7 +11,7 @@
 }
 
 
-.questionCardArea{
+.CardArea{
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Ajustement automatique */
     gap: 10px;
@@ -23,7 +23,7 @@
     
 }
 
-.questionCardAreaWOGrid{
+.CardAreaWOGrid{
     padding: 2vw 0 2vw 0;
     width: 90%;
     max-width: 90%;
@@ -38,13 +38,13 @@
     justify-self: unset;
 }
 
-.questionCardArea, .questionCardContainer,.questionCardAreaWOGrid{
+.CardArea, .questionCardContainer,.CardAreaWOGrid{
     border-radius: 20px;
     margin: 1vw;
     border : black;
 }
 
-.questionCardArea,.questionCardAreaWOGrid{
+.CardArea,.CardAreaWOGrid{
     border: 2px dashed #e88954;
 }
 

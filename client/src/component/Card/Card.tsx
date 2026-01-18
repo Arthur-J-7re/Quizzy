@@ -5,21 +5,16 @@ import "./Card.css";
 class Card {
     private buttonAction;
     private title;
-    private entityId;
     private icon :any;
-    private content;
     private bottomText : string;
     private couleur : String;
     private owned : boolean;
     private showing : boolean = false;
     private private : boolean;
 
-    constructor(title : any,entityId : number,content : any, action : any, icon : any, owned: boolean, isPrivate : boolean,bottomText : string, couleur : string = 'Green'){
+    constructor(title : any, action : any, icon : any, owned: boolean, isPrivate : boolean,bottomText : string, couleur : string = 'Green'){
         this.title = title;
-        this.entityId = entityId;
-        this.content = content;
         this.buttonAction = action;
-        console.log(action);
         this.icon = icon;
         this.couleur = couleur;
         this.owned = owned;
@@ -27,12 +22,30 @@ class Card {
         this.bottomText = bottomText;
     }
 
-    getId(){
-        return this.entityId;
+    // to be override
+    getId():number{
+        return 0;
     }
 
+    //to be override
     getContent(){
-        return this.content;
+    }
+
+    //to be override
+    match(data:any){
+    }
+
+    matchList(list : string[], regex : RegExp): boolean{
+        return list.some((element: string) => this.matchText(element, regex));
+    }
+
+    matchArray(array : Object, regex : RegExp): boolean{
+        let list : string[] = Object.values(array);
+        return this.matchList(list,regex)
+    }
+
+    matchText(text: string, regex : RegExp): boolean { 
+        return regex.test(text);
     }
 
     setButtonText(message : any){

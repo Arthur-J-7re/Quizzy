@@ -15,6 +15,10 @@
     height: 100vh;
 }
 
+.full-width{
+    width: 100vw;
+}
+
 .row{
     flex-direction: row !important;
 }

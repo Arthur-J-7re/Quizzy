@@ -8,26 +8,17 @@ import Toast from "../../tools/toast/toast";
 import { StepForm } from "../../component/StepForm/StepForm";
 import makeRequest from "../../tools/requestScheme";
 import "../CommonCss.css";
+import {Step} from "../../tools/type/Step"
 
-interface Step {
-  name: string;
-  mode: string;
-  quizz: any;
-  inputCount: number;
-  outputCount: number;
-  resetPoint: boolean;
-  last: boolean;
-  played: boolean;
-}
 
-export function EmissionCreation() {
+export function _EmissionCreation() {
   const navigate = useNavigate();
   const location = useLocation();
   const auth = useContext(AuthContext);
 
   const isModifying = location.pathname === "/modify-an-emission";
   const [emission, setEmission] = useState(
-    (location.state?.quizz && isModifying) || {
+    (location.state?.emission && isModifying) || {
       title: "",
       Private: false,
       questions: [],
@@ -300,3 +291,17 @@ export function EmissionCreation() {
     </div>
   );
 }
+
+export function EmissionCreation() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const auth = useContext(AuthContext);
+
+  const isModifying = location.pathname === "/modify-an-emission";
+
+  if (isModifying) {
+    const existingEmission = location.state?.emission
+  }
+}
+
+

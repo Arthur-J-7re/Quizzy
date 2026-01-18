@@ -4,7 +4,9 @@ import { styled } from '@mui/system';
 
 interface SearchbarProps {   
     filterData: {
-        questionType: string;
+        type: string;
+        possibleType : {value : string, title : string}[];
+        possibleScope : {value : string, title : string}[];
         searchText: string;
         scope: string;
     };
@@ -23,21 +25,25 @@ export function Searchbar ({ filterData, setFilterData }: SearchbarProps) {
         <div className="Searchbar">
             <div className="filter">
                 {/* Menu déroulant pour choisir le type de question */}
-                <FormControl fullWidth>
-                    <InputLabel id="question-type-label">Type de question</InputLabel>
-                    <Select
-                    labelId="question-type-label"
-                    value={filterData.questionType}
-                    onChange={(e) => setFilterData(prev => ({ ...prev, questionType: e.target.value }))}
-                    label="Type de question"
-                    >
-                    <CustomMenuItem value="any">Toutes les questions</CustomMenuItem>
-                    <CustomMenuItem value="QCM">QCM</CustomMenuItem>
-                    <CustomMenuItem value="Free">Réponses libres</CustomMenuItem>
-                    <CustomMenuItem value="DCC">Duo Carré Cash</CustomMenuItem>
-                    <CustomMenuItem value="VF">Vrai ou Faux</CustomMenuItem>
-                    </Select>
-                </FormControl>
+                {filterData.possibleType.length > 1 ?
+                    <FormControl fullWidth>
+                        <InputLabel id="question-type-label">Type de question</InputLabel>
+                        <Select
+                        labelId="question-type-label"
+                        value={filterData.type}
+                        onChange={(e) => setFilterData(prev => ({ ...prev, type: e.target.value }))}
+                        label="Type de question"
+                        >
+                        {
+                            filterData.possibleType.map(({value, title} : {value : string, title : string}) => 
+                                <CustomMenuItem value={value}>{title}</CustomMenuItem>
+                            )
+                        }
+                        </Select>
+                    </FormControl>
+                 : 
+                 ""
+                }
 
                 {/* Champ de recherche */}
                 <TextField
@@ -57,9 +63,11 @@ export function Searchbar ({ filterData, setFilterData }: SearchbarProps) {
                     onChange={(e) => setFilterData(prev => ({ ...prev, scope: e.target.value }))}
                     label="Portée de la recherche"
                     >
-                    <CustomMenuItem value="all">toute la question</CustomMenuItem>
-                    <CustomMenuItem value="tags">tags</CustomMenuItem>
-                    <CustomMenuItem value="statement">l'énoncé et les réponses</CustomMenuItem>
+                    {
+                        filterData.possibleScope.map(({value, title}:{value : string, title : string}) =>
+                            <CustomMenuItem value={value}>{title}</CustomMenuItem>
+                        )
+                    }
                     </Select>
                 </FormControl>
                 </div>
