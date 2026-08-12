@@ -1,24 +1,48 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
+import type { NextFunction, Request, Response } from "express";
 
-const verifyToken = (req : any, res : any, next : any) => {
+// Durée de vie du token. Volontairement courte comparée aux 3 mois précédents :
+// le token vit dans le localStorage, donc lisible par n'importe quel XSS.
+const TOKEN_TTL = process.env.JWT_EXPIRES_IN || "7d";
+
+export interface TokenPayload {
+  id: number;
+}
+
+// Requête dont on sait que verifyToken est passé avant.
+export interface AuthenticatedRequest extends Request {
+  user: TokenPayload;
+}
+
+export const getJwtSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET is not defined in the environment variables.");
+  }
+  return secret;
+};
+
+export const signUserToken = (id: number): string =>
+  jwt.sign({ id }, getJwtSecret(), { expiresIn: TOKEN_TTL } as jwt.SignOptions);
+
+const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers["authorization"];
 
   // Vérifie s'il y a un header Authorization avec "Bearer <token>"
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ message: "Accès refusé. Token manquant." });
+    res.status(401).json({ success: false, message: "Accès refusé. Token manquant." });
+    return;
   }
 
   try {
-    const secret = process.env.JWT_SECRET || "votre_clé_secrète"; // idéalement depuis .env
-    const decoded = jwt.verify(token, secret);
-    req.user = decoded; 
+    const decoded = jwt.verify(token, getJwtSecret()) as TokenPayload;
+    (req as AuthenticatedRequest).user = { id: Number(decoded.id) };
     next();
   } catch (err) {
-    console.error(err);
-    return res.status(403).json({ message: "Token invalide ou expiré." });
+    res.status(403).json({ success: false, message: "Token invalide ou expiré." });
   }
 };
 
-export default {verifyToken};
+export default { verifyToken, getJwtSecret, signUserToken };
