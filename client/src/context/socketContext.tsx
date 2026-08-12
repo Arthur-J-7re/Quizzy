@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { ReactNode } from "react";
 import { Socket, io } from "socket.io-client";
 import { AuthContext } from './authentContext';
@@ -19,28 +19,44 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children })  => 
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const auth = useContext(AuthContext);
-  
+  // L'effet ne doit pas recréer le socket à chaque changement d'auth, mais
+  // "connect" doit émettre l'identité à jour : on la lit via une ref.
+  const userRef = useRef(auth?.user);
+  userRef.current = auth?.user;
+
   useEffect(() => {
-    const socketInstance = io("http://localhost:3000" , { reconnection: false });
+    // Comme pour les requêtes HTTP (cf. requestScheme.ts) : un joueur qui a
+    // ouvert la page via ngrok ou une IP locale doit passer par le proxy Vite
+    // (même origine, /socket.io) plutôt que par l'URL absolue localhost:3000.
+    const isLocalHost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+    const socketInstance = isLocalHost
+      ? io(server_url)
+      : io();
     setSocket(socketInstance);
 
-    // Gérer les événements du socket ici
     socketInstance.on("connect", () => {
-      console.log("Utilisateur connecté au serveur socket");
-      socketInstance.emit("userInformation", {username : auth? auth.user?.Username : "", id : auth? auth.user?.id : ""})
-    });
-
-    socketInstance.on("disconnect", () => {
-      console.log("Socket déconnecté");
+      socketInstance.emit("userInformation", {
+        username: userRef.current?.Username ?? "",
+        id: userRef.current?.id ?? "",
+      });
     });
 
     // Déconnexion lors du démontage
     return () => {
-
       socketInstance.disconnect();
-      console.log("Socket déconnecté lors du démontage");
     };
   }, []);
+
+  // Si l'utilisateur se connecte après le montage, on renvoie son identité au
+  // serveur sans recréer le socket.
+  useEffect(() => {
+    if (socket?.connected) {
+      socket.emit("userInformation", {
+        username: auth?.user?.Username ?? "",
+        id: auth?.user?.id ?? "",
+      });
+    }
+  }, [socket, auth?.user?.id, auth?.user?.Username]);
 
   return (
     <SocketContext.Provider value={socket}>

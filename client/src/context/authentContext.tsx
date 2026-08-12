@@ -77,14 +77,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem("user");
   };
 
+  // Ne mettait à jour que le localStorage : l'interface continuait d'afficher
+  // l'ancien pseudo jusqu'au rechargement. Et JSON.parse("") levait quand
+  // aucun utilisateur n'était stocké.
   const updateUser = (new_username : string) => {
-    let user = JSON.parse(localStorage.getItem("user") || "");
-    if (user != "") {
-      user.Username = new_username;
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      console.log("Aucun utilisateur trouvé dans le localStorage");
-    }
+    setUser((current) => {
+      if (!current) {
+        console.warn("Aucun utilisateur connecté à mettre à jour");
+        return current;
+      }
+      const updated = { ...current, Username: new_username };
+      localStorage.setItem("user", JSON.stringify(updated));
+      return updated;
+    });
   }
 
   return (

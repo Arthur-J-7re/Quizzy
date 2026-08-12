@@ -8,6 +8,32 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Filet de secours : si l'app plante avant/pendant le montage React
+      // (ex: script bloqué par l'interstitiel ngrok, erreur non catchée par
+      // React), on affiche l'erreur au lieu de laisser une page blanche
+      // silencieuse — utile pour diagnostiquer sur un appareil sans devtools.
+      (function () {
+        function showFatal(message) {
+          var root = document.getElementById('root');
+          if (root && !root.hasChildNodes()) {
+            root.innerHTML =
+              '<div style="font-family:monospace;padding:16px;color:#b00;white-space:pre-wrap;">' +
+              'Erreur au chargement :\n' + message +
+              '</div>';
+          }
+        }
+        window.addEventListener('error', function (e) {
+          showFatal((e.message || 'erreur inconnue') + (e.filename ? '\n(' + e.filename + ':' + e.lineno + ')' : ''));
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          showFatal('Promise rejetée : ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+        });
+        setTimeout(function () {
+          showFatal('Rien ne s\'est affiché après 6s (script non chargé ou bloqué).');
+        }, 6000);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

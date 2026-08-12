@@ -10,6 +10,14 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "baseUrl": ".",
+    /* Le paquet shared-types n'est pas publié : on le résout par alias, côté
+       tsc ici et côté bundler dans vite.config.ts. Les deux doivent rester
+       synchronisés. */
+    "paths": {
+      "shared-types": ["../shared-types/index.ts"],
+      "shared-types/*": ["../shared-types/*"]
+    },
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
@@ -22,5 +30,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "../shared-types/Interface", "../shared-types/type.ts"]
+  "include": ["src", "../shared-types"]
 }
