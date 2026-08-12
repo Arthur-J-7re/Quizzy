@@ -1,0 +1,53 @@
+.folderManager {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.folderManagerNew {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.folderManagerList {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.folderManagerRow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-light);
+    border-radius: var(--radius-md);
+    padding: 4px 8px;
+}
+
+.folderManagerName {
+    font-weight: 600;
+    color: var(--primary-deep);
+    padding: 0 4px;
+}
+
+.folderManagerIconBtn {
+    border: none;
+    background: transparent;
+    color: var(--text-medium);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    border-radius: 50%;
+}
+
+.folderManagerIconBtn:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.folderManagerIconBtn.danger:hover {
+    background: var(--danger-color);
+    color: #fff;
+}

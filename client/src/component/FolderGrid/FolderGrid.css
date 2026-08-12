@@ -1,0 +1,57 @@
+.folderGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.folderTile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 92px;
+    padding: 10px 6px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+}
+
+.folderTile:hover {
+    background: var(--bg-light);
+}
+
+.folderTileIcon {
+    font-size: 44px !important;
+    color: var(--primary-light, #99b3ff);
+}
+
+.folderTile.active {
+    background: rgba(40, 226, 105, 0.12);
+}
+
+.folderTile.active .folderTileIcon {
+    color: var(--secondary-color);
+}
+
+.folderTile.dragOver {
+    background: rgba(90, 84, 232, 0.15);
+    outline: 2px dashed var(--primary-color);
+    outline-offset: -2px;
+}
+
+.folderTile.dragOver .folderTileIcon {
+    color: var(--primary-color);
+    transform: scale(1.08);
+}
+
+.folderTileLabel {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--primary-deep);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

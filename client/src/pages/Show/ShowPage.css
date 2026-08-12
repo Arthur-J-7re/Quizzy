@@ -1,0 +1,117 @@
+.showPageWaiting {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--text-medium);
+    font-size: 1.6rem;
+    padding: 40px;
+}
+
+.showPageLobby {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 0 var(--spacing-md, 20px);
+    text-align: center;
+}
+
+.showPageLobby h1 {
+    color: var(--primary-deep);
+}
+
+.showPageLobbyHint {
+    color: var(--text-medium);
+    font-size: 1.2rem;
+    margin-bottom: 24px;
+}
+
+.showPageLobbyGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 1fr);
+    gap: 20px;
+    align-items: start;
+    text-align: left;
+}
+
+.showPageLobbyPlayers {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.showPageLobbyPlayers h3 {
+    margin-bottom: 12px;
+    color: var(--primary-color);
+}
+
+.showPageLobbyPlayers ul {
+    list-style: none;
+}
+
+.showPageLobbyPlayers li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+}
+
+.showPageLobbyPlayers li.disconnected {
+    opacity: 0.5;
+}
+
+.showPageLobbyDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    flex-shrink: 0;
+}
+
+.showPageLobbyEmpty {
+    color: var(--text-light);
+}
+
+@media (max-width: 768px) {
+    .showPageLobbyGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.showPageRecap {
+    max-width: 700px;
+    margin: 60px auto;
+    padding: var(--spacing-lg);
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    text-align: center;
+}
+
+.showPageRecap h1 {
+    color: var(--primary-deep);
+    margin-bottom: 20px;
+}
+
+.showPageRecap ol {
+    list-style: none;
+    counter-reset: rank;
+}
+
+.showPageRecap li {
+    counter-increment: rank;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.showPageRecap li::before {
+    content: counter(rank) ".";
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-right: 12px;
+}

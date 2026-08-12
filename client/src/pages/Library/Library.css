@@ -1,0 +1,81 @@
+.libraryHint {
+    width: 90%;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    font-style: italic;
+    margin-bottom: 4px;
+}
+
+.libraryFilters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.libraryTagsInput {
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    min-width: 220px;
+}
+
+.libraryFolderRow {
+    width: 90%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.libraryFolderManageToggle {
+    margin-left: auto;
+    border: none;
+    background: none;
+    color: var(--primary-color);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.librarySelectionRow {
+    width: 90%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.librarySelectionCount {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+}
+
+.libraryHub {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.libraryHubCard {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-lg, 24px);
+    text-align: center;
+    text-decoration: none;
+    color: var(--primary-deep);
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.libraryHubCard:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
