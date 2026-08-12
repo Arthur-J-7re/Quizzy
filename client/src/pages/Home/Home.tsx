@@ -34,18 +34,14 @@ export function Home() {
             <Button
               variant="contained"
               className="card-button primary-button"
-              onClick={() => {
-                isConnected ? navigate("/create-a-question") : navigate("/login");
-              }}
+              onClick={() => navigate(isConnected ? "/create-a-question" : "/login")}
             >
               Créer une question
             </Button>
             <Button
               variant="contained"
               className="card-button primary-button"
-              onClick={() => {
-                isConnected ? navigate("/create-a-quizz") : navigate("/login");
-              }}
+              onClick={() => navigate(isConnected ? "/create-a-quizz" : "/login")}
             >
               Créer un quizz
             </Button>

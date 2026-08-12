@@ -5,9 +5,9 @@ import Card from "../Card";
 class EmissionCard extends Card{
     private emission;
 
-    constructor(emission : any, action : any, text : any, owner : number, couleur : string = 'Green'){
-        super(emission.title,action,text,owner === emission.creator,
-            emission.isPrivate,"size :"+emission.steps.length ,couleur   
+    constructor(emission : any, action : any, owner : number, selected : boolean = false, href? : string){
+        super(emission.title, action, owner === emission.creator,
+            emission.private, "size :"+emission.steps.length, undefined, selected, href
         )
         this.emission = emission;
     }

@@ -69,21 +69,27 @@ const CreateMenu = () => {
           <span className="menuItemIcon">❓</span>
           <span className="menuItemText">Créer une Question</span>
         </MenuItem>
-        <MenuItem 
-          className="createMenuItem" 
+        <MenuItem
+          className="createMenuItem"
           onClick={() => handleNavigate("/create-a-quizz")}
         >
           <span className="menuItemIcon">📝</span>
           <span className="menuItemText">Créer un Quizz</span>
         </MenuItem>
-        {/* Décommentez si besoin */}
-        {/* <MenuItem 
+        <MenuItem
           className="createMenuItem" 
-          onClick={() => handleNavigate("/create-emission")}
+          onClick={() => handleNavigate("/create-a-theme")}
+        >
+          <span className="menuItemIcon">🏷️</span>
+          <span className="menuItemText">Créer un Thème</span>
+        </MenuItem>
+        <MenuItem
+          className="createMenuItem"
+          onClick={() => handleNavigate("/create-an-emission")}
         >
           <span className="menuItemIcon">📺</span>
           <span className="menuItemText">Créer une Émission</span>
-        </MenuItem> */}
+        </MenuItem>
       </Menu>
     </div>
   );

@@ -11,6 +11,52 @@
     align-items: center;
 }
 
+.profilSearch {
+    width: 90%;
+    max-width: 90%;
+    box-sizing: border-box;
+}
+
+/*
+ * ".floatingForm"/".container" étaient des noms génériques : cette appli
+ * charge tout son CSS globalement (pas de scoping par composant), et
+ * ".container" est défini différemment par Login.css et QuizzForm.css — le
+ * rendu de cette page dépendait donc, par accident, de l'ordre de chargement.
+ */
+.floatingForm {
+    min-height: 100vh;
+    background: var(--bg-light, #f5f8ff);
+    display: flex;
+    flex-direction: column;
+}
+
+.accountUpdateContent {
+    max-width: 420px;
+    margin: 80px auto 0;
+    padding: var(--spacing-lg, 30px);
+    background: var(--bg-white, #fff);
+    border-radius: var(--radius-lg, 20px);
+    box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.1));
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+}
+
+.accountUpdateTitle input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--radius-md, 12px);
+    font-size: 1rem;
+    text-align: center;
+}
+
+.accountUpdateTitle input:focus {
+    outline: none;
+    border-color: var(--primary-color, #5a54e8);
+}
+
 .update{
     border-radius: 15px !important;
     white-space: nowrap;

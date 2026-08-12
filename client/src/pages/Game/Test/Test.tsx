@@ -1,6 +1,4 @@
-import { Button } from "@mui/material";
-import { Banner } from "../../../component/Banner/GameBanner"
-import { useNavigate } from "react-router-dom"
+import { Banner } from "../../../component/Banner/Banner"
 import { useEffect, useState } from "react";
 import "../../CommonCss.css";
 import "../../Home/Home.css"
@@ -31,7 +29,6 @@ export function Test () {
     /*useEffect(()=>{
         console.log("on reçoit visiblement ça : ", question)
     }, [question]);*/
-    const navigate = useNavigate();
     return (
     <div className="homeContainer">
         {dev ? <Banner></Banner> : "future timer"}
@@ -39,7 +36,7 @@ export function Test () {
         {/*<CreateRoom />*/}
         {answer ? 
             receive ?
-                <GameQuestionAnswer question={question} socket={socket} room_id={"0"} username={"test"}/>: "": <CreateRoom />
+                <GameQuestionAnswer question={question} socket={socket} room_id={"0"} username={"test"} canAnswer={true}/>: "": <CreateRoom />
             
         }
     </div> 

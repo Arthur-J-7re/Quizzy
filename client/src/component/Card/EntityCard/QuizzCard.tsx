@@ -5,10 +5,10 @@ import Card from "../Card";
 class QuizzCard extends Card{
     private quizz;
 
-    constructor(quizz : any, action : any, text : any, owner : number, couleur : string = 'Green'){
-        super(quizz.title,action,text,
+    constructor(quizz : any, action : any, owner : number, selected : boolean = false, href? : string){
+        super(quizz.title, action,
             owner === quizz.creator,
-            quizz.private,quizz.mode,couleur
+            quizz.private, quizz.mode, undefined, selected, href
         )
         this.quizz = quizz;
     }

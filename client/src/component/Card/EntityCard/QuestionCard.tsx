@@ -1,13 +1,14 @@
 
 import "../Card.css";
 import Card from "../Card";
+import { getQuestionModeLabel } from "../../../tools/text/text";
 
 class QuestionCard extends Card {
     private question;
 
-    constructor(question : any, action : any, text : any, owner : number, couleur : string = 'Green'){
-        super(question.title,action,text,
-            owner === question.creator,question.private,question.mode,couleur
+    constructor(question : any, action : any, owner : number, selected : boolean = false, href? : string, draggableEnabled : boolean = false){
+        super(question.title, action,
+            owner === question.creator, question.private, getQuestionModeLabel(question.mode), question.mode, selected, href, draggableEnabled
         )
         this.question = question;
     }

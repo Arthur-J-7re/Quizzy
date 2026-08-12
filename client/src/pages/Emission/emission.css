@@ -1,0 +1,139 @@
+.emissionCreationPage {
+    min-height: 100vh;
+    background: var(--bg-light);
+    padding-bottom: 60px;
+}
+
+.emissionCreationContent {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--spacing-md, 20px);
+}
+
+.emissionCreationPage h1 {
+    margin: 24px 0 8px;
+    color: var(--primary-deep);
+}
+
+.emissionCreationIntro {
+    max-width: 720px;
+    color: var(--text-medium);
+    margin-bottom: 24px;
+}
+
+.emissionSection {
+    background: var(--bg-white, #fff);
+    border-radius: var(--radius-lg, 20px);
+    padding: var(--spacing-lg, 30px);
+    margin-bottom: var(--spacing-md, 20px);
+    box-shadow: var(--shadow-sm);
+}
+
+.emissionSection h2 {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    color: var(--primary-color);
+}
+
+.emissionTitleInput {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.emissionStepsList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.emissionAddStepRow {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    color: var(--text-medium);
+}
+
+.emissionActions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    margin-top: var(--spacing-md, 20px);
+}
+
+.emissionOptionsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin: 16px 0 8px;
+}
+
+.emissionOptionsGrid label {
+    display: block;
+    font-weight: 600;
+    color: var(--primary-deep);
+}
+
+.emissionInlineLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.emissionHint {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    background: rgba(90, 84, 232, 0.08);
+    border: 1px solid var(--primary-color);
+    border-radius: var(--radius-md);
+    padding: 10px 16px;
+    margin-bottom: 16px;
+}
+
+.emissionLobbyThemes {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    margin: 16px 0;
+}
+
+.emissionLobbyThemes h3 {
+    color: var(--primary-color);
+    margin-bottom: 12px;
+}
+
+.emissionLobbyThemeRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.emissionLobbyThemeRow:last-child {
+    border-bottom: none;
+}
+
+.emissionLobbyPlayerName {
+    flex: 0 0 140px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.emissionThemeAssigned {
+    color: var(--secondary-dark);
+    font-weight: 600;
+}
+
+.emissionThemeMissing {
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.emissionStartHint {
+    color: var(--danger-color);
+    font-size: 0.85rem;
+    margin-top: 8px;
+}

@@ -6,9 +6,9 @@ class ThemeCard extends Card{
     private theme;
     private questions;
 
-    constructor(theme : any, action : any, text : any, owner : number, couleur : string = 'Green'){
-        super(theme.title,action,text,
-            owner === theme.creator,theme.isPrivate,"size :"+String(theme.questions.length),couleur
+    constructor(theme : any, action : any, owner : number, selected : boolean = false, href? : string, draggableEnabled : boolean = false){
+        super(theme.title, action,
+            owner === theme.creator, theme.private, "size :"+String(theme.questions.length), undefined, selected, href, draggableEnabled
         )
         this.questions= theme.questions;
         this.theme = theme;

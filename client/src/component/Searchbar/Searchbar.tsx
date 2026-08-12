@@ -13,7 +13,7 @@ interface SearchbarProps {
     setFilterData: React.Dispatch<React.SetStateAction<SearchbarProps["filterData"]>>;
 };
 
-const CustomMenuItem = styled(MenuItem)(({}) => ({
+const CustomMenuItem = styled(MenuItem)(() => ({
     /*'&:hover': {
       backgroundColor: '#000000', // Bleu foncé au survol
       color: 'white', // Texte blanc au survol
@@ -35,8 +35,8 @@ export function Searchbar ({ filterData, setFilterData }: SearchbarProps) {
                         label="Type de question"
                         >
                         {
-                            filterData.possibleType.map(({value, title} : {value : string, title : string}) => 
-                                <CustomMenuItem value={value}>{title}</CustomMenuItem>
+                            filterData.possibleType.map(({value, title} : {value : string, title : string}) =>
+                                <CustomMenuItem key={value} value={value}>{title}</CustomMenuItem>
                             )
                         }
                         </Select>
@@ -65,7 +65,7 @@ export function Searchbar ({ filterData, setFilterData }: SearchbarProps) {
                     >
                     {
                         filterData.possibleScope.map(({value, title}:{value : string, title : string}) =>
-                            <CustomMenuItem value={value}>{title}</CustomMenuItem>
+                            <CustomMenuItem key={value} value={value}>{title}</CustomMenuItem>
                         )
                     }
                     </Select>

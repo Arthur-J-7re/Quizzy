@@ -9,7 +9,8 @@ export function AccountUpdate(){
     const auth = useContext(AuthContext);
     const [username, setUsername] = useState("");
     const [changed, setChanged] = useState(false);
-    const [id,setId] = useState("");
+    const [error, setError] = useState("");
+    const [id,setId] = useState<number | null>(null);
     
     useEffect(() => {
         if (auth?.user?.Username) {
@@ -28,12 +29,14 @@ export function AccountUpdate(){
             return;
         }
         setChanged(false);
-        if (id != ""){
+        setError("");
+        if (id !== null){
             try {
-                const response = await makeRequest("/user/updateUsername", "PUT", {user_id : id, username : username});
+                // L'id n'est plus envoyé : le serveur le déduit du token.
+                const response = await makeRequest("/user/updateUsername", "PUT", {username : username});
                 auth?.updateUser(response.username)
-            } catch(error) {
-                console.error("error while updating user Information", error);
+            } catch(err) {
+                setError(err instanceof Error ? err.message : "La modification a échoué.");
             }
         }
 
@@ -44,9 +47,9 @@ export function AccountUpdate(){
 
         <div className="floatingForm">
             <Banner></Banner>
-            <div className="container">
+            <div className="accountUpdateContent">
                 <label>Modifiez votre Nom d'utilisateur</label>
-                <div className="title">
+                <div className="accountUpdateTitle">
                     <input
                         type='text'
                         id="username"
@@ -55,6 +58,7 @@ export function AccountUpdate(){
                         required
                     />
                 </div>
+                {error && <div className="login-error">{error}</div>}
                 <Button onClick={() => sendData()} disabled={!changed} className="update">Sauvegarder les modifications</Button>
             </div>
         </div>

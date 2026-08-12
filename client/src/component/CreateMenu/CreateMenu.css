@@ -4,24 +4,24 @@
 
 /* Bouton principal "Créer" */
 .createMenuButton {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
+    background: var(--accent-soft) !important;
+    color: var(--primary-color) !important;
     border: none !important;
     padding: 10px 24px !important;
     border-radius: 25px !important;
     font-weight: 600 !important;
     font-size: clamp(14px, 1.2vw, 16px) !important;
     text-transform: none !important;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+    box-shadow: 0 4px 15px rgba(40, 226, 105, 0.3) !important;
     transition: all 0.3s ease !important;
     white-space: nowrap;
     font-family: 'Open Sans', sans-serif !important;
 }
 
 .createMenuButton:hover {
-    background: linear-gradient(135deg, #5a6fd8 0%, #6a3d92 100%) !important;
+    background: var(--secondary-hover) !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+    box-shadow: 0 6px 20px rgba(40, 226, 105, 0.4) !important;
 }
 
 /* Flèche animée */
@@ -55,7 +55,7 @@
 }
 
 .createMenuItem:hover {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%) !important;
+    background: rgba(90, 84, 232, 0.08) !important;
     transform: translateX(4px);
 }
 
@@ -66,19 +66,19 @@
     justify-content: center;
     width: 28px;
     height: 28px;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    background: rgba(40, 226, 105, 0.18);
     border-radius: 8px;
     transition: all 0.2s ease;
 }
 
 .createMenuItem:hover .menuItemIcon {
     transform: scale(1.1);
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.25) 0%, rgba(118, 75, 162, 0.25) 100%);
+    background: rgba(40, 226, 105, 0.3);
 }
 
 .menuItemText {
     font-weight: 500;
-    color: #333;
+    color: var(--primary-deep);
     font-size: 0.95rem;
 }
 

@@ -1,5 +1,5 @@
-import Countdown, { CountdownRendererFn } from 'react-countdown';
-import { useState, useMemo } from 'react';
+import Countdown from 'react-countdown';
+import { useMemo } from 'react';
 
 const Completionist = () => <span>⏰ Fini !</span>;
 
@@ -13,7 +13,6 @@ export function Clock({ timer }: { timer: number }) {
     
     // ✅ Figer la date de fin au premier render
     const targetDate = useMemo(() => Date.now() + timer, [timer]);
-    const [timeLeft, setTimeLeft] = useState(() => targetDate - Date.now());
         
     const renderer = ({ total, completed, minutes, seconds }: any) => {
         if (completed) {
@@ -76,7 +75,6 @@ export function Clock({ timer }: { timer: number }) {
         <Countdown
             date={targetDate} // 👈 Date figée
             renderer={renderer}
-            onTick={({ total }) => setTimeLeft(total)}
         />
     );
 }

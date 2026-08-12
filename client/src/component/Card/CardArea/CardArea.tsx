@@ -1,3 +1,4 @@
+import { Fragment, type Dispatch, type SetStateAction } from "react"
 import Card from "../Card"
 
 export function CardArea(
@@ -14,7 +15,7 @@ export function CardArea(
         emptyText : string,
         link : string,
         draggable : boolean,
-        setUsedCard : Function,
+        setUsedCard : Dispatch<SetStateAction<Card[]>>,
     }
 ) {
     const handleDragStart = (event: React.DragEvent<HTMLDivElement>, index: number) => {
@@ -56,7 +57,7 @@ export function CardArea(
                             {Card.show()}
                         </div>
                         :
-                        <>{Card.show()}</>
+                        <Fragment key={Card.getId()}>{Card.show()}</Fragment>
                     ))
                 ) : (
                     <h2 className="filler">{(link != "" && link != null && link != undefined) ?<a href={link}>{emptyText}</a> : emptyText}</h2>

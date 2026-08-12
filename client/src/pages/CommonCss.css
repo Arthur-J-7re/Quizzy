@@ -3,17 +3,31 @@
    ============================ */
 
 :root {
-    /* Couleurs principales */
-    --primary-color: #667eea;
-    --primary-dark: #764ba2;
-    --secondary-color: #f5576c;
-    --accent-color: #4facfe;
-    
+    /* Palette Quizzy : bleu indigo + vert, telle qu'utilisée dans le reste des
+       feuilles de style (Login, QuizzForm, Card, CreateQuestion...). */
+
+    /* Bleu */
+    --primary-color: #5a54e8;
+    --primary-dark: #4038c9;
+    --primary-light: #99b3ff;
+    --primary-deep: #0f1943;
+
+    /* Vert */
+    --secondary-color: #28e269;
+    --secondary-dark: #1DD75E;
+    --secondary-hover: #43bc6e;
+    --accent-color: #4BE782;
+    --accent-soft: #54e889;
+
+    /* Sémantique */
+    --danger-color: #ed254e;
+    --warning-color: #FBA40E;
+
     /* Couleurs de fond */
-    --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --bg-light: #f8f9ff;
+    --bg-gradient: linear-gradient(135deg, #5a54e8 0%, #28e269 100%);
+    --bg-light: #f5f8ff;
     --bg-white: #ffffff;
-    
+
     /* Couleurs de texte */
     --text-dark: #333333;
     --text-medium: #666666;
@@ -174,18 +188,18 @@ a:hover {
 .form-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgba(90, 84, 232, 0.15);
 }
 
 /* Messages d'erreur */
 .error-message {
-    color: #f44336;
+    color: var(--danger-color);
     font-size: 0.9rem;
     margin-top: var(--spacing-xs);
 }
 
 .success-message {
-    color: #4caf50;
+    color: var(--secondary-dark);
     font-size: 0.9rem;
     margin-top: var(--spacing-xs);
 }
@@ -227,12 +241,12 @@ a:hover {
 }
 
 .badge-success {
-    background: #4caf50;
+    background: var(--secondary-color);
     color: white;
 }
 
 .badge-warning {
-    background: #ff9800;
+    background: var(--warning-color);
     color: white;
 }
 

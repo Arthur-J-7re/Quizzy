@@ -8,7 +8,7 @@ export default function PrivateButton(
         entity : {
             private: boolean
         },
-        setEntity : Function
+        setEntity : (entity : any) => void
     }
 ) {
     const setPrivate = (bool : boolean) => {
@@ -19,7 +19,7 @@ export default function PrivateButton(
     }
 
     const changePrivate = () => {
-        var bool = entity.private;
+        const bool = entity.private;
         setPrivate(!bool)
     }
     return (

@@ -1,55 +1,48 @@
-.profilButton {
-    border-radius: 15px !important;
-    white-space: nowrap;
-    color: #5a54e8!important;
-    text-transform: none !important;
-    font-size: clamp(14px, 2vw, 100px)!important;
-    font-weight: 550 !important;
-    font-family: 'Open Sans', sans-serif !important;
-    height: auto !important;
-    min-height: unset !important;
-    
-    margin-right: 3vw;
-    padding: 3vw;
-}
-
-.Mui-focusVisible {
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-.profilButton:hover,.profilMenuItem:hover {
-    background-color: #43bc6e !important;
-}
-
-.profilButton:focus-visible {
-    outline: none;
-    box-shadow: none;
-}
-
-.profilButton,.profilMenuItem{
-    background-color: #54e889 !important;
-    color: #5a54e8!important;
-    padding: 1vw;
-}
-
-ol,ul,.profilMenu, .profilContainer{
-    padding: none !important;
-    background-color: none !important;
-}
-
-.css-1tktgsa-MuiPaper-root-MuiPopover-paper-MuiMenu-paper {
-    padding: none;
-}
-
-.css-1toxriw-MuiList-root-MuiMenu-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+.profilContainer {
     position: relative;
-    padding-top: 0px !important;
-    padding-bottom: 0px !important;
-    outline: 0;
 }
 
+/* Même recette que .createMenuButton (CreateMenu.css) : les deux boutons de
+   la Banner doivent avoir la même forme/couleur/hover, pas juste une couleur
+   proche codée en dur de son côté. */
+.profilButton {
+    background: var(--accent-soft) !important;
+    color: var(--primary-color) !important;
+    border: none !important;
+    padding: 10px 24px !important;
+    border-radius: 25px !important;
+    font-weight: 600 !important;
+    font-size: clamp(14px, 1.2vw, 16px) !important;
+    text-transform: none !important;
+    box-shadow: 0 4px 15px rgba(40, 226, 105, 0.3) !important;
+    transition: all 0.3s ease !important;
+    white-space: nowrap;
+    font-family: 'Open Sans', sans-serif !important;
+}
 
+.profilButton:hover {
+    background: var(--secondary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 226, 105, 0.4) !important;
+}
+
+.profilMenu .MuiPaper-root {
+    background: white;
+    border-radius: 12px;
+}
+
+.profilMenuItem {
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    margin: 4px 0 !important;
+    font-family: 'Open Sans', sans-serif !important;
+    transition: all 0.2s ease !important;
+    font-weight: 500;
+    color: var(--primary-deep);
+    font-size: 0.95rem;
+}
+
+.profilMenuItem:hover {
+    background: rgba(90, 84, 232, 0.08) !important;
+    transform: translateX(4px);
+}

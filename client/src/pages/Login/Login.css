@@ -1,110 +1,30 @@
-@font-face {
-    font-family: 'Montserrat';
-    src: url('../assets/font/Montserrat/Montserrat-VariableFont_wght.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+/* Nom spécifique, pas ".container" : cette appli charge tout son CSS
+   globalement (pas de scoping par composant), et ".container" est déjà
+   défini avec des règles incompatibles par CommonCss.css. */
+.loginPage {
+    background: var(--bg-gradient);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 80px);
+    width: 100vw;
 }
-
-/* Style pour la page avec un fond personnalisé */
-body.custom-background {
-    background-color: #66e33d;
-
-    min-height:100vh;
-    margin: 0;
-    justify-content: center; /* Centre horizontalement */
-    align-items: center; /* Centre verticalement */
-}
-
-
-
-
-
-
-
-input {
-    background-color: #99b3ff;
-    border-radius: 5px;
-    color: #050505;
-    font-size: larger;
-    padding: max(0.7vw, 10px);
-    height: 3vh;
-    max-width: 100%;
-}
-
-.coloredAnswer:focus-visible,.notOutlined, button {
-    outline: none !important;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 .login-container {
-    background-color: #e5e5e5;
-    
-}
-
-.login-containerNight{
-    background-color: #515358;
-}
-
-.login-container,.login-containerNight{
-    
-    font-family: Montserrat;
+    font-family: 'Open Sans', sans-serif;
     font-size: 14px;
-    
+
     display: flex;
     flex-direction: column;
     margin: auto;
     align-items: center;
-    padding-bottom: 30px;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    
-    
-    width: 60vh;
-    height: 60vh;
-    width : 400px;
-    height : 400px;
-    gap : 10px;
-}
+    padding: 30px;
+    border-radius: var(--radius-lg, 20px);
+    box-shadow: var(--shadow-md, 0 4px 15px rgba(0, 0, 0, 0.15));
+    background: var(--bg-white, #fff);
 
-.login-logo {
-    margin-top: 20px;
-    width: 125px;
-    height: auto;
-}
-
-.container {
-    background-color: #66e33d;
-}
-
-.containerNight{
-    background-color: #313338;
-}
-
-.container,.containerNight{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
-    
+    width: 400px;
+    gap: 10px;
 }
 
 .loginsignup-header {
@@ -112,183 +32,112 @@ input {
     flex-direction: row;
     flex-grow: 1;
     align-items: center;
-    gap: 60px;
+    gap: 12px;
     margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
+.loginTab {
+    border: none;
+    background: var(--bg-light);
+    color: var(--text-medium);
+    padding: 8px 20px;
+    border-radius: var(--radius-xl, 25px);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.loginTab.active {
+    background: var(--secondary-color);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(40, 226, 105, 0.35);
+}
+
+.loginTab:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
 
 /*LOGIN*/
 
-.login-form,
-.signup-form {
-    display: none; /* Cache par défaut les deux formulaires */
+.login-form {
+    display: none;
 }
 
-.login-form.active,
-.signup-form.active {
-    display: block; /* Affiche le formulaire actif */
-
+.login-form.active {
+    display: block;
 }
 
-
-.login-input-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 250px;
-    margin-bottom: 30px;
-
-    font-size: 14px;
-}
+.login-input-group,
 .signup-input-group {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 250px;
-    margin-bottom: 10px;
-
+    margin-bottom: 20px;
     font-size: 14px;
 }
 
 .login-label {
     display: block;
     margin-bottom: 5px;
-    margin-right: auto; /* Repousse l'élément vers la droite */
+    margin-right: auto;
+    color: var(--text-medium);
 }
 
-.login-input, .login-inputNight {
+.login-input {
     width: 100%;
-    padding: 10px;
-    border: 1px solid;
-    border-radius: 5px;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--radius-md, 12px);
     font-size: 14px;
+    box-sizing: border-box;
 }
-
-.login-inputNight{
-    color: #fff;
-    background-color: #717378;
-}
-
-
 
 .login-input:focus {
     outline: none;
-    border-color: #4BE782;
-    
-}
-
-.login-inputNight:focus {
-    outline: none;
-    border-color: #FC6EDA;
-    
-}
-.forgot-password {
-    text-align: center;
-    margin-top: 15px;
-
+    border-color: var(--secondary-color);
 }
 
 .submit-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 20px;
-    margin-top: 50px;
+    margin-bottom: 10px;
+    margin-top: 30px;
 }
 
-
-/*SIGN UP*/
-.radio-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
+.loginSubmitButton {
+    height: 45px !important;
+    width: 140px !important;
+    background: var(--secondary-color) !important;
+    color: #fff !important;
+    border-radius: var(--radius-xl, 25px) !important;
+    text-transform: none !important;
+    font-size: 16px !important;
+    font-family: 'Open Sans', sans-serif !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 15px rgba(40, 226, 105, 0.3) !important;
 }
 
-.signup-form-recruiter,
-.signup-form-candidate {
-    display: none; /* Cache par défaut les deux formulaires */
+.loginSubmitButton:hover {
+    background: var(--secondary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 226, 105, 0.4) !important;
 }
 
-.signup-form-recruiter,
-.signup-form-candidate {
-    display: block; /* Affiche le formulaire actif */
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Deux colonnes égales */
-    gap: 10px;
-    align-items: center;
-    padding: 10px;
-    margin: 5px;
+.login-error {
+    margin: 0 auto 12px;
+    padding: 10px 16px;
+    max-width: 90%;
+    border-radius: 10px;
+    background-color: rgba(237, 37, 78, 0.12);
+    border: 1px solid var(--danger-color, #ed254e);
+    color: var(--danger-color, #ed254e);
+    font-size: 0.9rem;
+    text-align: center;
 }
-
-
-/*modification mail*/
-.signup-input-mail, .sign-input-group {
-    grid-column: span 2;
-    width: 95%;
-}
-
-.signup-input-mail .sign-input {
-    width: 400px;
-}
-
-/*modification password*/
-.signup-input-password{
-    grid-column: span 2;
-    width: 95%;
-}
-.signup-input-password .sign-input, .sign-inputNight{
-    width: 400px;
-}
-
-.sign-label {
-    display: block;
-    padding-left:7px;
-    margin-bottom: 5px;
-
-}
-.sign-input, .sign-inputNight {
-    width: 180px;
-    padding: 8px;
-    border: 1px solid;
-    border-radius: 5px;
-    font-size: 14px;
-    color: #000;
-    background-color: #ECEFF1;
-}
-
-.sign-input:focus{
-    outline: none;
-    background-color: #fff;
-
-}
-
-.greenBorder{
-    color: #000;
-    background-color: #ECEFF1;
-}
-
-.pinkBorder{
-    color: #fff;
-    background-color: #717378;
-}
-
-.greenBorder:focus{
-    border-color: #4BE782;
-    color: #000;
-    background-color: #ECEFF1;
-}
-
-.pinkBorder:focus{
-    border-color: #FC6EDA;
-    color: #fff;
-    background-color: #717378;
-}
-
-.sign-inputNight:focus{
-    outline: none;
-    background-color: #fff;
-
-}
-

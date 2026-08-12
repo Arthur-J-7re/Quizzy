@@ -1,17 +1,116 @@
-.opt{
-    font-size: small;
+.createRoomPage {
+    min-height: 100vh;
+    background: var(--bg-light);
+    padding: var(--spacing-md, 20px) 0 60px;
+    display: flex;
+    justify-content: center;
 }
 
-.createRoomButton{
-    width: 500% !important;
-    font-size: larger !important;
-    color : #5a54e8 !important;
-    background-color:#54e889 !important;
-    
+.createRoomCard {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 var(--spacing-md, 20px);
+    background: var(--bg-white, #fff);
+    border-radius: var(--radius-lg, 20px);
+    padding: var(--spacing-lg, 30px);
+    box-shadow: var(--shadow-sm);
 }
 
-.blue-name{
-    color: #5a54e8 !important
+.createRoomCard h1 {
+    color: var(--primary-deep);
+    margin-bottom: 16px;
+}
+
+.createRoomCard h2 {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+}
+
+.createRoomTitleInput {
+    margin-bottom: 16px;
+}
+
+.createRoomSection {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    padding-top: var(--spacing-md, 20px);
+    margin-top: 4px;
+    margin-bottom: var(--spacing-md, 20px);
+}
+
+.createRoomOptionsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px 24px;
+    margin-bottom: 12px;
+}
+
+.createRoomInlineLabel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--primary-deep);
+}
+
+.createRoomHint {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    background: rgba(90, 84, 232, 0.08);
+    border: 1px solid var(--primary-color);
+    border-radius: var(--radius-md);
+    padding: 10px 16px;
+    margin-bottom: 16px;
+}
+
+.createRoomModeRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.createRoomModeSelect {
+    flex: 1 1 160px;
+    min-width: 160px;
+}
+
+.createRoomModeExtra {
+    flex: 2 1 320px;
+    min-width: 240px;
+}
+
+.createRoomModeExtraRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.createRoomModeExtraColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.createRoomActions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.createRoomButton {
+    border-radius: var(--radius-xl, 25px) !important;
+    color: var(--primary-dark, #4038c9) !important;
+    background-color: var(--secondary-color, #28e269) !important;
+    text-transform: none !important;
+    font-weight: 600 !important;
+    font-family: inherit !important;
+    padding: 10px 28px !important;
+    box-shadow: var(--shadow-sm);
+}
+
+.blue-name {
+    color: var(--primary-color, #5a54e8) !important;
 }
 
 input:-internal-autofill-selected {

@@ -1,55 +1,24 @@
-.homeContainer{
-    height: fit-content;
+.roomIdInput {
+    margin-bottom: 20px;
     width: 100%;
 }
 
-.bouton {
-    border-radius: 15px !important;
-    white-space: nowrap;
-    color: #5a54e8!important;
-    background-color: #54e889 !important;
-    text-transform: none !important;
-    font-size: clamp(28px, 3vw, 150px)!important;
-    font-weight: 550 !important;
-    font-family: 'Open Sans', sans-serif !important;
-    height: auto !important;
-    min-height: unset !important;
-    max-width: 700px !important;
-    margin: 3vw;
-    padding: 3vw;
-    padding: 1vw;
-    margin-top: 6vh !important ;
+.roomIdInput .MuiOutlinedInput-root {
+    background: var(--bg-white, #fff);
+    border-radius: var(--radius-md, 12px);
 }
 
-.bouton:hover {
-    background-color: #43bc6e !important;
-}
-
-.joinRoom {
-    display: flex;
-    
-}
-
-.roomIdInput {
-    justify-self: center;
-    align-self: center;
-}
-
-
-
-.boutonDisplay{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.welcome, .presentation{
-    margin-left: 3vw;
+/* Une seule carte (ex: écran "rejoindre un salon") : on ne veut pas qu'elle
+   s'étire sur toute la largeur de la grille comme le ferait .cards-container
+   seul avec un unique enfant. */
+.single-card-container {
+    grid-template-columns: 1fr;
+    max-width: 420px;
 }
 
 .homeContainer {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--bg-gradient);
   padding: 20px;
 }
 
@@ -117,7 +86,7 @@
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 15px 0;
-  color: #333;
+  color: var(--primary-deep);
 }
 
 .card-description {
@@ -146,33 +115,33 @@
 }
 
 .primary-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  color: white !important;
+  background: var(--accent-soft) !important;
+  color: var(--primary-color) !important;
 }
 
 .primary-button:hover {
   transform: scale(1.05);
-  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4) !important;
+  box-shadow: 0 5px 20px rgba(40, 226, 105, 0.4) !important;
 }
 
 .secondary-button {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
-  color: white !important;
+  background: var(--primary-color) !important;
+  color: #fff !important;
 }
 
 .secondary-button:hover {
   transform: scale(1.05);
-  box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4) !important;
+  box-shadow: 0 5px 20px rgba(90, 84, 232, 0.4) !important;
 }
 
 .accent-button {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
-  color: white !important;
+  background: var(--primary-light) !important;
+  color: var(--primary-deep) !important;
 }
 
 .accent-button:hover {
   transform: scale(1.05);
-  box-shadow: 0 5px 20px rgba(79, 172, 254, 0.4) !important;
+  box-shadow: 0 5px 20px rgba(153, 179, 255, 0.5) !important;
 }
 
 /* Badge de développement */
@@ -180,26 +149,26 @@
   position: absolute;
   top: 20px;
   right: 20px;
-  background: #ffd700;
-  color: #333;
+  background: var(--warning-color);
+  color: #fff;
   padding: 5px 15px;
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
-  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 2px 10px rgba(251, 164, 14, 0.35);
 }
 
 /* Styles spécifiques pour chaque carte */
 .create-card {
-  border-top: 5px solid #667eea;
+  border-top: 5px solid var(--secondary-color);
 }
 
 .play-card {
-  border-top: 5px solid #f5576c;
+  border-top: 5px solid var(--primary-color);
 }
 
 .login-card {
-  border-top: 5px solid #4facfe;
+  border-top: 5px solid var(--primary-light);
 }
 
 /* Animations */
