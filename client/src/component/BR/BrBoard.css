@@ -1,0 +1,198 @@
+.brBoardContainer {
+    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.brBoardWaiting {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-medium);
+    font-size: 1.1rem;
+}
+
+.brBoardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.brPhase {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-deep);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brCountdown {
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: var(--radius-xl);
+    padding: 4px 14px;
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.brHostControls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.brHostAdvanceButton {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 8px 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.brBoardError {
+    background: rgba(237, 37, 78, 0.12);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+}
+
+.brBoardLayout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.brQuestionZone {
+    flex: 1 1 500px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.brWaiting {
+    text-align: center;
+    color: var(--text-medium);
+    padding: 20px;
+}
+
+.brLivesBoard {
+    flex: 0 1 260px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.brLivesBoard ul {
+    list-style: none;
+}
+
+.brLivesBoard li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+}
+
+.brLivesBoard li.self {
+    font-weight: 700;
+    color: var(--primary-deep);
+}
+
+.brLivesBoard li.eliminated {
+    color: var(--text-light);
+    text-decoration: line-through;
+}
+
+.brResult {
+    margin-top: 24px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.brResult ul {
+    list-style: none;
+}
+
+.brResult li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+}
+
+.brResult li.ok {
+    color: var(--secondary-dark);
+}
+
+.brResult li.ko {
+    color: var(--danger-color);
+}
+
+.brResult li.neutral {
+    color: var(--text-light);
+}
+
+.brPlayerName {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.brPlayerAnswer {
+    flex: 1;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.brPlayerLives {
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--danger-color);
+}
+
+.brRanking {
+    margin-top: 28px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.brRanking ol {
+    list-style: none;
+    counter-reset: rank;
+}
+
+.brRanking li {
+    counter-increment: rank;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.brRanking li::before {
+    content: counter(rank) ".";
+    font-weight: 700;
+    color: var(--primary-color);
+    min-width: 24px;
+}
+
+.brWinner {
+    margin-left: auto;
+    color: var(--primary-deep);
+}

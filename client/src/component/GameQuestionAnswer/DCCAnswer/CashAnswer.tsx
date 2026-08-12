@@ -4,14 +4,14 @@ import "../GameQuestionAnswer.css"
 import { Question } from "shared-types";
 
 
-export default function CashAnswer( { question, socket, room_id, username, canAnswer }: { question: Question, socket: any, room_id : string, username: string, canAnswer:boolean }) {
+export default function CashAnswer( { question, socket, room_id, username, canAnswer, answerEvent }: { question: Question, socket: any, room_id : string, username: string, canAnswer:boolean, answerEvent?: string }) {
     
     const [flash, setFlash] = useState(false);
     const [answering, setAnswering] = useState(true);
     const [selectedAns, setSelectedAns] = useState("");
     const [answer, setAnswer] =  useState("");
     const sendAnswer = () =>{
-        socket.emit("answerToQuestion", {question : question, answer :{value : selectedAns, mode : "CASH"} , room_id : room_id, username: username});
+        socket.emit(answerEvent ?? "answerToQuestion", {question : question, answer :{value : selectedAns, mode : "CASH"} , room_id : room_id, username: username});
     }
     
 

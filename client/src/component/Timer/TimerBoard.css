@@ -1,0 +1,168 @@
+.timerBoardContainer {
+    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.timerBoardWaiting {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-medium);
+    font-size: 1.1rem;
+}
+
+.timerBoardHeader {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.timerPhase {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-deep);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.timerCountdown {
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: var(--radius-xl);
+    padding: 4px 14px;
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.timerTheme {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+    color: var(--text-medium);
+}
+
+.timerThemeBadge {
+    background: var(--secondary-color);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    padding: 3px 10px;
+    font-weight: 600;
+}
+
+.timerCorrectCount {
+    font-weight: 600;
+    color: var(--secondary-dark);
+}
+
+.timerBoardError {
+    background: rgba(237, 37, 78, 0.12);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+}
+
+.timerBoardLayout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.timerQuestionZone {
+    flex: 1 1 500px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    min-height: 120px;
+}
+
+.timerWaiting {
+    text-align: center;
+    color: var(--text-medium);
+    padding: 20px;
+}
+
+.timerDuoChoice {
+    text-align: center;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.timerClaimButton {
+    border: none;
+    border-radius: var(--radius-xl, 25px);
+    background-color: var(--secondary-color, #28e269);
+    color: #fff;
+    font-weight: 600;
+    font-family: inherit;
+    padding: 10px 22px;
+    cursor: pointer;
+}
+
+.timerLastResult {
+    margin-top: 12px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.timerLastResult.ok {
+    color: var(--secondary-dark);
+}
+
+.timerLastResult.ko {
+    color: var(--danger-color);
+}
+
+.timerTurnRecap {
+    margin-top: 24px;
+    background: rgba(90, 84, 232, 0.1);
+    border: 1px solid var(--primary-color);
+    border-radius: var(--radius-md);
+    padding: 12px 18px;
+    text-align: center;
+}
+
+.timerRanking {
+    margin-top: 28px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.timerRanking ol {
+    list-style: none;
+    counter-reset: rank;
+}
+
+.timerRanking li {
+    counter-increment: rank;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.timerRanking li::before {
+    content: counter(rank) ".";
+    font-weight: 700;
+    color: var(--primary-color);
+    min-width: 24px;
+}
+
+.timerRanking li strong {
+    margin-left: auto;
+}

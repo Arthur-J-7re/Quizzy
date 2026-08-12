@@ -1,43 +1,208 @@
-.answerQcmContainer{
+/* Bloc question/réponse partagé par QCM/VF/Free/DCC, monté à l'intérieur des
+   cartes de plateau (.listQuestionZone, .timerQuestionZone, .pbQuestionZone,
+   .duelQuestionZone, GridBoard...) : pas de fond/ombre/hauteur fixe ici, la
+   carte parente s'en charge déjà (cf. ListBoard.css et consorts). L'ancien
+   `height: 100vh` forçait ce bloc à occuper l'écran entier même niché dans
+   une carte, d'où le débordement ; les couleurs (bleu marine, tailles en vw)
+   ne suivaient pas non plus la palette du reste du site. */
+.answerQcmContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: var(--spacing-md, 20px);
+}
+
+.intitulé, .modeSelectorDcc .intitule {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-deep, #0f1943);
+    text-align: center;
+    overflow-wrap: break-word;
+}
+
+.answerArea {
+    display: grid;
+    /* 150px (pas 180px) : sous conteneur partagé avec un panneau latéral
+       (Points/BR, ~660-740px dispo), 180px ne laissait tenir que 3 colonnes
+       sur 4, isolant la dernière réponse sur sa propre ligne. */
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    width: 100%;
+}
+
+.gameAnswerQcm, .gameAnswerQcmShow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 84px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid var(--primary-color, #5a54e8);
+    background: var(--bg-white, #fff);
+    color: var(--primary-deep, #0f1943);
+    border-radius: var(--radius-md, 12px);
+    font-size: 1.05rem;
+    font-weight: 600;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    overflow-wrap: break-word;
+}
+
+.gameAnswerQcmShow {
+    cursor: default;
+}
+
+@keyframes showGood {
+    0% {
+        border-color: var(--primary-color, #5a54e8);
+        color: var(--primary-deep, #0f1943);
+        transform: scale(1);
+    }
+    100% {
+        border-color: var(--secondary-color, #28e269);
+        color: var(--secondary-color, #28e269);
+        transform: scale(1.03);
+    }
+}
+
+@keyframes showWrong {
+    0% {
+        border-color: var(--primary-color, #5a54e8);
+        color: var(--primary-deep, #0f1943);
+        transform: scale(1);
+    }
+    100% {
+        border-color: var(--danger-color, #ed254e);
+        color: var(--danger-color, #ed254e);
+        transform: scale(1);
+    }
+}
+
+.goodAnswer {
+    border-color: var(--secondary-color, #28e269);
+    color: var(--secondary-color, #28e269);
+    background: rgba(40, 226, 105, 0.08);
+    animation: showGood 0.4s ease-in;
+}
+
+.wrongAnswer {
+    border-color: var(--danger-color, #ed254e);
+    color: var(--danger-color, #ed254e);
+    background: rgba(237, 37, 78, 0.08);
+    animation: showWrong 0.2s ease-in;
+}
+
+.wrongAnswer::before, .wrongAnswerFree::before {
+    content: "✗ ";
+    color: var(--danger-color, #ed254e);
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+.goodAnswer::before, .goodAnswerFree::before {
+    content: "✓ ";
+    color: var(--secondary-color, #28e269);
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+.gameAnswerQcm:hover, .gaSelected {
+    border-color: var(--warning-color, #FBA40E);
+    color: var(--warning-color, #FBA40E);
+    background: rgba(251, 164, 14, 0.08);
+}
+
+.buttonSendAnswer {
+    align-self: center;
+    border-radius: var(--radius-xl, 25px) !important;
+    white-space: nowrap;
+    color: var(--primary-dark, #4038c9) !important;
+    background-color: var(--secondary-color, #28e269) !important;
+    text-transform: none !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    font-family: inherit !important;
+    height: auto !important;
+    min-height: unset !important;
+    padding: 10px 28px !important;
+    box-shadow: var(--shadow-sm);
+}
+
+@keyframes flashAnimation {
+    0%, 50%, 100% {
+        border-color: var(--warning-color, #FBA40E);
+        color: var(--warning-color, #FBA40E);
+        background-color: var(--warning-color, #FBA40E);
+    }
+    25%, 75% {
+        background-color: #fff7aa;
+        border-color: #fff7aa;
+        color: #fff7aa;
+    }
+}
+
+@keyframes flashFreeAnimation {
+    0%, 50%, 100% {
+        color: var(--warning-color, #FBA40E);
+        background-color: var(--warning-color, #FBA40E);
+        border-bottom: solid 2px var(--warning-color, #FBA40E);
+    }
+    25%, 75% {
+        background-color: #fff7aa;
+        color: #fff7aa;
+        border-bottom: solid 2px #fff7aa;
+    }
+}
+
+.flash {
+    animation: flashAnimation 0.5s !important;
+}
+
+.flashFree {
+    animation: flashFreeAnimation 0.5s !important;
+}
+
+.freeAnswerInputArea, .goodAnswerFree, .wrongAnswerFree {
+    align-self: center;
+    justify-self: center;
+    background-color: var(--primary-color, #5a54e8);
+    color: #fff;
+    border-radius: var(--radius-md, 12px);
+    height: fit-content;
+    padding: 10px 16px;
+}
+
+.goodAnswerFree, .wrongAnswerFree {
+    padding: 8px 14px;
+}
+
+.freeAnswerInput {
+    background-color: transparent;
+    color: inherit;
+    font-size: 1.05rem;
+    text-align: center;
+    border: none;
+    border-bottom: solid 2px #fff;
+    width: 100%;
+}
+
+.freeAnswerInput:focus {
+    outline: none;
+}
+
+.freeShowArea {
+    justify-self: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
+    gap: 8px;
 }
 
-.intitulé{
-    margin-top: 2%;
-    font-size: 180%;
-}
-
-.answerArea{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    min-height: 60vh;
-    width: 100%
-}
-
-.gameAnswerQcm, .gameAnswerQcmShow{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40%;
-    height: 20vh;
-    max-height: 20vh;
-    text-align: center;
-    cursor:pointer;
-    border: solid 4px #0f1943;
-    background-color: #172764 ;
-    color : white;
-    border-radius: 2vw;
-    margin: 3%;
-    font-size: larger !important;
-}
-
-.modeSelectorDccButton{
+/* Sélecteur de mode DCC (Duo/Carré/Cash) : hors périmètre des plateaux
+   List/Timer/Pick&Ban/Duel/Grid retravaillés ci-dessus, juste réaligné sur
+   la palette plutôt que restructuré. */
+.modeSelectorDccButton {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -46,164 +211,18 @@
     height: 15vh !important;
     max-height: 15vh !important;
     text-align: center;
-    text-justify: center;
-    cursor:pointer;
+    cursor: pointer;
     font-size: 2vw !important;
-    border: solid 4px #263FA6 !important;
-    background-color: #2A46B7 !important;
-    color : white !important;
-    border-radius: 2vw;
-    margin: 3%;
+    border: solid 4px var(--primary-dark, #4038c9) !important;
+    background-color: var(--primary-color, #5a54e8) !important;
+    color: white !important;
+    border-radius: var(--radius-lg, 20px);
 }
 
-.modeSelectorDcc{
+.modeSelectorDcc {
     display: flex;
     flex-direction: column;
     width: 100%;
     align-items: center;
     justify-content: space-between;
-
-}
-
-@keyframes showGood {
-    0% {
-        border-color: transparent;
-        color: inherit;
-        transform: scale(1);
-    }
-    100% {
-        border-color: #28e269;
-        color: #28e269;
-        transform: scale(1.03);
-    }
-}
-
-@keyframes showWrong {
-    0% {
-        border-color: transparent;
-        color: inherit;
-        transform: scale(1);
-    }
-    100% {
-        border-color: #ee2f56;
-        color: #ee2f56;
-        transform: scale(1);
-    }
-}
-  
-
-
-.goodAnswer{
-    border : solid 4px #28e269;
-    color : #28e269;
-    animation: showGood 0.5s ease-in;
-}
-
-.wrongAnswer{
-    border : solid 4px #ee2f56;
-    color : #ee2f56;
-    animation: showWrong 0.2s ease-in;
-}
-
-.wrongAnswer::before, .wrongAnswerFree::before {
-    content: "✗ "; /* ou "X" si tu préfères */
-    color: #ee2f56;
-    font-weight: bold;
-    margin-right: 4px;
-}
-
-.goodAnswer::before, .goodAnswerFree::before {
-    content: "✓ "; /* ou "X" si tu préfères */
-    color: #28e269;
-    font-weight: bold;
-    margin-right: 4px;
-}
-
-.gameAnswerQcm:hover, .gaSelected{
-    border : solid 4px #FBA40E;
-    color : #FBA40E;
-}
-
-.buttonSendAnswer {
-    border-radius: 14px !important;
-    white-space: nowrap;
-    color: #5a54e8!important;
-    background-color: #54e889 !important;
-    text-transform: none !important;
-    font-size: clamp(14px, 2vw, 100px)!important;
-    font-weight: 550 !important;
-    font-family: 'Open Sans', sans-serif !important;
-    height: auto !important;
-    min-height: unset !important;
-    
-    margin: 3vw!important;
-    padding: 3vw;
-}
-
-@keyframes flashAnimation {
-    0%,50%, 100% {
-        border : solid 4px #FBA40E;
-        color : #FBA40E;
-        background-color: #FBA40E;
-    }
-    25%, 75% {
-        background-color: #fff7aa ; 
-        border : solid 4px #fff7aa;
-        color : #fff7aa
-    }
-}
-
-@keyframes flashFreeAnimation {
-    0%,50%, 100% {
-        color : #FBA40E;
-        background-color: #FBA40E;
-        border-bottom:solid 2px #FBA40E;
-    }
-    25%, 75% {
-        background-color: #fff7aa ; 
-        color : #fff7aa;
-        border-bottom: solid 2px #fff7aa;
-    }
-}
-
-.flash {
-    animation: flashAnimation 0.5s  !important;
-}
-
-.flashFree {
-    animation: flashFreeAnimation 0.5s  !important;
-}
-
-.freeAnswerInputArea, .goodAnswerFree, .wrongAnswerFree{
-    align-self: center;
-    justify-self: center;
-    background-color: #7094ff;
-    color : white;
-    border-radius: 1vw;
-    height: fit-content;
-}
-
-.goodAnswerFree, .wrongAnswerFree{
-    height: 3vh;
-    padding : max(0.7vw, 10px);
-}
-
-.freeAnswerInput{
-    background-color: transparent;
-    color : inherit;
-    margin: 0.5vw;
-    padding-bottom: 2%;
-    border : none;
-    border-bottom: solid 2px #0f1943;
-}
-
-.freeAnswerInput:focus{
-    outline: none;
-}
-
-.freeShowArea{
-    justify-self: center;
-    display : flex;
-    flex-direction: column;
-    align-items: center;
 }

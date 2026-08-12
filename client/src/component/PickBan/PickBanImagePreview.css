@@ -1,0 +1,71 @@
+.pbImagePreviewOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 25, 67, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: var(--spacing-md, 20px);
+}
+
+.pbImagePreviewPanel {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 1100px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: var(--spacing-lg, 24px);
+}
+
+.pbImagePreviewHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-md, 20px);
+}
+
+.pbImagePreviewHeader h2 {
+    color: var(--primary-deep);
+    font-size: 1.2rem;
+}
+
+.pbImagePreviewClose {
+    border: none;
+    background: var(--bg-light);
+    color: var(--text-medium);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.pbImagePreviewClose:hover {
+    background: var(--danger-color);
+    color: #fff;
+}
+
+.pbImagePreviewEmpty {
+    color: var(--text-light);
+    font-style: italic;
+    text-align: center;
+    padding: var(--spacing-lg, 24px) 0;
+}
+
+.pbImagePreviewGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 14px;
+}
+
+.pbImagePreviewImg {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+}

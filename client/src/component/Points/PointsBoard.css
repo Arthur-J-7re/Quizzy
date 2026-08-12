@@ -1,0 +1,200 @@
+.pointsBoardContainer {
+    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.pointsBoardWaiting {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-medium);
+    font-size: 1.1rem;
+}
+
+.pointsBoardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.pointsPhase {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-deep);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pointsCountdown {
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: var(--radius-xl);
+    padding: 4px 14px;
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.pointsHostControls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.pointsHostAdvanceButton {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 8px 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.pointsBoardError {
+    background: rgba(237, 37, 78, 0.12);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+}
+
+.pointsBoardLayout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.pointsQuestionZone {
+    flex: 1 1 500px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.pointsLevelBanner {
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    margin-bottom: 14px;
+}
+
+.pointsWaiting {
+    text-align: center;
+    color: var(--text-medium);
+    padding: 20px;
+}
+
+.pointsScoreboard {
+    flex: 0 1 260px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.pointsScoreboard ul {
+    list-style: none;
+}
+
+.pointsScoreboard li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+}
+
+.pointsScoreboard li.self {
+    font-weight: 700;
+    color: var(--primary-deep);
+}
+
+.pointsPlayerName {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pointsResult {
+    margin-top: 24px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.pointsResult ul {
+    list-style: none;
+}
+
+.pointsResult li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+}
+
+.pointsResult li.ok {
+    color: var(--secondary-dark);
+}
+
+.pointsResult li.ko {
+    color: var(--danger-color);
+}
+
+.pointsResult li.neutral {
+    color: var(--text-light);
+}
+
+.pointsPlayerAnswer {
+    flex: 1;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pointsPlayerPoints {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pointsRanking {
+    margin-top: 28px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.pointsRanking ol {
+    list-style: none;
+    counter-reset: rank;
+}
+
+.pointsRanking li {
+    counter-increment: rank;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.pointsRanking li::before {
+    content: counter(rank) ".";
+    font-weight: 700;
+    color: var(--primary-color);
+    min-width: 24px;
+}
+
+.pointsRanking li strong {
+    margin-left: auto;
+}

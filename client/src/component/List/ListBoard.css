@@ -1,0 +1,202 @@
+.listBoardContainer {
+    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.listBoardWaiting {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-medium);
+    font-size: 1.1rem;
+}
+
+.listBoardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.listPhase {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-deep);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.listCountdown {
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: var(--radius-xl);
+    padding: 4px 14px;
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.listHostControls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: 12px var(--spacing-md);
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.listHostAdvanceRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.listHostNextTitle {
+    color: var(--text-medium);
+    font-style: italic;
+}
+
+.listHostAdvanceButton {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 8px 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.listHostShowButtons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-medium);
+    font-size: 0.9rem;
+}
+
+.listHostShowButtons button {
+    background: none;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: var(--radius-md);
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.listBoardError {
+    background: rgba(237, 37, 78, 0.12);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+}
+
+.listBoardLayout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.listQuestionZone {
+    flex: 1 1 500px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.listWaiting {
+    text-align: center;
+    color: var(--text-medium);
+    padding: 20px;
+}
+
+.listPlayerName {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.listResult {
+    margin-top: 24px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.listResult ul {
+    list-style: none;
+}
+
+.listResult li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+}
+
+.listResult li.ok {
+    color: var(--secondary-dark);
+}
+
+.listResult li.ko {
+    color: var(--danger-color);
+}
+
+.listResult li.neutral {
+    color: var(--text-light);
+}
+
+.listPlayerAnswer {
+    flex: 1;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.listPlayerPoints {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.listRanking {
+    margin-top: 28px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.listRanking ol {
+    list-style: none;
+    counter-reset: rank;
+}
+
+.listRanking li {
+    counter-increment: rank;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.listRanking li::before {
+    content: counter(rank) ".";
+    font-weight: 700;
+    color: var(--primary-color);
+    min-width: 24px;
+}
+
+.listRanking li strong {
+    margin-left: auto;
+}

@@ -5,14 +5,14 @@ import { Question } from "shared-types";
 
 
 
-export default function VfAnswer( { question, socket, room_id, username, canAnswer }: { question: Question, socket: any, room_id : string, username: string, canAnswer: boolean }) {
+export default function VfAnswer( { question, socket, room_id, username, canAnswer, answerEvent }: { question: Question, socket: any, room_id : string, username: string, canAnswer: boolean, answerEvent?: string }) {
     const [flash, setFlash] = useState(false);
     const [answering, setAnswering] = useState(true);
     const [selectedAnswer, setSelectedAnswer] =  useState("");
     const [answer,setAnswer] = useState("");
     
     const sendAnswer = () =>{
-        socket.emit("answerToQuestion", {question : question, answer : selectedAnswer, room_id : room_id, username: username});
+        socket.emit(answerEvent ?? "answerToQuestion", {question : question, answer : selectedAnswer, room_id : room_id, username: username});
     }
 
     
@@ -35,6 +35,15 @@ export default function VfAnswer( { question, socket, room_id, username, canAnsw
             }, 500);
         });
     },[socket])
+
+    // Cf. QcmAnswer : même instance réutilisée d'une question à l'autre,
+    // sans quoi la sélection/le flash précédents restaient affichés.
+    useEffect(() => {
+        setAnswering(true);
+        setSelectedAnswer("");
+        setAnswer("");
+        setFlash(false);
+    }, [question.question_id])
 
     
 

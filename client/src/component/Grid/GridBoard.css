@@ -1,0 +1,249 @@
+.gridBoardContainer {
+    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.gridBoardWaiting {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-medium);
+    font-size: 1.1rem;
+}
+
+.gridBoardHeader {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.gridPhase {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-deep);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.gridCountdown {
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: var(--radius-xl);
+    padding: 4px 14px;
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.gridMyTheme {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-medium);
+}
+
+.gridThemeBadge {
+    color: #fff;
+    padding: 5px 14px;
+    border-radius: var(--radius-xl);
+    font-weight: 600;
+}
+
+.gridBoardError {
+    background: rgba(237, 37, 78, 0.12);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+}
+
+.gridBoardLayout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.gridBoard {
+    display: grid;
+    gap: 10px;
+    flex: 1 1 420px;
+}
+
+/* Les couleurs n'apparaissent qu'en mémorisation : transition douce à la
+   bascule pour que la disparition soit lisible. */
+.gridCell {
+    aspect-ratio: 1;
+    border: 2px solid rgba(15, 25, 67, 0.12);
+    border-radius: var(--radius-md);
+    background: var(--bg-white);
+    cursor: default;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-light);
+    transition: background-color 0.6s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gridBoard.memorizing .gridCell {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.gridCell.pickable {
+    cursor: pointer;
+    border-color: var(--secondary-color);
+}
+
+.gridCell.pickable:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(40, 226, 105, 0.35);
+}
+
+.gridCell.active {
+    box-shadow: 0 0 0 4px var(--warning-color);
+}
+
+.gridCell.taken {
+    color: #fff;
+    cursor: not-allowed;
+}
+
+.gridCell.taken.correct {
+    box-shadow: inset 0 0 0 3px var(--secondary-dark);
+}
+
+.gridCell.taken.wrong {
+    box-shadow: inset 0 0 0 3px var(--danger-color);
+    opacity: 0.75;
+}
+
+.gridCellMark {
+    font-size: 1.6rem;
+}
+
+.gridScoreboard {
+    flex: 0 0 240px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.gridScoreboard h3 {
+    margin-bottom: 12px;
+    color: var(--primary-color);
+}
+
+.gridScoreboard ul {
+    list-style: none;
+}
+
+.gridScoreboard li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+}
+
+.gridScoreboard li.current {
+    background: rgba(40, 226, 105, 0.14);
+}
+
+.gridPlayerName {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.gridDot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.gridQuestionZone {
+    margin-top: 24px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.gridQuestionZone.waiting {
+    text-align: center;
+    color: var(--text-medium);
+}
+
+.gridQuestionTheme {
+    display: inline-block;
+    color: #fff;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: var(--radius-xl);
+    margin-bottom: 16px;
+}
+
+.gridResult {
+    margin-top: 16px;
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.gridResult.ok {
+    background: rgba(40, 226, 105, 0.15);
+    border: 1px solid var(--secondary-dark);
+}
+
+.gridResult.ko {
+    background: rgba(237, 37, 78, 0.12);
+    border: 1px solid var(--danger-color);
+}
+
+.gridRanking {
+    margin-top: 28px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.gridRanking ol {
+    list-style: none;
+    counter-reset: rank;
+}
+
+.gridRanking li {
+    counter-increment: rank;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.gridRanking li::before {
+    content: counter(rank) ".";
+    font-weight: 700;
+    color: var(--primary-color);
+    min-width: 24px;
+}
+
+.gridRanking li strong {
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .gridScoreboard {
+        flex: 1 1 100%;
+    }
+}

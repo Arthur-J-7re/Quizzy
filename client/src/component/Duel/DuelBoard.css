@@ -1,0 +1,147 @@
+.duelBoardContainer {
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.duelBoardWaiting {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-medium);
+    font-size: 1.1rem;
+}
+
+.duelBoardHeader {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.duelPhase {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-deep);
+}
+
+.duelProgress {
+    color: var(--text-medium);
+    font-size: 0.95rem;
+}
+
+.duelBoardError {
+    background: rgba(237, 37, 78, 0.12);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+}
+
+.duelClocks {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.duelClock {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: var(--spacing-md);
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.duelClock.active {
+    border-color: var(--secondary-color);
+    background: rgba(40, 226, 105, 0.1);
+}
+
+.duelClock.low .duelClockTime {
+    color: var(--danger-color);
+}
+
+.duelClockName {
+    font-weight: 600;
+    color: var(--text-medium);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.duelClockTime {
+    font-size: 2rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--primary-color);
+}
+
+.duelQuestionZone {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    min-height: 120px;
+}
+
+.duelWaiting {
+    text-align: center;
+    color: var(--text-medium);
+    padding: 20px;
+}
+
+.duelLastResult {
+    margin-top: 12px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.duelLastResult.ok {
+    color: var(--secondary-dark);
+}
+
+.duelLastResult.ko {
+    color: var(--danger-color);
+}
+
+.duelRanking {
+    margin-top: 28px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.duelRanking ol {
+    list-style: none;
+}
+
+.duelRanking li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    font-weight: 600;
+}
+
+.duelRanking li.winner {
+    color: var(--secondary-dark);
+    font-size: 1.1rem;
+}
+
+@media (max-width: 600px) {
+    .duelClocks {
+        flex-direction: column;
+    }
+}

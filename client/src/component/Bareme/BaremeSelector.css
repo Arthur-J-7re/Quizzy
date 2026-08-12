@@ -1,0 +1,42 @@
+.baremeSelector {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.baremeClassicRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.baremeInlineLabel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--primary-deep);
+}
+
+.baremeDifficultyLegend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.baremeDifficultyChip {
+    color: #fff;
+    border-radius: var(--radius-md);
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.baremeDifficultyHint {
+    width: 100%;
+    color: var(--text-medium);
+    font-size: 0.85rem;
+    margin: 0;
+}

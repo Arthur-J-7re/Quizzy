@@ -2,15 +2,16 @@ import { Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import "./GameQuestionAnswer.css"
 import { Socket } from "socket.io-client";
+import { Question } from "shared-types";
 
 
-export default function FreeAnswer( { question, socket, room_id, username, canAnswer }: { question: unknown, socket: Socket, room_id : string, username: string, canAnswer: boolean }) {
+export default function FreeAnswer( { question, socket, room_id, username, canAnswer, answerEvent }: { question: Question, socket: Socket, room_id : string, username: string, canAnswer: boolean, answerEvent?: string }) {
     const [flash, setFlash] = useState(false);
     const [answering, setAnswering] = useState(true);
     const [selectedAns, setSelectedAns] = useState("");
     const [answer, setAnswer] =  useState("");
     const sendAnswer = () =>{
-        socket.emit("answerToQuestion", {question : question, answer : selectedAns, room_id : room_id, username: username});
+        socket.emit(answerEvent ?? "answerToQuestion", {question : question, answer : selectedAns, room_id : room_id, username: username});
     }
     
 
@@ -31,6 +32,15 @@ export default function FreeAnswer( { question, socket, room_id, username, canAn
             }, 500);
         });
     },[socket])
+
+    // Cf. QcmAnswer : même instance réutilisée d'une question à l'autre,
+    // sans quoi la saisie/le flash précédents restaient affichés.
+    useEffect(() => {
+        setAnswering(true);
+        setSelectedAns("");
+        setAnswer("");
+        setFlash(false);
+    }, [question.question_id])
 
     const renderAnswer = () => {
         if (answer === ""){
