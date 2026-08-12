@@ -1,0 +1,30 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: quizzy-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: localdevpassword
+      MONGO_INITDB_DATABASE: quizzy
+    volumes:
+      - quizzy-mongo-data:/data/db
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: quizzy-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: localdevpassword
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      - mongo
+
+volumes:
+  quizzy-mongo-data:
