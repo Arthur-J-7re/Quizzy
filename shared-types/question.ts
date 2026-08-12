@@ -13,23 +13,32 @@ export enum DCCMode {
 
 export interface IQuestionBase {
   question_id: number;
-  author: number;
+  // Nommé "creator" et non "author" : c'est le nom du champ en base, et c'est
+  // la clé que le serveur comme le client manipulent déjà partout.
+  creator: number;
   mode: Mode;
   title: string;
   private: boolean;
   quizz: number[];
   playlist: number[];
-  level: number;
+  level?: number;
   report?: { date: Date; reporter: number }[];
   played?: number;
   succeed?: number;
   tags?: string[];
+  // Absent = "sans dossier" (défaut). Dossier libre, à plat, propre à
+  // chaque créateur (cf. shared-types/folder.ts).
+  folder_id?: number;
 }
 
 export interface IQCMQuestion extends IQuestionBase {
   mode: Mode.QCM;
   choices: { ans1: string; ans2: string; ans3: string; ans4: string };
   answer: number;
+  // Posé par le serveur : ordre d'affichage des 4 propositions (index 1-4),
+  // identique pour tous les joueurs d'une room. `answer` reste l'index
+  // canonique, non affecté par cet ordre d'affichage.
+  choiceOrder?: number[];
 }
 
 export interface IFreeQuestion extends IQuestionBase {
@@ -43,6 +52,18 @@ export interface IDCCQuestion extends IQuestionBase {
   duo: number;
   answer: number;
   cash: string[];
+  // Posé par le serveur quand le quizz force un type de question (voir
+  // shared-types/scoring.ts) : le client doit jouer ce sous-mode directement
+  // au lieu de proposer le sélecteur Duo/Carré/Cash.
+  forcedDccMode?: "CARRE" | "DUO" | "CASH";
+  // Posé par le serveur : ordre d'affichage des 4 propositions en mode Carré
+  // (index 1-4), identique pour tous les joueurs d'une room.
+  choiceOrder?: number[];
+  // Posé par le serveur : les 2 propositions du mode Duo (la bonne réponse et
+  // son "duo"), déjà résolues en texte et mélangées — le client n'a jamais
+  // besoin de `answer` (masqué tant que la question n'est pas révélée) pour
+  // les afficher, contrairement à l'ancienne implémentation client-only.
+  duoChoices?: { id: number; value: string }[];
 }
 
 export interface IVFQuestion extends IQuestionBase {
