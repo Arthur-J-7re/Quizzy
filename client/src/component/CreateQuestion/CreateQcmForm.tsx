@@ -50,9 +50,9 @@ export function CreateQCMForm({
             setShowMessage(true);
             return false;
         }
-    
-        if (!qcmData.choices.ans1.trim() || 
-            !qcmData.choices.ans2.trim() || 
+
+        if (!qcmData.choices.ans1.trim() ||
+            !qcmData.choices.ans2.trim() ||
             !qcmData.choices.ans3.trim() || 
             !qcmData.choices.ans4.trim()) {
             setMessageInfo("Toutes les réponses doivent être remplies !");
@@ -94,6 +94,7 @@ export function CreateQCMForm({
                             type='checkbox' 
                             checked={qcmData.answer == 1}  
                             className='coloredAnswer'
+                        readOnly
                         ></input>
                         <label className='questionCreation-label'>Réponse 1</label>
                     </div>
@@ -112,6 +113,7 @@ export function CreateQCMForm({
                         type='checkbox' 
                         checked={qcmData.answer == 2}
                         className='coloredAnswer'
+                    readOnly
                     ></input>
                     <label className='questionCreation-label'>Réponse 2</label>
                     </div>
@@ -130,6 +132,7 @@ export function CreateQCMForm({
                         type='checkbox' 
                         checked={qcmData.answer == 3}
                         className='coloredAnswer'
+                    readOnly
                     ></input>
                     <label className='questionCreation-label'>Réponse 3</label>
                     </div>
@@ -148,6 +151,8 @@ export function CreateQCMForm({
                         type='checkbox' 
                         checked={qcmData.answer == 4}
                         className='coloredAnswer'
+                        
+                    readOnly
                         
                     ></input>
                     <label className='questionCreation-label'>Réponse 4</label>
@@ -184,7 +189,7 @@ export function CreateQCMForm({
                 placeholder="Ajouter un tag"
                 />
             ) : (
-                <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
+                <p className="questionTagLimit">Maximum 5 tags atteints</p>
             )}
         </div>
             <Button className='SendButton' onClick={()=>sendQcm()}>{question_id === 0 ? "Finaliser la création de" : "Sauvegarder"} la question</Button>

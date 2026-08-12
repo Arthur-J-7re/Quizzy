@@ -1,0 +1,42 @@
+.quizzModeSelector {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin: 24px 0;
+}
+
+.quizzModeSelector h3 {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 12px;
+    color: var(--primary-deep, #0f1943);
+}
+
+.quizzModeButton {
+    border: none;
+    cursor: pointer;
+    padding: 10px 22px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--primary-color, #5a54e8);
+    background-color: var(--accent-soft, #54e889);
+    transition: background-color 0.2s ease;
+}
+
+.quizzModeButton.first {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.quizzModeButton.last {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.quizzModeButton.selectedMode,
+.quizzModeButton.notSelectedMode:hover {
+    background-color: var(--secondary-hover, #43bc6e);
+}

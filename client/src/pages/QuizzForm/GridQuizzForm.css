@@ -1,0 +1,173 @@
+.gridQuizzPage {
+    min-height: 100vh;
+    background: var(--bg-light);
+    padding-bottom: 60px;
+}
+
+/*
+ * Nommée spécifiquement plutôt que ".container" : cette appli charge tout son
+ * CSS globalement (pas de scoping par composant), et ".container" est aussi
+ * défini par Login.css avec des règles totalement différentes (display:flex,
+ * height:100vh, centrage) — un nom générique partagé entre plusieurs pages se
+ * fait donc écraser selon l'ordre de chargement des styles.
+ */
+.gridQuizzContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-md, 20px);
+}
+
+.gridQuizzPage h1 {
+    margin: 24px 0 8px;
+    color: var(--primary-deep);
+}
+
+.gridQuizzPage .filler {
+    width: 100%;
+    text-align: center;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.gridIntro {
+    max-width: 720px;
+    color: var(--text-medium);
+    margin-bottom: 24px;
+}
+
+.gridSection {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.gridSection h2 {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    color: var(--primary-color);
+}
+
+.gridHint {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+}
+
+.gridInlineLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-weight: 600;
+}
+
+.gridSliders {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+}
+
+.gridSliders label {
+    display: block;
+    font-weight: 600;
+    color: var(--primary-deep);
+}
+
+.gridCounts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 16px 0;
+    color: var(--text-medium);
+}
+
+.gridCounts strong {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+/* Aperçu de la répartition des couleurs */
+.gridPreview {
+    display: grid;
+    gap: 6px;
+    max-width: 420px;
+}
+
+.gridPreviewCell {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    opacity: 0.9;
+}
+
+.gridSearchField {
+    margin: 12px 0;
+}
+
+.gridThemeList,
+.gridQuestionList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.gridThemeChip,
+.gridQuestionChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: var(--radius-xl);
+    border: 2px solid #e0e0e0;
+    background: var(--bg-white);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.gridThemeChip:hover,
+.gridQuestionChip:hover {
+    border-color: var(--secondary-color);
+}
+
+.gridThemeChip.picked,
+.gridQuestionChip.picked {
+    background: rgba(40, 226, 105, 0.12);
+    border-color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.gridThemeChip em {
+    font-style: normal;
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+
+.gridThemeDot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.gridProblems {
+    list-style: none;
+    padding: 14px 18px;
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--radius-md);
+    background: rgba(251, 164, 14, 0.12);
+    border: 1px solid var(--warning-color);
+    color: #7a4e00;
+}
+
+.gridProblems li + li {
+    margin-top: 6px;
+}
+
+.gridActions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+}

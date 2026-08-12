@@ -58,7 +58,7 @@ export function CreateFreeForm({
             setShowMessage(true);
             return false;
         }
-    
+
         if (freeData.answers.some(answer => answer.trim() === "")) {
             setMessageInfo("Toutes les réponses doivent être remplies !");
             setShowMessage(true)
@@ -134,7 +134,7 @@ export function CreateFreeForm({
                 placeholder="Ajouter un tag"
                 />
             ) : (
-                <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
+                <p className="questionTagLimit">Maximum 5 tags atteints</p>
             )}
         </div>
         

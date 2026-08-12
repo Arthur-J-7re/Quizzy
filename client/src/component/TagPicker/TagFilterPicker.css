@@ -1,0 +1,72 @@
+.tagFilterPicker {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tagFilterToggle {
+    align-self: flex-start;
+    background: none;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: var(--radius-md);
+    padding: 6px 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.tagFilterPanel {
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid transparent;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.tagFilterPanel.modeChoose {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.4);
+}
+
+.tagFilterPanel.modeBlock {
+    background: rgba(237, 37, 78, 0.1);
+    border-color: var(--danger-color);
+}
+
+.tagFilterModeSwitch {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--primary-deep);
+}
+
+.tagFilterList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.tagFilterCheckbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.tagFilterEmpty {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+}
+
+.tagFilterHint {
+    color: var(--text-medium);
+    font-size: 0.8rem;
+    margin: 0;
+}

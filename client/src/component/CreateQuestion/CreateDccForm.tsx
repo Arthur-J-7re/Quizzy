@@ -68,7 +68,7 @@ export function CreateDCCForm({
             setShowMessage(true);
             return false;
         }
-    
+
         if (dccData.cash.some(answer => answer.trim() === "")) {
             setMessageInfo("Toutes les réponses Cash doivent être remplies !");
             setShowMessage(true);
@@ -116,13 +116,15 @@ export function CreateDCCForm({
                         type='checkbox' 
                         checked={dccData.answer == 1}
                         className='coloredAnswer'
+                        readOnly
                         onClick={() => {setDccData({...dccData, answer:1})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 1</label>
                     <input 
                         type='checkbox' 
                         checked={duoContain(1)}
-                        className='coloredAnswer'
+                        className='coloredAnswer duoCheckbox'
+                        readOnly
                         onClick={() => manageDuo(1)}
                     ></input>
                 </div>
@@ -140,13 +142,15 @@ export function CreateDCCForm({
                         type='checkbox' 
                         checked={dccData.answer == 2}
                         className='coloredAnswer'
+                        readOnly
                         onClick={() => {setDccData({...dccData, answer:2})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 2</label>
                     <input 
                     type='checkbox' 
                     checked={duoContain(2)}
-                    className='coloredAnswer'
+                    className='coloredAnswer duoCheckbox'
+                    readOnly
                     onClick={() => manageDuo(2)}
                     ></input>
                 </div>
@@ -164,13 +168,15 @@ export function CreateDCCForm({
                         type='checkbox' 
                         checked={dccData.answer == 3}
                         className='coloredAnswer'
+                        readOnly
                         onClick={() => {setDccData({...dccData, answer:3})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 3</label>
                     <input 
                     type='checkbox' 
                     checked={duoContain(3)}
-                    className='coloredAnswer'
+                    className='coloredAnswer duoCheckbox'
+                    readOnly
                     onClick={() => manageDuo(3)}
                     ></input>
                 </div>
@@ -188,13 +194,15 @@ export function CreateDCCForm({
                         type='checkbox' 
                         checked={dccData.answer == 4}
                         className='coloredAnswer'
+                        readOnly
                         onClick={() => {setDccData({...dccData, answer:4})}}
                     ></input>
                     <label className='questionCreation-label'>Réponse 4</label>
                     <input 
                     type='checkbox' 
                     checked={duoContain(4)}
-                    className='coloredAnswer'
+                    className='coloredAnswer duoCheckbox'
+                    readOnly
                     onClick={() => manageDuo(4)}
                     ></input>
                 </div>
@@ -210,7 +218,7 @@ export function CreateDCCForm({
         <div className='answersList'>
             <div className='tagSpanDispencer'>
                 {answers.map(answer => (
-                <span key={answer} onClick={() => removeAnswer(answer)} className="answer" style={{ margin: "5px", cursor: "pointer", background: "#ddd", padding: "5px", borderRadius: "5px" }}>
+                <span key={answer} onClick={() => removeAnswer(answer)} className="answer">
                     {answer} ❌
                 </span>
                 ))}
@@ -251,7 +259,7 @@ export function CreateDCCForm({
                 placeholder="Ajouter un tag"
                 />
             ) : (
-                <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
+                <p className="questionTagLimit">Maximum 5 tags atteints</p>
             )}
         </div>
         

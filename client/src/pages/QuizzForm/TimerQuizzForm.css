@@ -1,0 +1,123 @@
+.timerQuizzPage {
+    min-height: 100vh;
+    background: var(--bg-light);
+    padding-bottom: 60px;
+}
+
+.timerQuizzContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-md, 20px);
+}
+
+.timerQuizzPage h1 {
+    margin: 24px 0 8px;
+    color: var(--primary-deep);
+}
+
+.timerQuizzPage .filler {
+    width: 100%;
+    text-align: center;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.timerIntro {
+    max-width: 720px;
+    color: var(--text-medium);
+    margin-bottom: 24px;
+}
+
+.timerSection {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.timerSection h2 {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    color: var(--primary-color);
+}
+
+.timerSection label {
+    display: block;
+    font-weight: 600;
+    color: var(--primary-deep);
+}
+
+.timerHint {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+}
+
+.timerInlineLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-weight: 600;
+}
+
+.timerSearchField {
+    margin: 12px 0;
+}
+
+.timerThemeList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.timerThemeChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: var(--radius-xl);
+    border: 2px solid #e0e0e0;
+    background: var(--bg-white);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.timerThemeChip:hover {
+    border-color: var(--secondary-color);
+}
+
+.timerThemeChip.picked {
+    background: rgba(40, 226, 105, 0.12);
+    border-color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.timerThemeChip em {
+    font-style: normal;
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+
+.timerProblems {
+    list-style: none;
+    padding: 14px 18px;
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--radius-md);
+    background: rgba(251, 164, 14, 0.12);
+    border: 1px solid var(--warning-color);
+    color: #7a4e00;
+}
+
+.timerProblems li + li {
+    margin-top: 6px;
+}
+
+.timerActions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+}

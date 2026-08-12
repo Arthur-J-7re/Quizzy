@@ -1,0 +1,61 @@
+.themeCreationPage {
+    min-height: 100vh;
+    background: var(--bg-light);
+    padding-bottom: 60px;
+}
+
+/* Nom spécifique, pas ".container" : cette appli charge tout son CSS
+   globalement (pas de scoping par composant), et ".container" est déjà
+   défini avec des règles incompatibles par Login.css et QuizzForm.css. */
+.themeCreationContent {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--spacing-md, 20px);
+}
+
+.themeCreationPage h1 {
+    margin: 24px 0 8px;
+    color: var(--primary-deep, #0f1943);
+}
+
+.themeCreationPage .filler {
+    width: 100%;
+    text-align: center;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.themeCreationIntro {
+    max-width: 720px;
+    color: var(--text-medium);
+    margin-bottom: 24px;
+}
+
+.themeSection {
+    background: var(--bg-white, #fff);
+    border-radius: var(--radius-lg, 20px);
+    padding: var(--spacing-lg, 30px);
+    margin-bottom: var(--spacing-md, 20px);
+    box-shadow: var(--shadow-sm);
+}
+
+.themeSection h2 {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    color: var(--primary-color);
+}
+
+.themeFolderSelect {
+    min-width: 220px;
+    margin-top: 12px;
+}
+
+.themeTitleInput {
+    width: 100%;
+}
+
+.themeActions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+}

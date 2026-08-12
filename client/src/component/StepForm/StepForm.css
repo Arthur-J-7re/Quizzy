@@ -1,0 +1,78 @@
+.stepFormContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--bg-light, #f5f8ff);
+    border: 2px solid #e0e0e0;
+    border-radius: var(--radius-md, 12px);
+    padding: var(--spacing-md, 20px);
+}
+
+.stepFormHeaderRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.stepFormHeaderRow > * {
+    flex: 1 1 220px;
+}
+
+.stepFormContainer .filler {
+    color: var(--text-light);
+    font-style: italic;
+    margin: 0;
+}
+
+.stepFormSliderLabel {
+    display: block;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.stepFormDynamicFields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.stepFormDynamicToggleRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+    background: var(--bg-white, #fff);
+    border: 1px solid #e0e0e0;
+    border-radius: var(--radius-sm, 8px);
+    padding: 8px 12px;
+}
+
+.stepFormTogglesRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 32px;
+}
+
+.stepFormToggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.stepFormCountsRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.stepFormCountsRow > * {
+    flex: 1 1 160px;
+}
+
+.stepFormDeleteRow {
+    display: flex;
+    justify-content: flex-end;
+}

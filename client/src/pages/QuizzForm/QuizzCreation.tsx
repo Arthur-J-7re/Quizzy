@@ -1,139 +1,160 @@
-import { Button, Switch } from "@mui/material";
-import {Remove, Add} from "@mui/icons-material";
+import { Button, FormControl, InputLabel, MenuItem, Select, Slider, Switch, TextField } from "@mui/material";
 import { Banner } from "../../component/Banner/Banner"
-import { useNavigate, useLocation } from "react-router-dom"
-import { useContext, useEffect, useState, useRef, useCallback } from "react";
+import { QuizzModeNav } from "../../component/QuizzModeNav/QuizzModeNav"
+import { useNavigate, useLocation, useParams } from "react-router-dom"
+import { useContext, useEffect, useState, useCallback } from "react";
 import { AuthContext } from "../../context/authentContext";
-import QuestionCard from "../../component/Card/EntityCard/QuestionCard";
-import Toast from "../../tools/toast/toast"; 
+import Toast from "../../tools/toast/toast";
 import "../CommonCss.css";
 import "../../component/Card/Card.css";
 import "./QuizzForm.css";
-import { Searchbar } from "../../component/Searchbar/Searchbar";
 import makeRequest from "../../tools/requestScheme";
-import { getQuestionFilter } from "../../tools/props/Props";
+import { getForcedQuestionTypeOptions } from "../../tools/props/Props";
+import { getQuestionModeLabel } from "../../tools/text/text";
+import { useQuestionPicker } from "../../tools/hooks/useQuestionPicker";
+import QuestionPicker from "../../component/QuestionPicker/QuestionPicker";
 
 
 export function QuizzCreation () {
     const navigate = useNavigate();
     const location = useLocation();
-    const [quizz, setQuizz] =useState((location.state?.quizz && location.pathname === "/modify-a-quizz")|| {title : "", Private : false, questions : [], tags: []});
-    const [creating, setCreating] = useState(location.pathname === "/modify-a-quizz" ? false : true);
-    let list = quizz?.questions;
+    const { quizz_id: quizzIdParam } = useParams();
+    // .startsWith plutôt qu'une égalité stricte : /modify-a-quizz/:quizz_id
+    // (ouverture directe par id, ctrl/cmd/molette-clic) doit aussi compter.
+    const isModifying = location.pathname.startsWith("/modify-a-quizz");
+    // Précédence des opérateurs : `a && b || c` groupe comme `(a && b) || c`, donc
+    // avec `b` une comparaison (un booléen), l'ancienne expression valait `true`
+    // (pas le quizz) au premier rendu en édition — le cache de sélection du
+    // picker de questions n'avait alors aucun id à résoudre via /question/by-ids.
+    const [quizz, setQuizz] = useState(
+        (location.state?.quizz && isModifying)
+            ? location.state.quizz
+            : { title: "", Private: false, questions: [], tags: [] }
+    );
+    const [creating, setCreating] = useState(!isModifying);
+    const [loadingQuizz, setLoadingQuizz] = useState(false);
+    const [quizzNotFound, setQuizzNotFound] = useState(false);
+
+    // Ouverture directe (nouvel onglet, ctrl/cmd/molette-clic, lien partagé) :
+    // pas de location.state dans ce cas, on résout le quizz depuis l'id de
+    // l'URL — l'effet de resynchronisation plus bas s'occupe ensuite de
+    // repeupler le formulaire dès que `quizz` change.
+    useEffect(() => {
+        if (quizz?.quizz_id || !quizzIdParam) return;
+        setLoadingQuizz(true);
+        makeRequest(`/quizz/by-ids?ids=${quizzIdParam}`)
+            .then((qs: any[]) => {
+                if (qs && qs[0]) setQuizz(qs[0]);
+                else setQuizzNotFound(true);
+            })
+            .catch(() => setQuizzNotFound(true))
+            .finally(() => setLoadingQuizz(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [quizzIdParam]);
+
     const auth = useContext(AuthContext);
     const user_id = auth?.user?.id || "0";
-    const [questions, setQuestions] = useState([]);
-    const [questionCards, setQuestionCards] = useState<QuestionCard[]>([]);
+    const picker = useQuestionPicker();
     const [title, setTitle] = useState(quizz?.title || "");
 
-    const [isPrivate, setPrivate] = useState(quizz?.private || true);
-    const [questionCardsOfQuizz, setQuestionCardsOfQuizz] = useState<QuestionCard[]>([]);
+    const [isPrivate, setPrivate] = useState(quizz?.private ?? true);
+    const [answerSeconds, setAnswerSeconds] = useState(quizz?.answerDurationMs ? quizz.answerDurationMs / 1000 : 20);
+    const [forcedType, setForcedType] = useState(quizz?.forcedType || "ALL");
+    const [correctPoints, setCorrectPoints] = useState(quizz?.scoring?.correctPoints ?? 1);
+    const [wrongPoints, setWrongPoints] = useState(quizz?.scoring?.wrongPoints ?? 0);
+    const [selectedQuestions, setSelectedQuestions] = useState<any[]>([]);
     const [tags, setTags] = useState<string[]>(quizz?.tags || []);
     const [messageInfo, setMessageInfo] = useState("");
     const [showMessage, setShowMessage] = useState(false);
-    const [filterData, setFilterData] = useState(getQuestionFilter());
-    const [questionCardsBuild, setQuestionCardsBuild] = useState(false);
-    const [endTaskToast, setEndTaskToast] = useState(() => {});
-
-    const fetched = useRef(false);
+    const [endTaskToast, setEndTaskToast] = useState<() => void>(() => () => {});
 
     const handleDragStart = (event: React.DragEvent<HTMLDivElement>, index: number) => {
         event.dataTransfer.setData("index", index.toString());
     };
-    
+
     const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault(); // Permet le drop
     };
-    
+
     const handleDrop = (event: React.DragEvent<HTMLDivElement>, newIndex: number) => {
         event.preventDefault();
         const oldIndex = Number(event.dataTransfer.getData("index"));
         // Réorganise la liste des questions
-        setQuestionCardsOfQuizz((prevCards) => {
-            const updatedCards = [...prevCards];
-            const [movedCard] = updatedCards.splice(oldIndex, 1);
-            updatedCards.splice(newIndex, 0, movedCard);
-            return updatedCards;
+        setSelectedQuestions((prevQuestions) => {
+            const updatedQuestions = [...prevQuestions];
+            const [movedQuestion] = updatedQuestions.splice(oldIndex, 1);
+            updatedQuestions.splice(newIndex, 0, movedQuestion);
+            return updatedQuestions;
         });
-    };    
+    };
 
 
     useEffect(() => {
-        //if (fetched.current) return; // Empêche un deuxième fetch
-        fetched.current = true; // Marque le fetch comme effectué
-
-        const fetchData = async () => {
-            if (auth?.user?.id) {
-              try {
-                const responseQuestions = await makeRequest("/question/available-questions?id=" + auth.user.id);
-                setQuestions(responseQuestions);
-              } catch (error) {
-                console.error("Erreur lors du fetch :", error);
-              }
-            }
-          };
-        
-        fetchData();
-        if (location.state?.quizz) {
-            setQuizz(location.state.quizz);
+        if (!isModifying || quizz?.quizz_id) return;
+        if (quizzIdParam) {
+            if (quizzNotFound) navigate("/create-a-quizz");
+            return;
         }
-
-    }, [auth?.user?.id, location.state?.quizz]);
-
-    useEffect(() => {
-        if ((quizz?.title?.length === 0  && location.pathname === "/modify-a-quizz")) {
-          navigate("/create-a-quizz");
-        }
-      }, [quizz?.questions, location.pathname]);
-
-    useEffect(()=>{
-        if (questionCardsBuild || questionCards.length > 0){
-            setQuestionCardsBuild(true);
-        }
-    }, [questionCards])
+        navigate("/create-a-quizz");
+    }, [quizz?.quizz_id, isModifying, quizzIdParam, quizzNotFound, navigate]);
 
     useEffect(()=>{
         setTitle(quizz?.title || "");
         setTags(quizz?.tags || []);
-        setPrivate(quizz?.private || true);
+        setPrivate(quizz?.private ?? true);
+        setAnswerSeconds(quizz?.answerDurationMs ? quizz.answerDurationMs / 1000 : 20);
+        setForcedType(quizz?.forcedType || "ALL");
+        setCorrectPoints(quizz?.scoring?.correctPoints ?? 1);
+        setWrongPoints(quizz?.scoring?.wrongPoints ?? 0);
         setCreating(quizz?.title ? false : true);
+    }, [quizz]);
 
-        if (!quizz || !questionCards || !quizz?.questions) return;
-        
-        const toBeSeted = list
-            .map((id : any) => questionCards.find((questionCard) => questionCard.getId() === Number(id)))
-            .filter((questionCard : any) => questionCard !== undefined) as QuestionCard[]; // TypeScript sait que c'est sûr
-        setQuestionCardsOfQuizz(toBeSeted);
-    }, [quizz, questionCardsBuild]);
-    
-    
-    const buttonPressed = useCallback((questionCard: QuestionCard) => {
-        setQuestionCardsOfQuizz(prevCards => {
-            console.log("Quiz creation : ",questionCard.getId());
-            const found = prevCards.find(card => card.getId() === questionCard.getId());
-            if (found) {
-                questionCard.setButtonText(<Add className="ActionIcon"/>);
-                questionCard.setColor("Green");
-                return prevCards.filter(card => card.getId() !== questionCard.getId());
-            } else {
-                questionCard.setButtonText(<Remove className="ActionIcon"/>);
-                questionCard.setColor("Red");
-                return [...prevCards, questionCard];
-            }
+    // Résolution ponctuelle des questions déjà sélectionnées (édition), une
+    // seule fois par quizz chargé (clé sur quizz_id) — indépendante du picker
+    // et de son cache, qui eux évoluent avec les filtres : les rebrancher ici
+    // écraserait la sélection/l'ordre à chaque changement de filtre.
+    useEffect(() => {
+        const ids: number[] = quizz?.questions ?? [];
+        if (ids.length === 0) return;
+        let cancelled = false;
+        makeRequest(`/question/by-ids?ids=${ids.join(",")}`).then((qs: any[]) => {
+            if (cancelled || !qs) return;
+            const ordered = ids
+                .map((id) => qs.find((q) => q.question_id === Number(id)))
+                .filter((q): q is any => q !== undefined);
+            setSelectedQuestions(ordered);
         });
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [quizz?.quizz_id]);
+
+
+    /** Bascule une question (par id) entre le vivier du picker et la sélection du quizz. */
+    const toggleQuestionById = useCallback((question_id: number) => {
+        setSelectedQuestions(prev => {
+            const found = prev.some(q => q.question_id === question_id);
+            if (found) {
+                return prev.filter(q => q.question_id !== question_id);
+            }
+            const question = picker.results.find((r: any) => r.question_id === question_id);
+            return question ? [...prev, question] : prev;
+        });
+    }, [picker.results]);
+
+    const removeSelectedQuestion = useCallback((question_id: number) => {
+        setSelectedQuestions(prev => prev.filter(q => q.question_id !== question_id));
     }, []);
 
-    
     const addTag = (tag : string) => {
         if (!tags.includes(tag) && tags.length < 5) {
             setTags([...tags, tag]);
         }
     };
-    
+
     const removeTag = (tagToRemove : string) => {
-        setTags(tags.filter(tag => tag !== tagToRemove));  
+        setTags(tags.filter(tag => tag !== tagToRemove));
     };
-    
+
     const changePrivate = () =>{
         setPrivate(!isPrivate);
     };
@@ -144,14 +165,14 @@ export function QuizzCreation () {
             setShowMessage(true);
             return false;
         }
-        
-        if (questionCardsOfQuizz.length === 0) {
+
+        if (selectedQuestions.length === 0) {
             setMessageInfo("Il faut au moins une question !");
             setShowMessage(true);
             return false;
         }
-        
-        
+
+
         return true;
     }
 
@@ -160,7 +181,7 @@ export function QuizzCreation () {
         if (confirmation) {
             const response = await makeRequest("/quizz", "DELETE", {quizz_id : quizz.quizz_id});
             if (response.success){
-                navigate("/profil")
+                navigate(-1)
             }
         }
     };
@@ -168,32 +189,41 @@ export function QuizzCreation () {
     const endTask = () =>{
         setMessageInfo("quizz créé avec succès");
         setShowMessage(true);
-        setEndTaskToast(() => navigate(-1));
+        setEndTaskToast(() => () => navigate(-1));
     }
-    
+
     const sendData = async () => {
         if (validateQuizz()) {
+            const questionList = selectedQuestions.map((question) => question.question_id);
             if (creating){
-                let questionList = questionCardsOfQuizz.map((card) => card.getId()); // Utilisation correcte de map()
                 const retour = await makeRequest("/quizz/create", "POST", {
+                    mode: "LIST",
                     creator: user_id,
                     title: title,
-                    private: isPrivate, 
+                    private: isPrivate,
                     tags: tags,
-                    questionList: questionList
+                    questions: questionList,
+                    questionList: questionList,
+                    answerDurationMs: answerSeconds * 1000,
+                    forcedType: forcedType,
+                    scoring: { correctPoints: correctPoints, wrongPoints: wrongPoints }
                 });
                 if (retour.success){
                     endTask();
                 }
             } else {
-                let questionList = questionCardsOfQuizz.map((card) => card.getId()); // Utilisation correcte de map()
                 const retour = await makeRequest("/quizz/update", "PUT", {
+                    mode: "LIST",
                     quizz_id: quizz.quizz_id,
                     creator: user_id,
                     title: title,
-                    private: isPrivate, 
+                    private: isPrivate,
                     tags: tags,
-                    questionList: questionList
+                    questions: questionList,
+                    questionList: questionList,
+                    answerDurationMs: answerSeconds * 1000,
+                    forcedType: forcedType,
+                    scoring: { correctPoints: correctPoints, wrongPoints: wrongPoints }
                 });
                 if (retour.success){
                     endTask();
@@ -202,129 +232,164 @@ export function QuizzCreation () {
         }
     };
 
-    useEffect(() => {
-        setQuestionCards([]);
-        if (questions){
-            questions.map((question : any) =>{
-                const {button, couleur} = list?.includes(question.question_id) ? {button : <Remove className="ActionIcon"/>,couleur : "Red"}:{button : <Add className="ActionIcon"/>, couleur : 'Green'};
-                let newQC = new QuestionCard(question, buttonPressed,button,(Number(auth?.user?.id) || 0), couleur);
-                setQuestionCards((prevCards) => [...prevCards, newQC])
-            });
-        }
-    }, [questions]);
+    if (isModifying && quizzIdParam && !quizz?.quizz_id) {
+        return (
+            <div className="quizzCreationPage">
+                <Banner></Banner>
+                <div className="quizzCreationContent">
+                    <h1>{loadingQuizz ? "Chargement du quizz…" : "Ce quizz n'existe pas ou n'est pas accessible."}</h1>
+                </div>
+            </div>
+        );
+    }
 
-    useEffect(() => {
-        
-
-    }, [questionCards, questionCardsOfQuizz])
-
-
-    console.log(filterData);
     return (
-    (auth && auth.user) ? 
-    <div >
+    (auth && auth.user) ?
+    <div className="quizzCreationPage">
         <Banner></Banner>
-        <div className="quizzFormContainer">
-            <div className="title">
-                <input
-                    type='text'
-                    id="titre"
-                    value={title || ''}
-                    onChange={(e) => setTitle(e.target.value )}
-                    required
-                />
-            </div>
-            <div className='privateswitch'>
-                <label className='quizzCreation-label' onClick={() => setPrivate(false)}>Quizz public</label>
-                <Switch
-                    type='checkboxe'
-                    checked={isPrivate}
-                    className='isPrivate'
-                    onClick={() => changePrivate()}
-                />
-                <label className='quizzCreation-label' onClick={() => setPrivate(true)}>Quizz privée</label>
-            </div>
-            
-            <Searchbar filterData={filterData} setFilterData={setFilterData}/>
-            <div className="subTitle">Les Questions utilisables</div>
-            <div className="questionCardArea">
-                {questionCards.length > 0 ? (
-                    (() => {
-                        const filteredCards = questionCards.filter((questionCard) => questionCard.match(filterData));
+        {creating && <QuizzModeNav />}
+        <div className="quizzCreationContent">
+            <h1>{creating ? "Créer un quizz « Liste »" : "Modifier le quizz"}</h1>
+            <p className="quizzCreationIntro">
+                Choisissez librement des questions et l'ordre dans lequel elles seront posées.
+            </p>
 
-                        return filteredCards.length > 0 ? (
-                            filteredCards.map((questionCard: QuestionCard) => questionCard.show())
-                        ) : 
-                            <h2 className="filler">Aucune question ne correspond à votre recherche.</h2>
-                        ;
-                    })()
-                ) : (
-                    <h2 className="filler">Chargement des questions...</h2>
-                )}
-            </div>
-            
-            <div className="subTitle">Les Questions utilisé dans Votre Quizz</div>
-            <div className={questionCardsOfQuizz.length > 0 ? "questionCardArea" : "questionCardAreaWOGrid"}>
-                {questionCardsOfQuizz.length > 0 ? (
-                    questionCardsOfQuizz.map((questionCard, index) => (
-                        <div
-                            key={questionCard.getId()}
-                            draggable
-                            onDragStart={(event) => handleDragStart(event, index)}
-                            onDragOver={handleDragOver}
-                            onDrop={(event) => handleDrop(event, index)}
-                            style={{
-                                cursor: "grab",
-                            }}
-                            className="dragZone"
-                        >
-                            {questionCard.show()}
-                        </div>
-                    ))
+            <section className="quizzSection">
+                <h2>Général</h2>
+                <TextField
+                    label="Titre du quizz"
+                    value={title || ''}
+                    onChange={(e) => setTitle(e.target.value)}
+                    fullWidth
+                />
+                <label className="quizzInlineLabel">
+                    Privé
+                    <Switch
+                        checked={isPrivate}
+                        className='isPrivate'
+                        onClick={() => changePrivate()}
+                    />
+                </label>
+                <label className="quizzSliderLabel" id="answerDurationLabel">
+                    Temps de réponse par question : {answerSeconds} s
+                    <Slider
+                        value={answerSeconds}
+                        min={5}
+                        max={60}
+                        step={5}
+                        aria-labelledby="answerDurationLabel"
+                        onChange={(_, v) => setAnswerSeconds(v as number)}
+                    />
+                </label>
+                <FormControl fullWidth>
+                    <InputLabel>Type de question forcé</InputLabel>
+                    <Select
+                        value={forcedType}
+                        label="Type de question forcé"
+                        onChange={(e) => setForcedType(e.target.value)}
+                    >
+                        {getForcedQuestionTypeOptions().map((opt) => (
+                            <MenuItem key={opt.value} value={opt.value}>{opt.title}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </section>
+
+            <section className="quizzSection">
+                <h2>Barème</h2>
+                <TextField
+                    label="Points par bonne réponse"
+                    type="number"
+                    value={correctPoints}
+                    onChange={(e) => setCorrectPoints(Number(e.target.value))}
+                />
+                <TextField
+                    label="Points par mauvaise réponse"
+                    type="number"
+                    value={wrongPoints}
+                    onChange={(e) => setWrongPoints(Number(e.target.value))}
+                />
+            </section>
+
+            <section className="quizzSection">
+                <h2>Questions disponibles</h2>
+                <QuestionPicker
+                    results={picker.results}
+                    folders={picker.folders}
+                    filter={picker.filter}
+                    onFilterChange={picker.setFilter}
+                    loading={picker.loading}
+                    selectedIds={selectedQuestions.map((q) => q.question_id)}
+                    onToggle={toggleQuestionById}
+                />
+            </section>
+
+            <section className="quizzSection">
+                <h2>Questions du quizz ({selectedQuestions.length})</h2>
+                <p className="quizzHint">Glissez-déposez une question pour changer l'ordre dans lequel elles seront posées.</p>
+                {selectedQuestions.length > 0 ? (
+                    <div className="quizzQuestionList">
+                        {selectedQuestions.map((question, index) => (
+                            <div
+                                key={question.question_id}
+                                draggable
+                                onDragStart={(event) => handleDragStart(event, index)}
+                                onDragOver={handleDragOver}
+                                onDrop={(event) => handleDrop(event, index)}
+                                onClick={() => removeSelectedQuestion(question.question_id)}
+                                style={{ cursor: "grab" }}
+                                className="quizzQuestionChip picked"
+                            >
+                                {question.title}
+                                <span className={"mode type-" + String(question.mode).toLowerCase()}>
+                                    {getQuestionModeLabel(question.mode)}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
                 ) : (
                     <h2 className="filler">Sélectionnez des questions pour votre quizz !</h2>
                 )}
-            </div>
-            
-            <div className='tagList'>
-                    <div>
-                        {tags?.map(tag => (
-                        <span key={tag} onClick={() => removeTag(tag)} style={{ margin: "5px", cursor: "pointer", background: "#ddd", padding: "5px", borderRadius: "5px" }}>
-                            {tag} ❌
-                        </span>
-                        ))}
-                    </div>
-                    {tags?.length < 5 ? (
-                        <input 
-                        type="text" 
-                        onKeyDown={(e) => {
-                            const inputElement = e.target as HTMLInputElement;
-                            if (e.key === "Enter" && inputElement.value.trim()) {
-                            addTag(inputElement.value.trim());
-                            inputElement.value = "";
-                            }
-                        }} 
-                        placeholder="Ajouter un tag"
-                        />
-                    ) : (
-                        <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
-                    )}
+            </section>
+
+            <section className="quizzSection">
+                <h2>Tags ({tags?.length ?? 0}/5)</h2>
+                <div className='quizzTagList'>
+                    {tags?.map(tag => (
+                    <span key={tag} onClick={() => removeTag(tag)} className="quizzTagChip">
+                        {tag} ❌
+                    </span>
+                    ))}
                 </div>
-            <div>
-                <Button className="send-Quizz" onClick={() => sendData()}>{creating ? "Créer le quizz" : "Sauvegarder le quizz"}</Button>
-            </div>
-            <div>
-                {creating ? "" : <Button onClick={() => deleteQuizz()}> supprimer le quizz</Button>}
-            </div>
-            <div className= 'RedText'>{
-                showMessage &&
-                <Toast message={messageInfo} onClose={()=>{setShowMessage(false); endTaskToast}} />}
+                {tags?.length < 5 ? (
+                    <input
+                    type="text"
+                    className="quizzTagInput"
+                    onKeyDown={(e) => {
+                        const inputElement = e.target as HTMLInputElement;
+                        if (e.key === "Enter" && inputElement.value.trim()) {
+                        addTag(inputElement.value.trim());
+                        inputElement.value = "";
+                        }
+                    }}
+                    placeholder="Ajouter un tag"
+                    />
+                ) : (
+                    <p className="quizzTagLimit">Maximum 5 tags atteints</p>
+                )}
+            </section>
+
+            <div className="quizzActions">
+                {!creating && <Button className="Button" onClick={() => deleteQuizz()}>Supprimer le quizz</Button>}
+                <Button className="Button" onClick={() => sendData()}>{creating ? "Créer le quizz" : "Sauvegarder le quizz"}</Button>
             </div>
         </div>
-    
-    </div> 
-    : 
-    <div>
+
+        {showMessage &&
+            <Toast message={messageInfo} onClose={()=>{setShowMessage(false); endTaskToast();}} />}
+    </div>
+    :
+    <div className="quizzCreationPage">
         <Banner></Banner>
         <div className='PleaseLogin'>
             <h1>Veuillez-vous inscrire pour pouvoir créer un quizz</h1>

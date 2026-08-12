@@ -1,0 +1,178 @@
+.pickBanQuizzPage {
+    min-height: 100vh;
+    background: var(--bg-light);
+    padding-bottom: 60px;
+}
+
+/* Voir le commentaire équivalent dans GridQuizzForm.css : ".container" est un
+   nom trop générique, déjà utilisé par Login.css avec des règles opposées. */
+.pickBanQuizzContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-md, 20px);
+}
+
+.pickBanQuizzPage h1 {
+    margin: 24px 0 8px;
+    color: var(--primary-deep);
+}
+
+.pickBanQuizzPage .filler {
+    width: 100%;
+    text-align: center;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.pbIntro {
+    max-width: 720px;
+    color: var(--text-medium);
+    margin-bottom: 24px;
+}
+
+.pbSection {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.pbSection h2 {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    color: var(--primary-color);
+}
+
+.pbHint {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+}
+
+.pbInlineLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-weight: 600;
+}
+
+.pbSliders {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+}
+
+.pbSliders label {
+    display: block;
+    font-weight: 600;
+    color: var(--primary-deep);
+}
+
+.pbSearchField {
+    margin: 12px 0;
+}
+
+.pbThemesHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.pbThemesHeader h2 {
+    margin-bottom: 0;
+}
+
+.pbThemeGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+}
+
+.pbThemeCard {
+    border: 2px solid #e0e0e0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-white);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 10px;
+    transition: border-color 0.2s ease;
+}
+
+.pbThemeCard.picked {
+    border-color: var(--secondary-color);
+}
+
+.pbThemeCardBody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    width: 100%;
+}
+
+.pbThemeImg {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+}
+
+.pbThemeImgPlaceholder {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-sm);
+    background: var(--bg-gradient);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8px;
+    font-weight: 700;
+}
+
+.pbThemeTitle {
+    font-weight: 600;
+    color: var(--primary-deep);
+    text-align: center;
+}
+
+.pbThemeCard em {
+    font-style: normal;
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+
+.pbThemeCard .MuiTextField-root {
+    padding: 0 10px;
+}
+
+.pbProblems {
+    list-style: none;
+    padding: 14px 18px;
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--radius-md);
+    background: rgba(251, 164, 14, 0.12);
+    border: 1px solid var(--warning-color);
+    color: #7a4e00;
+}
+
+.pbProblems li + li {
+    margin-top: 6px;
+}
+
+.pbActions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+}

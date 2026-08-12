@@ -1,0 +1,12 @@
+.questionSearchBar {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 12px 0;
+}
+
+.questionSearchField {
+    flex: 1;
+    min-width: 220px;
+}

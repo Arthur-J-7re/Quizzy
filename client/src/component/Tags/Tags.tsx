@@ -7,7 +7,7 @@ export default function GetTags(
     :
     {
         entity:{tags: string[]},
-        setEntity:Function,
+        setEntity:(entity : any) => void,
         limit:number
     }
 ) {
@@ -29,35 +29,29 @@ export default function GetTags(
 
     return (
         <div>
-            <div className="display-tag">
-                {
-                    tags.map((tag : string) => 
-                        <h2>{tag}
-                        <p onClick={()=>{removeTag(tag)}}>
-                            X
-                        </p>
-                        </h2>
-                    )
-                }
+            <div className="quizzTagList">
+                {tags.map((tag : string) => (
+                    <span key={tag} onClick={() => removeTag(tag)} className="quizzTagChip">
+                        {tag} ❌
+                    </span>
+                ))}
             </div>
-            <div>
-                {tags.length < limit ? (
-                    <input 
-                    type="text" 
-                    className='tagInput'
-                    onKeyDown={(e) => {
-                        const inputElement = e.target as HTMLInputElement;
-                        if (e.key === "Enter" && inputElement.value.trim()) {
-                        addTag(inputElement.value.trim());
-                        inputElement.value = "";
-                        }
-                    }} 
-                    placeholder="Ajouter un tag"
-                    />
-                ) : (
-                    <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
-                )}
-            </div>
+            {tags.length < limit ? (
+                <input
+                type="text"
+                className='quizzTagInput'
+                onKeyDown={(e) => {
+                    const inputElement = e.target as HTMLInputElement;
+                    if (e.key === "Enter" && inputElement.value.trim()) {
+                    addTag(inputElement.value.trim());
+                    inputElement.value = "";
+                    }
+                }}
+                placeholder="Ajouter un tag"
+                />
+            ) : (
+                <p className="quizzTagLimit">Maximum {limit} tags atteints</p>
+            )}
         </div>
     )
 

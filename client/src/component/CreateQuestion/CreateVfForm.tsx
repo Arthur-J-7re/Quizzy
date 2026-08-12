@@ -51,6 +51,7 @@ export function CreateVfForm({
             setShowMessage(true);
             return false;
         }
+
         return true;
     }
 
@@ -100,7 +101,7 @@ export function CreateVfForm({
                 placeholder="Ajouter un tag"
                 />
             ) : (
-                <p style={{ color: "red" }}>Maximum 5 tags atteints</p>
+                <p className="questionTagLimit">Maximum 5 tags atteints</p>
             )}
         </div>
             <Button className='SendButton' onClick={()=>sendVF()}>{question_id === 0 ? "Finaliser la création de" : "Sauvegarder"} la question</Button>

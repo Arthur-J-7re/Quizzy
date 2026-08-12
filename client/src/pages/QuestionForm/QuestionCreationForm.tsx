@@ -1,13 +1,13 @@
 import { useState, useEffect} from 'react';
 import Button from '@mui/material/Button';
-import { MenuItem, Select, Switch, InputLabel } from '@mui/material';
+import { MenuItem, Select, Switch } from '@mui/material';
 import { CreateQCMForm } from '../../component/CreateQuestion/CreateQcmForm';
 import { CreateFreeForm } from '../../component/CreateQuestion/CreateFreeForm';
 import { CreateDCCForm } from '../../component/CreateQuestion/CreateDccForm';
 import {CreateVfForm} from '../../component/CreateQuestion/CreateVfForm'
 import { Banner } from '../../component/Banner/Banner';
 import { useContext } from "react";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { AuthContext } from "../../context/authentContext";
 import Toast from '../../tools/toast/toast';
 import "../CommonCss.css";
@@ -18,19 +18,50 @@ import makeRequest from '../../tools/requestScheme';
 
 export function QuestionCreationForm () {
     const location = useLocation();
-    const _question = location.state?.question;
+    const { question_id: questionIdParam } = useParams();
+    // Ouverture directe (nouvel onglet, ctrl/cmd/molette-clic, lien partagé) :
+    // pas de location.state dans ce cas, on résout la question depuis l'id de
+    // l'URL plutôt que de se retrouver avec un formulaire de création vide.
+    const [_question, setQuestionData] = useState<any>(location.state?.question);
+    const [loadingQuestion, setLoadingQuestion] = useState(false);
+
+    useEffect(() => {
+        if (_question || !questionIdParam) return;
+        setLoadingQuestion(true);
+        makeRequest(`/question/by-ids?ids=${questionIdParam}`)
+            .then((qs: any[]) => setQuestionData(qs?.[0]))
+            .catch((e) => console.error("Erreur lors du chargement de la question", e))
+            .finally(() => setLoadingQuestion(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [questionIdParam]);
+
     const questionId = _question?.question_id ||0;
     const [mode , setMode] = useState(_question?.mode ||"QCM");
     const [title, setTitle] = useState(_question?.title || "");
     const [level,setLevel] = useState(_question?.level || 1);
     const [goodNews, setGoodNews] = useState(false);
     const [tags, setTags] = useState<string[]>(_question?.tags || []);
-    const [isPrivate, setPrivate] = useState(_question?.private ||true);
+    const [isPrivate, setPrivate] = useState(_question?.private ?? true);
     const [carre, setCarre] = useState(_question?.carre || _question?.choices || {ans1 : "", ans2 : "", ans3: "", ans4: ""});
     const [answers, setAnswers] = useState<string[]>(_question?.cash ||_question?.answers || []);
     const [truth, setTruth] = useState(_question?.truth);
     const auth = useContext(AuthContext);
     const user_id = auth?.user?.id || 0;
+
+    // Les useState ci-dessus ne capturent `_question` qu'au premier rendu :
+    // si elle arrive après coup (fetch async ci-dessus), il faut re-remplir
+    // le formulaire explicitement une fois les données là.
+    useEffect(() => {
+        if (!_question) return;
+        setMode(_question.mode || "QCM");
+        setTitle(_question.title || "");
+        setLevel(_question.level || 1);
+        setTags(_question.tags || []);
+        setPrivate(_question.private ?? true);
+        setCarre(_question.carre || _question.choices || { ans1: "", ans2: "", ans3: "", ans4: "" });
+        setAnswers(_question.cash || _question.answers || []);
+        setTruth(_question.truth);
+    }, [_question]);
 
     const [freeData, setFreeData] = useState({creator : user_id,mode : "FREE",title: title,level:level, tags: tags, private:isPrivate, answers: answers});
     const [dccData, setDccData] = useState({creator : user_id,mode : "DCC",title: title,level:level, tags: tags, private: isPrivate, carre: carre, duo: _question?.duo ||2, answer: _question?.answer ||1, cash: answers});
@@ -173,7 +204,7 @@ export function QuestionCreationForm () {
         if (confirmation) {
             const response = await makeRequest("/question?question_id=" + _question.question_id, "DELETE");
             if (response.success){
-                navigate("/profil")
+                navigate(-1)
             }
         }
     } 
@@ -236,36 +267,53 @@ export function QuestionCreationForm () {
     };
 
 
+    if (questionIdParam && !_question) {
+        return (
+            <>
+                <Banner></Banner>
+                <div className="questionCreationPage">
+                    <div className="questionCreationContent">
+                        <h1>{loadingQuestion ? "Chargement de la question…" : "Cette question n'existe pas ou n'est pas accessible."}</h1>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
     return (
-        (auth && auth.user) ? 
+        (auth && auth.user) ?
             <>
             <Banner></Banner>
-            <div className="Maincontainer">
-                <div>
+            <div className="questionCreationPage">
+            <div className="questionCreationContent">
+                <h1>{_question ? "Modifier la question" : "Créer une question"}</h1>
+                <section className="questionSection">
                 {_question ?  "" : <div className="modeSelector">
                     <h3>Créer une question avec un format</h3>
-                    <Button 
+                    <div className="modeSelectorButtons">
+                    <Button
                     className = {(mode == "QCM")?"first notOutlined selectedMode":"first notOutlined notSelectedMode"}
                     onClick={() => setMode("QCM")}>
                     QCM
                     </Button>
-                    
-                    <Button 
+
+                    <Button
                     className = {(mode == "FREE")?"notOutlined selectedMode":"notOutlined notSelectedMode"}
                     onClick={() => setMode("FREE")}>
                     réponse libre
                     </Button>
-                    
-                    <Button 
+
+                    <Button
                     className = {(mode == "DCC")?"notOutlined selectedMode":"notOutlined notSelectedMode"}
                     onClick={() => setMode("DCC")}>
                     Duo/Carré/Cash
                     </Button>
-                    <Button 
+                    <Button
                     className = {(mode == "VF")?"last notOutlined selectedMode":"last notOutlined notSelectedMode"}
                     onClick={() => setMode("VF")}>
                     Vrai ou Faux
                     </Button>
+                    </div>
                 </div>}
                 <div className='title'>
                     <label className='questionCreation-label'>Intitulé de la question</label>
@@ -282,21 +330,22 @@ export function QuestionCreationForm () {
                     <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
                     <Switch
                         type='checkboxe'
-                        checked={dccData.private}
+                        checked={isPrivate}
                         className='isPrivate'
                         onClick={() => changePrivate()}
                     />
                     <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
                 </div>
-                <div style={{display : "flex",justifyContent : "center"}}>
+                <div className="levelSelectRow">
+                    <label className="questionCreation-label" id="difficulty-level-label">Difficulté</label>
                     <Select
                         id="select-quizz"
-                        labelId="difficulty-level"
+                        labelId="difficulty-level-label"
                         value={level}
-                        style={{width : '10%', textAlign: "center"}}
+                        size="small"
                         onChange={(e) => setLevel(e.target.value)}
                     >
-                        
+
                         <MenuItem key={1} value={1} style={{ color: 'green'}}>
                         1
                         </MenuItem>
@@ -327,31 +376,32 @@ export function QuestionCreationForm () {
                         <MenuItem key={10} value={10} style={{ color: 'red' }}>
                         10
                         </MenuItem>
-                        
-                        
+
+
                     </Select>
 
                 </div>
+                </section>
                 {renderContent()}
-                </div>
-                {_question ? <div className='modeSelector'>
-                    <Button onClick={() => deleteQuestion()}> supprimer la question</Button>
+                {_question ? <div className='questionDeleteRow'>
+                    <Button className="Button" onClick={() => deleteQuestion()}> supprimer la question</Button>
                 </div> : ""}
                 <div className={goodNews ? 'GreenText' : 'RedText'}>{
                     showMessage &&
                     <Toast message={messageInfo} onClose={()=>{setShowMessage(false); setGoodNews(false)}} />}
                 </div>
-                
+
             </div>
-            
+            </div>
+
             </>
-        : <>
+        : <div className="questionCreationPage">
             <Banner></Banner>
             <div className='PleaseLogin'>
                 <h1>Veuillez-vous inscrire pour pouvoir créer une question</h1>
                 <Button className='linkLogin' onClick={() => navigate("/login")}>Page de connexion !</Button>
             </div>
-        </>
+        </div>
         
     )
 };
