@@ -1,109 +1,98 @@
 import { Router } from "express";
 import themeManager from "../function/themeManager";
-import userManager from '../function/userManager';
-import token from '../utils/jwt';
-import getIdFromReq from '../utils/getIdFromReq';
-import { get } from "mongoose";
-
-const checkCreator = async (req:any, theme_id:number) => {
-    let newReq : any= req;
-    const user = newReq.user;
-    const creator = await themeManager.getCreatorOfTheme(theme_id);
-    return user.id === creator;
-}
+import userManager from "../function/userManager";
+import token from "../utils/jwt";
+import getIdFromReq from "../utils/getIdFromReq";
+import asyncHandler from "../utils/asyncHandler";
+import assertOwner from "../utils/assertOwner";
+import { HttpError } from "../utils/errorHandler";
 
 const routes = Router();
 
-routes.get("/", token.verifyToken,async (req,res) => {
-    console.log("appelle aux themes");
-    let newReq : any = req;
-    const user = newReq.user;
-    const id = Number(user.id);
-    try {
-        const retour =await themeManager.getThemeByCreator(id,0);
-        res.json(retour);
-    } catch (error) {
-        console.error(error);
-    }
-});
+const ownsTheme = (userId: number, theme_id: number) =>
+  assertOwner(userId, theme_id, themeManager.getCreatorOfTheme, "thème");
 
-routes.get("/available-themes",token.verifyToken, async (req,res) => {
-    console.log("appelle aux themes mais dans le router");
-    const id = getIdFromReq(req);
-    const min = req.query.min ? Number(req.query.min) : 0;
-    try {
-        const retour = await themeManager.getAvailableThemes(id, min);
-        res.json(retour);
-    } catch (error) {
-        console.error(error);
-    }
-});
+const minFromQuery = (raw: unknown) => (raw ? Number(raw) : 0);
 
-routes.get("/public-themes", async (req,res) => {
-    console.log("appelle aux thèmes publics");
-    let retour;
-    const min = req.query.min ? Number(req.query.min) : 0;
-    try {
-        retour = await themeManager.getPublicThemes(min);
-    } catch (error) {
-        console.error(error);
-    }
-    res.json(retour);
-});
+routes.get(
+  "/",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const folder = req.query.folder ? String(req.query.folder) : undefined;
+    res.json(await themeManager.getThemeByCreator(getIdFromReq(req), 0, folder));
+  })
+);
 
-routes.post("/create", token.verifyToken, async (req,res) => {
-    console.log("création de thème via les requête http");
-    const data : any = req.body;
-    data.creator = getIdFromReq(req);
-    console.log("data c'est ça : ", data);
-    let retour = {success :false}
-    try {
-        const {success, theme} = await themeManager.create(data);
-        if (success && theme && theme.theme_id) await userManager.addThemeToUser(data.creator, theme.theme_id);
-        success ? retour.success = true : null;  
-    } catch (error) {
-        console.error(error);
-    }
-    res.json(retour);
-});
+// Résout par lot des thèmes déjà connus par id (ouverture directe d'un
+// lien d'édition, sans état de navigation) — ne renvoie que ceux que
+// l'utilisateur a le droit de voir (les siens ou publics).
+routes.get(
+  "/by-ids",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const ids = String(req.query.ids ?? "")
+      .split(",")
+      .map((id) => Number(id.trim()))
+      .filter((id) => Number.isFinite(id));
+    const themes = await themeManager.getThemesByIds(ids);
+    res.json(themes.filter((t: any) => t.creator === userId || t.private === false));
+  })
+);
 
-routes.put("/update",token.verifyToken, async (req,res) => {
-    console.log("modification de thème via les requête http");
-    const data : any = req.body;
-    data.creator = getIdFromReq(req);
-    const {theme_id} = data;
-    let retour = {success :false}
-    try {
-        if (await checkCreator(req, theme_id)) {
-            const result = await themeManager.update(data);
-            if (result.success) {
-                retour.success = true;
-            }
-        }
-    } catch (error) {
-        console.error(error);
-    }
-    res.json(retour);
-});
+routes.get(
+  "/available-themes",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    res.json(await themeManager.getAvailableThemes(getIdFromReq(req), minFromQuery(req.query.min)));
+  })
+);
 
-routes.delete("/delete",token.verifyToken, async (req,res) => {
-    console.log("suppression de thème via les requête http");
-    const body : any = req.body;
-    const {theme_id} = body;
-    const id = getIdFromReq(req);
-    let retour = {success :false}
-    try {
-        if (await checkCreator(req, theme_id)) {
-            const result = await themeManager.deleteTheme(theme_id);
-            if (result.success) {
-                await userManager.deleteThemeFromUser(id, theme_id);
-                retour.success = true;
-            }
-        }
-    } catch (error) {
-        console.error(error);
+routes.get(
+  "/public-themes",
+  asyncHandler(async (req, res) => {
+    res.json(await themeManager.getPublicThemes(minFromQuery(req.query.min)));
+  })
+);
+
+routes.post(
+  "/create",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const creator = getIdFromReq(req);
+    const { success, theme } = await themeManager.create({ ...req.body, creator });
+    if (!success || !theme?.theme_id) {
+      throw new HttpError(400, "La création du thème a échoué.");
     }
-    res.json(retour);
-});
+    await userManager.addThemeToUser(creator, theme.theme_id);
+    res.status(201).json({ success: true, theme_id: theme.theme_id });
+  })
+);
+
+routes.put(
+  "/update",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const theme_id = Number(req.body?.theme_id);
+    await ownsTheme(userId, theme_id);
+    res.json(await themeManager.update({ ...req.body, creator: userId }));
+  })
+);
+
+routes.delete(
+  "/delete",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const theme_id = Number(req.body?.theme_id);
+    await ownsTheme(userId, theme_id);
+    const result = await themeManager.deleteTheme(theme_id);
+    if (result.success) {
+      await userManager.deleteThemeFromUser(userId, theme_id);
+    }
+    res.json(result);
+  })
+);
 
 export default routes;

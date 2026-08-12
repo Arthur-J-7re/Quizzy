@@ -1,51 +1,13 @@
-export enum QuestionMode {
-    QCM = "QCM",
-    FREE = "FREE",
-    DCC = "DCC",
-    VF = "VF",
-}
-
-export interface Question {
-    question_id: number;
-    creator: number;
-    mode: QuestionMode;
-    title: string;
-    private: boolean;
-    quizz: number[];
-    playlist: number[];
-    level?: number;
-    report?: { date: Date; reporter: number }[];
-    played?: number;
-    succeed?: number;
-    tags?: string[];
-}
-
-export interface QCMQuestion extends Question {
-    choices: {
-        ans1: string;
-        ans2: string;
-        ans3: string;
-        ans4: string;
-    };
-    answer: number;
-};
-
-export interface FreeQuestion extends Question {
-    answers: string[];
-}
-
-export interface DCCQuestion extends Question {
-    carre: {
-        ans1: string;
-        ans2: string;
-        ans3: string;
-        ans4: string;
-    };
-    cash: string[];
-    duo: number;
-    answer: number;
-}
-
-export interface VFQuestion extends Question {
-    truth: boolean;
-};
+// Le contrat des questions vit dans shared-types/ pour que serveur et client
+// parlent bien du même objet. Ce fichier ne fait que le ré-exporter sous les
+// noms historiquement utilisés côté serveur.
+export {
+    Mode as QuestionMode,
+    DCCMode,
+    type IQuestionBase as Question,
+    type IQCMQuestion as QCMQuestion,
+    type IFreeQuestion as FreeQuestion,
+    type IDCCQuestion as DCCQuestion,
+    type IVFQuestion as VFQuestion,
+    type Question as AnyQuestion,
+} from "../../shared-types/question";

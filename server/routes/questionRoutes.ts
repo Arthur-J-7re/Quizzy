@@ -1,122 +1,148 @@
 import { Router } from "express";
 import questionManager from "../function/questionManager";
-import token from '../utils/jwt';
-import userManager from '../function/userManager';
-import getIdFromReq from '../utils/getIdFromReq';
-
-const checkCreator = async (req:any, question_id:number) => {
-    let newReq : any= req;
-    const user = newReq.user;
-    const creator = await questionManager.getCreatorOfQuestion(question_id);
-    return user.id === creator;
-}
+import userManager from "../function/userManager";
+import token from "../utils/jwt";
+import getIdFromReq from "../utils/getIdFromReq";
+import asyncHandler from "../utils/asyncHandler";
+import assertOwner from "../utils/assertOwner";
+import { HttpError } from "../utils/errorHandler";
 
 const routes = Router();
 
-routes.get("/", token.verifyToken,async (req,res) => {
-    console.log("appelle aux questions");
-    const id = getIdFromReq(req);
-    console.log(id)
-    try {
-        const retour =await questionManager.getQuestionByCreator(id);
-        res.json(retour);
+const ownsQuestion = (userId: number, question_id: number) =>
+  assertOwner(userId, question_id, questionManager.getCreatorOfQuestion, "question");
 
-    } catch (error) {
-        console.error(error);
+routes.get(
+  "/",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    res.json(await questionManager.getQuestionByCreator(getIdFromReq(req)));
+  })
+);
+
+routes.get(
+  "/available-questions",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    res.json(await questionManager.getAvailableQuestions(getIdFromReq(req)));
+  })
+);
+
+routes.get(
+  "/public-questions",
+  asyncHandler(async (_req, res) => {
+    res.json(await questionManager.getPublicQuestions());
+  })
+);
+
+const parseFolderIdParam = (raw: unknown): number | "none" | undefined => {
+  if (raw === "none") return "none";
+  if (raw === undefined || raw === "") return undefined;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : undefined;
+};
+
+routes.get(
+  "/search",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const scopeRaw = String(req.query.scope ?? "all");
+    const scope = scopeRaw === "mine" || scopeRaw === "public" ? scopeRaw : "all";
+    const tags = typeof req.query.tags === "string" && req.query.tags.length > 0
+      ? req.query.tags.split(",").map((t) => t.trim()).filter(Boolean)
+      : undefined;
+
+    res.json(await questionManager.getFilteredQuestions(userId, {
+      scope,
+      folder_id: parseFolderIdParam(req.query.folder_id),
+      tags,
+      mode: req.query.mode ? String(req.query.mode) : undefined,
+      search: req.query.search ? String(req.query.search) : undefined,
+      skip: req.query.skip ? Number(req.query.skip) : undefined,
+      limit: req.query.limit ? Number(req.query.limit) : undefined,
+    }));
+  })
+);
+
+// Résout par lot les questions déjà sélectionnées mais absentes de la page
+// filtrée courante (cf. cache client du picker de questions) — ne renvoie
+// que celles que l'utilisateur a le droit de voir (les siennes ou publiques).
+routes.get(
+  "/by-ids",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const ids = String(req.query.ids ?? "")
+      .split(",")
+      .map((id) => Number(id.trim()))
+      .filter((id) => Number.isFinite(id));
+    const questions = await questionManager.getQuestionsByIds(ids);
+    res.json(questions.filter((q: any) => q.creator === userId || q.private === false));
+  })
+);
+
+routes.post(
+  "/create",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const data = { ...req.body, creator: getIdFromReq(req) };
+
+    const create = {
+      QCM: questionManager.createQCMQuestion,
+      FREE: questionManager.createFreeQuestion,
+      VF: questionManager.createVFQuestion,
+      DCC: questionManager.createDCCQuestion,
+    }[data.mode as string];
+
+    if (!create) {
+      throw new HttpError(400, "Mode de question inconnu.");
     }
-});
 
-routes.get("/available-questions",token.verifyToken, async (req,res) => {
-    console.log("appelle aux questions mais dans le router");
-    const id = getIdFromReq(req);
-    try {
-        const retour = await questionManager.getAvailableQuestions(id);
-        res.json(retour);
-        
-    } catch (error) {
-        console.error(error);
+    const retour = await create(data);
+    if (!retour?.success) {
+      throw new HttpError(400, "La création de la question a échoué.");
     }
-});
+    await userManager.addQuestionToUser(Number(retour.creator), Number(retour.question_id));
+    res.status(201).json(retour);
+  })
+);
 
-routes.get("/public-questions", async (req,res) => {
-    console.log("appelle aux questions publiques");
-    let retour;
-    try {
-      retour = await questionManager.getPublicQuestions();
-    } catch (error) {
-      console.error(error);
+routes.put(
+  "/update",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const { question_id, data } = req.body ?? {};
+    await ownsQuestion(userId, Number(question_id));
+
+    const update = {
+      QCM: questionManager.updateQCMQuestion,
+      FREE: questionManager.updateFreeQuestion,
+      VF: questionManager.updateVFQuestion,
+      DCC: questionManager.updateDCCQuestion,
+    }[data?.mode as string];
+
+    if (!update) {
+      throw new HttpError(400, "Mode de question inconnu.");
+    }
+    res.json(await update({ ...req.body, data: { ...data, creator: userId } }));
+  })
+);
+
+routes.delete(
+  "/",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const question_id = Number(req.query.question_id);
+    await ownsQuestion(userId, question_id);
+    const retour = await questionManager.deleteQuestion(question_id);
+    if (retour.success) {
+      await userManager.deleteQuestionFromUser(userId, question_id);
     }
     res.json(retour);
-});
-
-routes.post("/create", token.verifyToken, async (req,res) => {
-    console.log("création de question via les requête http");
-    const data : any = req.body;
-    data.creator = getIdFromReq(req);
-    let retour = {success :false, creator : data.creator, question_id : 0}
-    if (data && data.mode){
-        switch (data.mode){
-            case "QCM":
-                retour = await questionManager.createQCMQuestion(data);
-                break;
-            case "FREE":
-                retour = await questionManager.createFreeQuestion(data);
-                break;
-            case "VF": 
-                retour = await questionManager.createVFQuestion(data);
-                break;
-            case "DCC":
-                retour = await questionManager.createDCCQuestion(data);
-                break;
-            default :
-                return;
-        }
-        console.log("après le switchcase");
-        await userManager.addQuestionToUser(Number(retour?.creator), Number(retour?.question_id));
-    }
-    res.json(retour);
-});
-
-routes.put("/update",token.verifyToken, async (req,res) => {
-    console.log("modification de question via les requête http");
-    const {question_id, data} : any = req.body;
-    data.creator = getIdFromReq(req);
-    let retour = {success :false}
-    if(await checkCreator(req, question_id)){  
-        switch (data.mode){
-            case "QCM":
-                retour = await questionManager.updateQCMQuestion(req.body);
-                break;
-            case "FREE":
-                retour = await questionManager.updateFreeQuestion(req.body);
-                break;
-            case "VF": 
-                retour = await questionManager.updateVFQuestion(req.body);
-                break;
-            case "DCC":
-                retour = await questionManager.updateDCCQuestion(req.body);
-                break;
-            default :
-                return;
-        }
-    }
-    console.log(retour);
-    res.json(retour);
-});
-
-routes.delete("/",token.verifyToken, async (req,res)=>{
-    console.log("api suprresion de question");
-    const data : any = req.query;
-    const creator = await questionManager.getCreatorOfQuestion(data.question_id);
-    let retour = {success :false}
-    if(await checkCreator(req, data.question_id)){
-        retour = await questionManager.deleteQuestion(data.question_id);
-        if (retour.success){
-            await userManager.deleteQuestionFromUser(Number(creator), Number(data.question_id))
-        }
-    }
-    res.json(retour);
-})
-
+  })
+);
 
 export default routes;

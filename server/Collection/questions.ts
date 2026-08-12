@@ -27,7 +27,11 @@ const QuestionSchema = new mongoose.Schema<QuestionDocument>({
     report: { type: [{ date: Date, reporter: Number }], default: [] },
     played: { type: Number, default: 0 },
     succeed: { type: Number, default: 0 },
-    tags: [String],
+    // Ids canoniques (cf. Collection/tag.ts) : le texte libre saisi par le
+    // créateur est résolu en amont par tagManager.resolveTags, jamais stocké
+    // directement ici (harmonisation de casse SPORT/sport/Sport -> un seul tag).
+    tags: { type: [Number], default: [] },
+    folder_id: { type: Number, required: false },
 });
 
 QuestionSchema.plugin(AutoIncrement, { inc_field: "question_id" });

@@ -23,7 +23,7 @@ const UserSchema = new mongoose.Schema({
     quizz: {type : [Number],default :  []},
     emissions: {type : [Number],default :  []},
     themes: {type : [Number],default :  []},
-    questPlayed: {type : Number, dafault : 0},
+    questPlayed: {type : Number, default : 0},
     goodAnswer: {type :Number, default: 0}
 });
 

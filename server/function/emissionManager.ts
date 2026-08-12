@@ -1,7 +1,7 @@
 import EmissionModel from "../Collection/emission";
+import logger from "../utils/logger";
 
 const create = async (data : any) => {
-    console.log(data);
     try {
         if (!data.creator || !data.steps) {
             throw new Error("Missing required fields");
@@ -10,29 +10,42 @@ const create = async (data : any) => {
             creator: data.creator,
             steps : data.steps || [],
             title: data.title || "",
-            private: data.private || true,
+            private: data.private ?? true,
+            options: {
+                numberOfPlayers: data.options?.numberOfPlayers ?? 4,
+                teams: data.options?.teams ?? false,
+                playerThemeEnabled: data.options?.playerThemeEnabled ?? false,
+                hostModeEnabled: data.options?.hostModeEnabled ?? false,
+            },
         });
-        console.log("new emission : ",newEmission);
         return ({success : true, emission_id : newEmission.emission_id})
     } catch (error) {
-        console.error(error);
+        console.error("Erreur lors de la création de l'émission", error);
         return ({success : false, emission_id : null});
     }
 }
 
 const update = async (data : any) =>{
-    console.log(data);
     try {
-        if (!data.emission_id || !data.steps || data.creator) {
+        // `data.creator` était testé ici par erreur : comme la route l'ajoute
+        // systématiquement, cette condition rejetait TOUTES les mises à jour.
+        if (!data.emission_id || !data.steps) {
             throw new Error("Missing required fields");
         }
         await EmissionModel.updateOne({emission_id: data.emission_id}, {
             steps : data.steps,
             title: data.title,
             private: data.private,
+            options: {
+                numberOfPlayers: data.options?.numberOfPlayers ?? 4,
+                teams: data.options?.teams ?? false,
+                playerThemeEnabled: data.options?.playerThemeEnabled ?? false,
+                hostModeEnabled: data.options?.hostModeEnabled ?? false,
+            },
         });
         return ({success : true})
     } catch (error) {
+        console.error("Erreur lors de la mise à jour de l'émission", error);
         return ({success : false});
     }
 }
@@ -55,6 +68,16 @@ const getById = async (emission_id : number) =>{
     }   
 }
 
+/** Chargement en lot (ex: résoudre une émission ouverte directement par son id, sans état de navigation). */
+const getEmissionsByIds = async (ids : number[]) => {
+    if (ids.length === 0) return [];
+    try {
+        return await EmissionModel.find({ emission_id: { $in: ids } }).lean();
+    } catch (error) {
+        return [];
+    }
+}
+
 const getEmissionByCreator = async (creator_id : number) =>{
     try {
         const emissions = await EmissionModel.find({creator: creator_id}).lean();
@@ -70,6 +93,7 @@ const getCreatorOfEmission = async (id: String | number) => {
         return retour?.creator;
     } catch (error) {
         console.error("erreur lors de la récupération du créateur", error);
+        return undefined;
     }
 }
 
@@ -107,6 +131,7 @@ export default{
     update,
     deleteEmission,
     getById,
+    getEmissionsByIds,
     getEmissionByCreator,
     getCreatorOfEmission,
     getPublicEmissions,

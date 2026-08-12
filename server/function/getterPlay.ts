@@ -1,33 +1,62 @@
-import Quizz from '../Collection/quizz';
-import User from "../Collection/user";
-import Emission from "../Collection/emission";
-import Quest from '../Collection/questions';
-
-const { QuestionModel, QCMModel, FreeModel, DCCModel } = Quest;
+import { QuestionModel } from '../Collection/questions';
 
 type QuestionFilters = {
-    requiredTags?: string[];     
-    excludedTags?: string[];     
-    mode?: string[];               
-    difficulty?: string;         
-    language?: string;   
+    requiredTags?: number[];
+    excludedTags?: number[];
+    mode?: string[];
+    difficulty?: string;
+    language?: string;
     isPrivate?: boolean;
 
   };
 
-const getRandomDocWithTags = async (requiredTags: string[], excludedTags: string[]) => {
+export type RandomDrawOptions = {
+    /**
+     * Filtre "choisir" (id de tag canonique, cf. Collection/tag.ts) : la
+     * question doit avoir AU MOINS UN de ces tags ($in, pas $all — un
+     * utilisateur qui coche plusieurs tags veut piocher dans n'importe lequel
+     * d'entre eux, pas dans les seules questions qui les ont tous à la fois).
+     * `undefined` = pas de filtre ; `[]` = l'utilisateur a tout décoché,
+     * aucune question ne peut matcher (comportement Mongo `$in: []`).
+     */
+    wantedTags?: number[];
+    /** Filtre "bloquer" : la question ne doit avoir AUCUN de ces tags ($nin). */
+    excludedTags?: number[];
+    allowedModes?: string[];
+    excludedQuestionIds?: number[];
+};
+
+/**
+ * Tire une question aléatoire respectant les filtres donnés. Utilisée pour
+ * le tirage dynamique un par un des modes Points/BR : `allowedModes` honore
+ * le "type forcé" du salon (cf. shared-types/scoring.ts
+ * FORCED_TYPE_ALLOWED_MODES), `excludedQuestionIds` évite de retirer deux
+ * fois la même question pendant une partie.
+ */
+const getRandomDocWithTags = async (options: RandomDrawOptions) => {
+    const match: Record<string, unknown> = {};
+
+    const tagsMatch: Record<string, unknown> = {};
+    if (options.wantedTags !== undefined) {
+        tagsMatch.$in = options.wantedTags;
+    }
+    if (options.excludedTags?.length) {
+        tagsMatch.$nin = options.excludedTags;
+    }
+    if (Object.keys(tagsMatch).length > 0) {
+        match.tags = tagsMatch;
+    }
+
+    if (options.allowedModes?.length) {
+        match.mode = { $in: options.allowedModes };
+    }
+    if (options.excludedQuestionIds?.length) {
+        match.question_id = { $nin: options.excludedQuestionIds };
+    }
+
     const result = await QuestionModel.aggregate([
-        {
-            $match: {
-                tags: {
-                $all: requiredTags,           // contient tous les tags requis
-                $nin: excludedTags            // ne contient aucun tag interdit
-                }
-            }
-        },
-        {
-            $sample: { size: 1 }              // tire un document aléatoire
-        }
+        { $match: match },
+        { $sample: { size: 1 } }              // tire un document aléatoire
     ]);
 
     return result[0] || null;

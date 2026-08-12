@@ -1,24 +1,25 @@
-import {QuizzModel, ListQuizzModel, GridQuizzModel, PickAndBanQuizzModel, BigBucketQuizzModel} from "../Collection/quizz";
+import {QuizzModel, ListQuizzModel, GridQuizzModel, PickAndBanQuizzModel, BigBucketQuizzModel, TimerQuizzModel} from "../Collection/quizz";
 import { QuizzMode } from "../Interface/Quizz";
 import questionManager from "./questionManager";
 import { Socket } from 'socket.io';
+import logger from "../utils/logger";
 
 const createQuizz = async ( data : any) => {
-    console.log("dans CreateQuizz")
-    console.log(data); 
     switch (data.mode){
         case "LIST":
             return createListQuizz(data);
-            break;
         case "GRID":
             return createGridQuizz(data);
-            break;
         case "PICKANDBAN":
             return createPickAndBanQuizz(data);
-            break;
         case "BIGBUCKET":
             return createBigBucketQuizz(data);
-            break;
+        case "TIMER":
+            return createTimerQuizz(data);
+        default:
+            // Mode inconnu : la route traduit ça en 400 plutôt qu'un undefined
+            // qui remontait jusqu'au client.
+            return {success : false};
     }
 };
 
@@ -32,9 +33,12 @@ const createListQuizz = async (data : any) =>{
             tags: data.tags,
             title: data.title,
             private: data.private,
-            questions : data.questions
+            questions : data.questions,
+            answerDurationMs : data.answerDurationMs,
+            scoring : data.scoring,
+            forcedType : data.forcedType
         });
-        console.log("après la création List");
+        logger.debug("après la création List");
         await questionManager.addQuizzToQuestion(data.questions, newQuizz.quizz_id);
         return ({success : true, quizz_id : newQuizz.quizz_id, creator:newQuizz.creator})
         
@@ -51,15 +55,18 @@ const createListQuizz = async (data : any) =>{
 
 const updateListQuizzObj = async (quizzObj : any) =>{
     try {
-        console.log("les infos de l'update", quizzObj);
-        console.log("l'id", quizzObj.quizz_id);
+        logger.debug("les infos de l'update", quizzObj);
+        logger.debug("l'id", quizzObj.quizz_id);
         const quizzUPdated = await ListQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
             tags: quizzObj.tags,
             title: quizzObj.title,
             private: quizzObj.private,
-            questions : quizzObj.questions
+            questions : quizzObj.questions,
+            answerDurationMs : quizzObj.answerDurationMs,
+            scoring : quizzObj.scoring,
+            forcedType : quizzObj.forcedType
         }});
-        console.log(quizzUPdated);
+        logger.debug(quizzUPdated);
         await questionManager.addQuizzToQuestion(quizzObj.questionList, quizzObj.quizz_id);
         return({success : true});
     } catch (error) {
@@ -79,13 +86,18 @@ const createGridQuizz = async (data : any) =>{
             title: data.title,
             private: data.private,
             themes : data.themes,
-            themeSize : data.themeSize,
-            gridSize : data.gridSize
+            width : data.width,
+            height : data.height,
+            cellsPerTheme : data.cellsPerTheme,
+            neutralQuestions : data.neutralQuestions,
+            memorizeDurationMs : data.memorizeDurationMs,
+            answerDurationMs : data.answerDurationMs,
+            scoring : data.scoring,
+            forcedType : data.forcedType
         });
-        console.log("après la création Grid");
         return ({success : true, quizz_id : newQuizz.quizz_id, creator:newQuizz.creator})
-        
-            
+
+
     } catch (error) {
         if (error instanceof Error) {
             console.error(error.message);
@@ -98,17 +110,23 @@ const createGridQuizz = async (data : any) =>{
 
 const updateGridQuizzObj = async (quizzObj : any) =>{
     try {
-        console.log("les infos de l'update", quizzObj);
-        console.log("l'id", quizzObj.quizz_id);
+        logger.debug("les infos de l'update", quizzObj);
+        logger.debug("l'id", quizzObj.quizz_id);
         const quizzUPdated = await GridQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
             tags: quizzObj.tags,
             title: quizzObj.title,
             private: quizzObj.private,
             themes : quizzObj.themes,
-            themeSize : quizzObj.themeSize,
-            gridSize : quizzObj.gridSize
+            width : quizzObj.width,
+            height : quizzObj.height,
+            cellsPerTheme : quizzObj.cellsPerTheme,
+            neutralQuestions : quizzObj.neutralQuestions,
+            memorizeDurationMs : quizzObj.memorizeDurationMs,
+            answerDurationMs : quizzObj.answerDurationMs,
+            scoring : quizzObj.scoring,
+            forcedType : quizzObj.forcedType
         }});
-        console.log(quizzUPdated);
+        logger.debug(quizzUPdated);
         return({success : true});
     } catch (error) {
         console.error("Erreur lors de l'update du quizz grille", error);
@@ -127,9 +145,13 @@ const createPickAndBanQuizz = async (data : any) =>{
             title: data.title,
             private: data.private,
             themes : data.themes,
-            size : data.size
+            columns : data.columns,
+            draftTurnDurationMs : data.draftTurnDurationMs,
+            answerDurationMs : data.answerDurationMs,
+            scoring : data.scoring,
+            forcedType : data.forcedType,
+            allowBan : data.allowBan
         });
-        console.log("après la création PickAndBan");
         return ({success : true, quizz_id : newQuizz.quizz_id, creator:newQuizz.creator})
         
             
@@ -145,16 +167,21 @@ const createPickAndBanQuizz = async (data : any) =>{
 
 const updatePickAndBanQuizzObj = async (quizzObj : any) =>{
     try {
-        console.log("les infos de l'update", quizzObj);
-        console.log("l'id", quizzObj.quizz_id);
+        logger.debug("les infos de l'update", quizzObj);
+        logger.debug("l'id", quizzObj.quizz_id);
         const quizzUPdated = await PickAndBanQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
             tags: quizzObj.tags,
             title: quizzObj.title,
             private: quizzObj.private,
             themes : quizzObj.themes,
-            size : quizzObj.size
+            columns : quizzObj.columns,
+            draftTurnDurationMs : quizzObj.draftTurnDurationMs,
+            answerDurationMs : quizzObj.answerDurationMs,
+            scoring : quizzObj.scoring,
+            forcedType : quizzObj.forcedType,
+            allowBan : quizzObj.allowBan
         }});
-        console.log(quizzUPdated);
+        logger.debug(quizzUPdated);
         return({success : true});
     } catch (error) {
         console.error("Erreur lors de l'update du quizz pick and ban", error);
@@ -176,7 +203,7 @@ const createBigBucketQuizz = async (data : any) =>{
             width : data.width,
             height : data.height
         });
-        console.log("après la création BigBucket");
+        logger.debug("après la création BigBucket");
         return ({success : true, quizz_id : newQuizz.quizz_id, creator:newQuizz.creator})
         
             
@@ -192,8 +219,8 @@ const createBigBucketQuizz = async (data : any) =>{
 
 const updateBigBucketQuizzObj = async (quizzObj : any) =>{
     try {
-        console.log("les infos de l'update", quizzObj);
-        console.log("l'id", quizzObj.quizz_id);
+        logger.debug("les infos de l'update", quizzObj);
+        logger.debug("l'id", quizzObj.quizz_id);
         const quizzUPdated = await BigBucketQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
             tags: quizzObj.tags,
             title: quizzObj.title,
@@ -202,7 +229,7 @@ const updateBigBucketQuizzObj = async (quizzObj : any) =>{
             width : quizzObj.width,
             height : quizzObj.height
         }});
-        console.log(quizzUPdated);
+        logger.debug(quizzUPdated);
         return({success : true});
     } catch (error) {
         console.error("Erreur lors de l'update du quizz big bucket", error);
@@ -210,8 +237,58 @@ const updateBigBucketQuizzObj = async (quizzObj : any) =>{
     }
 }
 
+const createTimerQuizz = async (data : any) =>{
+    try {
+        let newQuizz;
+
+        newQuizz = await TimerQuizzModel.create({
+            creator: Number(data.creator),
+            mode: QuizzMode.TIMER,
+            tags: data.tags,
+            title: data.title,
+            private: data.private,
+            themes : data.themes,
+            turnDurationMs : data.turnDurationMs,
+            hostModeEnabled : Boolean(data.hostModeEnabled),
+            scoring : data.scoring,
+            forcedType : data.forcedType
+        });
+        return ({success : true, quizz_id : newQuizz.quizz_id, creator:newQuizz.creator})
+
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error(error.message);
+        } else {
+            console.error("Une erreur inconnue est survenue", error);
+        }
+        return ({success : false});
+    }
+}
+
+const updateTimerQuizzObj = async (quizzObj : any) =>{
+    try {
+        logger.debug("les infos de l'update", quizzObj);
+        logger.debug("l'id", quizzObj.quizz_id);
+        const quizzUPdated = await TimerQuizzModel.updateOne({ quizz_id: quizzObj.quizz_id},{$set : {
+            tags: quizzObj.tags,
+            title: quizzObj.title,
+            private: quizzObj.private,
+            themes : quizzObj.themes,
+            turnDurationMs : quizzObj.turnDurationMs,
+            hostModeEnabled : Boolean(quizzObj.hostModeEnabled),
+            scoring : quizzObj.scoring,
+            forcedType : quizzObj.forcedType
+        }});
+        logger.debug(quizzUPdated);
+        return({success : true});
+    } catch (error) {
+        console.error("Erreur lors de l'update du quizz timer", error);
+        return({success : false});
+    }
+}
+
 const updateQuizz = async (information : any) =>{
-    console.log("on modifie le quizz");
+    logger.debug("on modifie le quizz");
     try {
         let quizzObj = information;
         switch (information.mode){
@@ -227,6 +304,9 @@ const updateQuizz = async (information : any) =>{
             case "BIGBUCKET":
                 return updateBigBucketQuizzObj(quizzObj);
                 break;
+            case "TIMER":
+                return updateTimerQuizzObj(quizzObj);
+                break;
             default:
                 return ({success:false})
         }
@@ -241,7 +321,7 @@ const updateQuizz = async (information : any) =>{
 };
 
 
-const deleteQuizz = async (quizzId : string) => {
+const deleteQuizz = async (quizzId : string | number) => {
     try {
         const questionsToUpdate =await getQuestionsOfQuizz(Number(quizzId));
         await QuizzModel.deleteOne({quizz_id : quizzId});
@@ -274,6 +354,26 @@ const getQuestionsOfQuizz = async (id : number) => {
     const retour = await  ListQuizzModel.findOne().where("quizz_id").equals(id);
     return retour?.questions;
 };
+/** Quizz LIST complet (questions, durée de réponse). */
+const getListQuizz = async (id : number) => {
+    return await ListQuizzModel.findOne().where("quizz_id").equals(id);
+};
+
+/** Quizz TIMER complet (thèmes, durée de tour). */
+const getTimerQuizz = async (id : number) => {
+    return await TimerQuizzModel.findOne().where("quizz_id").equals(id);
+};
+
+/** Quizz GRID complet (thèmes, dimensions, questions neutres). */
+const getGridQuizz = async (id : number) => {
+    return await GridQuizzModel.findOne().where("quizz_id").equals(id);
+};
+
+/** Quizz PICKANDBAN complet (thèmes avec leurs images et questions). */
+const getPickAndBanQuizz = async (id : number) => {
+    return await PickAndBanQuizzModel.findOne().where("quizz_id").equals(id);
+};
+
 const getQuizzByCreator = async (id : number) => {
     const retour = await  QuizzModel.find().where("creator").equals(id);
     return retour;
@@ -311,16 +411,28 @@ const getPublicQuizz = async () => {
     }
 };
 
+/** Chargement en lot (ex: résoudre un quizz ouvert directement par son id, sans état de navigation). */
+const getQuizzByIds = async (ids: number[]) => {
+    if (ids.length === 0) return [];
+    try {
+        return await QuizzModel.find({ quizz_id: { $in: ids } });
+    } catch (error) {
+        console.error("erreur lors de la récupération des quizz par ids", error);
+        return [];
+    }
+};
+
 const getCreatorOfQuizz = async (id: String | number) => {
     try {
-        let retour = await  QuizzModel.findOne().where('quizz_id').equals(id);
+        const retour = await  QuizzModel.findOne().where('quizz_id').equals(id);
         return retour?.creator;
     } catch (error) {
         console.error("erreur lors de la récupération du créateur", error);
+        return undefined;
     }
 }
 
 
 export default{createQuizz,updateQuizz,deleteQuizz,
 handleDeletedQuestion, getQuestionsOfQuizz,getPublicQuizz,
-getQuizzByCreator, getAvailableQuizz, getCreatorOfQuizz};
+getQuizzByCreator, getAvailableQuizz, getQuizzByIds, getCreatorOfQuizz, getListQuizz, getGridQuizz, getPickAndBanQuizz, getTimerQuizz};

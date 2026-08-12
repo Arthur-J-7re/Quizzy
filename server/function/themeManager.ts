@@ -1,8 +1,9 @@
 import { get } from "mongoose";
 import { ThemeModel } from "../Collection/theme";
+import logger from "../utils/logger";
 
 const create = async (data : any) =>{
-    console.log("tentative de création de theme avec la data : ", data);
+    logger.debug("tentative de création de theme avec la data : ", data);
     try {
         const newTheme = await ThemeModel.create({
             imgOrString: data.imgOrString || false,
@@ -11,7 +12,8 @@ const create = async (data : any) =>{
             creator: data.creator,
             private: data.private,
             questions: data.questions || [],
-            tags: data.tags || []
+            tags: data.tags || [],
+            folder: data.folder || undefined,
         });
         return ({success : true, theme:newTheme})
     } catch (error) {
@@ -27,7 +29,8 @@ const update = async (data : any) =>{
             title: data.title,
             private: data.private,
             questions: data.questions || [],
-            tags: data.tags || []
+            tags: data.tags || [],
+            folder: data.folder || undefined,
         });
         return ({success : true})
     } catch (error) {
@@ -53,14 +56,20 @@ const getThemeById = async (theme_id : number) =>{
     }
 }
 
-const getThemeByCreator = async (creator_id : number, min : number) =>{
+const getThemeByCreator = async (creator_id : number, min : number, folder?: string) =>{
     try {
-        const themes = await ThemeModel.find({
+        const filter: Record<string, unknown> = {
             creator: creator_id,
             $expr: {
                 $gte: [{ $size: "$questions" }, min]
             }
-        });
+        };
+        if (folder === "none") {
+            filter.folder = { $exists: false };
+        } else if (folder) {
+            filter.folder = folder;
+        }
+        const themes = await ThemeModel.find(filter);
         return themes;
     } catch (error) {
         return [];
@@ -102,13 +111,24 @@ const getAvailableThemes = async (id: number, min : number) => {
     }
 };
 
+/** Chargement en lot (ex: résoudre un thème ouvert directement par son id, sans état de navigation). */
+const getThemesByIds = async (ids: number[]) => {
+    if (ids.length === 0) return [];
+    try {
+        return await ThemeModel.find({ theme_id: { $in: ids } });
+    } catch (error) {
+        console.error("erreur lors de la récupération des thèmes par ids", error);
+        return [];
+    }
+};
+
 const getCreatorOfTheme = async (id: number) => {
     try {
         const retour = await ThemeModel.findOne().where('theme_id').equals(id);
-        console.log("id : ",id,"theme : ", retour);
         return retour?.creator;
     } catch (error) {
         console.error("erreur lors de la récupération du créateur", error);
+        return undefined;
     }
 }
 
@@ -117,6 +137,7 @@ export default{
     update,
     deleteTheme,
     getThemeById,
+    getThemesByIds,
     getThemeByCreator,
     getCreatorOfTheme,
     getPublicThemes,

@@ -1,98 +1,103 @@
 import { Router } from "express";
 import quizzManager from "../function/quizzManager";
-import token from '../utils/jwt';
 import questionManager from "../function/questionManager";
 import userManager from "../function/userManager";
-import getIdFromReq from '../utils/getIdFromReq';
-
-const checkCreator = async (req:any, quizz_id:number) => {
-    let newReq : any= req;
-    const user = newReq.user;
-    const creator = await quizzManager.getCreatorOfQuizz(quizz_id);
-    return user.id === creator;
-}
+import token from "../utils/jwt";
+import getIdFromReq from "../utils/getIdFromReq";
+import asyncHandler from "../utils/asyncHandler";
+import assertOwner from "../utils/assertOwner";
+import { HttpError } from "../utils/errorHandler";
 
 const routes = Router();
 
-routes.get("/",token.verifyToken, async (req,res) => {
-    console.log("appelle au quizz");
-    const id = getIdFromReq(req);
-    try {
-      const retour =await quizzManager.getQuizzByCreator(id);
-      res.json(retour);
-      
-    } catch (error) {
-      console.error(error);
-    }
-});
+const ownsQuizz = (userId: number, quizz_id: number) =>
+  assertOwner(userId, quizz_id, quizzManager.getCreatorOfQuizz, "quizz");
 
-routes.get("/available-quizz",token.verifyToken, async (req,res) => {
-    console.log("appelle aux quizz available");
-    const id = getIdFromReq(req);
-    let retour = null;
-    try {
-        retour = await quizzManager.getAvailableQuizz(Number(id));
-    } catch (error) {
-      console.error(error);
-    }
-    res.json(retour);
-});
+routes.get(
+  "/",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    res.json(await quizzManager.getQuizzByCreator(getIdFromReq(req)));
+  })
+);
 
-routes.get("/public-quizz", async (req,res) => {
-    console.log("appelle aux quizz public");
-    let retour;
-    try {
-      retour = await quizzManager.getPublicQuizz();
-    } catch (error) {
-      console.error(error);
-    }
-    res.json(retour);
-});
+// Résout par lot des quizz déjà connus par id (ouverture directe d'un lien
+// d'édition, sans état de navigation) — ne renvoie que ceux visibles par
+// l'utilisateur (les siens ou publics).
+routes.get(
+  "/by-ids",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const ids = String(req.query.ids ?? "")
+      .split(",")
+      .map((id) => Number(id.trim()))
+      .filter((id) => Number.isFinite(id));
+    const quizzes = await quizzManager.getQuizzByIds(ids);
+    res.json(quizzes.filter((q: any) => q.creator === userId || q.private === false));
+  })
+);
 
-routes.post("/create", async (req,res) => {
-    console.log("création de question via les requête http");
-    const data : any = req.body;
-    data.creator = getIdFromReq(req);
+routes.get(
+  "/available-quizz",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    res.json(await quizzManager.getAvailableQuizz(getIdFromReq(req)));
+  })
+);
+
+routes.get(
+  "/public-quizz",
+  asyncHandler(async (_req, res) => {
+    res.json(await quizzManager.getPublicQuizz());
+  })
+);
+
+// Cette route n'avait pas de verifyToken alors qu'elle lisait req.user.id :
+// elle levait une TypeError et laissait la requête pendante côté client.
+routes.post(
+  "/create",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const data = { ...req.body, creator: getIdFromReq(req) };
     const retour = await quizzManager.createQuizz(data);
-    await questionManager.addQuizzToQuestion(data.questionList, retour?.quizz_id);
-    await userManager.addQuizzToUser(Number(retour?.creator), Number(retour?.quizz_id));
-    res.json(retour);
-});
+    if (!retour?.success || !retour.quizz_id) {
+      throw new HttpError(400, "La création du quizz a échoué.");
+    }
+    // Seul le mode LIST envoie une questionList : les autres modes (GRID,
+    // PICKANDBAN...) plantaient ici sur .map(undefined), rattrapé en silence
+    // mais logué à chaque création.
+    if (data.questionList) {
+      await questionManager.addQuizzToQuestion(data.questionList, retour.quizz_id);
+    }
+    await userManager.addQuizzToUser(Number(retour.creator), Number(retour.quizz_id));
+    res.status(201).json(retour);
+  })
+);
 
-routes.put("/update",token.verifyToken, async (req,res) => {
-    console.log("modification de quizz via les requête http");
-    const data : any = req.body;
-    data.creator = getIdFromReq(req);
-    let retour = {success :false}
-    if(await checkCreator(req, Number(data.quizz_id))){  
-      console.log("là ça va update le quizz normalement");
-      retour = await quizzManager.updateQuizz(req.body);
-    }
-    console.log(retour);
-    res.json(retour);
-});
-  
-routes.delete("/", token.verifyToken,async (req,res)=>{
-    console.log("api suprresion de quizz");
-    const newReq : any = req;
-    const user = newReq.user;
-    const data : any = req.body;
-    let retour = {success : false};
-    if (!(data && data.quizz_id)){
-      res.json(retour);
-    }
-    try{
-      console.log(data);
-      const creator = await quizzManager.getCreatorOfQuizz(data.quizz_id);
-      if (creator === user.id){
-        console.log("là ça va supprimer");
-        retour = await quizzManager.deleteQuizz(data.quizz_id);
-        await userManager.deleteQuizzFromUser(Number(creator), Number(data.quizz_id));
-      }
-    } catch (error){
-      console.error("erreur lors de la suppression d'un quizz : ", error);
+routes.put(
+  "/update",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    await ownsQuizz(userId, Number(req.body?.quizz_id));
+    res.json(await quizzManager.updateQuizz({ ...req.body, creator: userId }));
+  })
+);
+
+routes.delete(
+  "/",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const quizz_id = Number(req.body?.quizz_id);
+    await ownsQuizz(userId, quizz_id);
+    const retour = await quizzManager.deleteQuizz(quizz_id);
+    if (retour.success) {
+      await userManager.deleteQuizzFromUser(userId, quizz_id);
     }
     res.json(retour);
-});
+  })
+);
 
 export default routes;

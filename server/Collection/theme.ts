@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Document } from "mongoose";
-import { Theme} from "../Interface/Theme";
+import { Theme, THEME_FOLDER_VALUES } from "../Interface/Theme";
 
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 export type ThemeDocument = Document & Theme;
@@ -12,7 +12,10 @@ export const ThemeSchema = new mongoose.Schema({
     img: { type: String },
     title: { type: String, required: true },
     questions: { type: [Number], default: [] },
-    tags: { type: [String], default: [] }
+    tags: { type: [String], default: [] },
+    // Facet de filtre fixe, purement indicatif (cf. shared-types/theme.ts) :
+    // absent = "sans dossier".
+    folder: { type: String, enum: THEME_FOLDER_VALUES, required: false },
 });
 
 ThemeSchema.plugin(AutoIncrement, { inc_field: 'theme_id' });

@@ -1,277 +1,164 @@
-import { Socket } from "socket.io";
-import jwt from "jsonwebtoken";
 import User from "../Collection/user"
-import dotenv from 'dotenv';
-import { isUndefined } from "util";
 import {hashPassword, comparePassword} from '../utils/encryptPassword';
-dotenv.config();
-
+import { signUserToken } from '../utils/jwt';
+import type { LoginInput, RegisterInput } from "../validation/userSchemas";
 
 const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const SECRET_KEY : string= process.env.JWT_SECRET || "sferkfjdddfeofjgrjkjdkdpcdfkvfd";
+// Message unique volontaire : ne pas révéler si c'est l'identifiant ou le mot
+// de passe qui est faux (évite l'énumération de comptes).
+const BAD_CREDENTIALS = "Mauvais mot de passe ou identifiant.";
 
+export interface AuthResult {
+    success: boolean;
+    message?: string;
+    data?: { id: number; token: string; username: string };
+}
 
-
-const login = async (data : any) => {
-    console.log(data);
-    let name = data.username;
-    if (regexEmail.test(name)){
+const login = async (data : LoginInput) : Promise<AuthResult> => {
+    if (regexEmail.test(data.username)){
         return await loginEmail(data);
-    } else {
-        return await loginUsername(data);
     }
+    return await loginUsername(data);
 };
 
-const loginEmail = async (data : any) => {
-    let can = await emailExist(data.username);
-    if (can){
-        let matching = await match(data.username, data.password)
-        console.log(matching);
-        if (matching){
-            let id;
-            let username;
-            try {
-                const userInfo = await getIdByEmail(data.username);
-                id = userInfo?.id; 
-                username = userInfo?.username;
-            } catch (error) {
-                console.error(error);
-            }
-            const token = jwt.sign(
-                { id: id },
-                SECRET_KEY,
-                { expiresIn: '2190h' }
-            );
-            return {success : true, data :  {id: id, token: token}}
-        }
-        else {
-            return {success : false , message : "Mauvais mot de passe ou identifiant." }
-        }
-    } else {
-        return {success : false , message : "Mauvais mot de passe ou identifiant." }
+const loginEmail = async (data : LoginInput) : Promise<AuthResult> => {
+    if (!(await emailExist(data.username))){
+        return {success : false, message : BAD_CREDENTIALS};
     }
+    if (!(await match(data.username, data.password))){
+        return {success : false, message : BAD_CREDENTIALS};
+    }
+    const userInfo = await getIdByEmail(data.username);
+    if (!userInfo?.id){
+        return {success : false, message : BAD_CREDENTIALS};
+    }
+    // On renvoie bien le username ici : sans lui le client stockait un
+    // Username undefined pour toute connexion par e-mail.
+    return {
+        success : true,
+        data : {id : userInfo.id, token : signUserToken(userInfo.id), username : userInfo.username ?? ""}
+    };
 };
 
-const loginUsername = async ( data : any) => {
-    let cant = await usernameExist(data.username);
-    if (cant){
-        if (await match(data.username, data.password)){
-            let id;
-            try {
-                id = await getIdByUsername(data.username);
-            } catch (error) {
-                console.error(error);
-            }
-            const token = jwt.sign(
-                { id: id },
-                SECRET_KEY,
-                { expiresIn: '2190h' }
-            );
-            
-            return{success : true,data : {id: id, token:token, username : data.username}};
-        }
-        else {
-            return {success : false , message : "Mauvais mot de passe ou identifiant." }
-        }
-    } else {
-        return {success : false , message : "Mauvais mot de passe ou identifiant." }
+const loginUsername = async (data : LoginInput) : Promise<AuthResult> => {
+    if (!(await usernameExist(data.username))){
+        return {success : false, message : BAD_CREDENTIALS};
     }
+    if (!(await match(data.username, data.password))){
+        return {success : false, message : BAD_CREDENTIALS};
+    }
+    const id = await getIdByUsername(data.username);
+    if (!id){
+        return {success : false, message : BAD_CREDENTIALS};
+    }
+    return {
+        success : true,
+        data : {id : id, token : signUserToken(id), username : data.username}
+    };
 };
 
-const register = async (data : any) => {
-
-    let cantEMail = await emailExist(data.email);
-    let cantUserName = await usernameExist(data.username);
-    console.log("entrer dans le register");
-
-
-    if (cantEMail){
-        return {success : false , message : "Cette adresse e-mail est déjà utilisée." }
-    } else if (cantUserName){
-        return {success : false , message :  "Ce Username est déjà pris." }
-    } else {
-        try {
-            const newUser = await User.create({
-                username: data.username,
-                email: data.email,
-                password:await hashPassword(data.password),
-            });
-            let id = newUser.user_id;
-            const token = jwt.sign(
-                { id: id },
-                SECRET_KEY,
-                { expiresIn: '2190h' }
-            );
-            
-            console.log("après le create user");
-            return{success : true, data: {id: id, token:token, username : data.username}};
-
-
-        } catch(error) {
-            console.error(error);
-            return {success : false , message :  "Format d'adresse e-amil non valide."}
+const register = async (data : RegisterInput) : Promise<AuthResult> => {
+    if (await emailExist(data.email)){
+        return {success : false, message : "Cette adresse e-mail est déjà utilisée."};
+    }
+    if (await usernameExist(data.username)){
+        return {success : false, message : "Ce nom d'utilisateur est déjà pris."};
+    }
+    try {
+        const newUser = await User.create({
+            username: data.username,
+            email: data.email,
+            password: await hashPassword(data.password),
+        });
+        // user_id est posé par le plugin mongoose-sequence, donc typé optionnel.
+        const id = newUser.user_id;
+        if (id === null || id === undefined){
+            return {success : false, message : "La création du compte a échoué."};
         }
+        return {success : true, data : {id : id, token : signUserToken(id), username : data.username}};
+    } catch(error) {
+        console.error("Erreur lors de la création du compte", error);
+        // L'index unique de Mongo peut encore rejeter en cas de course entre
+        // deux inscriptions simultanées sur la même adresse.
+        if (error && typeof error === "object" && (error as {code?: number}).code === 11000){
+            return {success : false, message : "Cette adresse e-mail est déjà utilisée."};
+        }
+        return {success : false, message : "La création du compte a échoué."};
     }
 };
 
 const updateUsername = async (id : number, username : string) => {
-    console.log(id, username);
     try {
-        await User.updateOne({ user_id: id },{$set : {
-            username : username
-        }});
-        return ({username : username});
+        await User.updateOne({ user_id: id },{$set : { username : username }});
+        return ({success : true, username : username});
     } catch (error) {
-        console.error("error lors de l'update du username");
+        console.error("Erreur lors de l'update du username", error);
+        return ({success : false});
     }
 };
 
 const match = async (accountname : string, password : string) => {
-    if (regexEmail.test(accountname)){
-        let expected = await getPasswordByEmail(accountname);
-        
-        return await comparePassword(password,expected);
-    } else {
-        let expected = await getPasswordByUsername(accountname);
-        return await comparePassword(password,expected);
+    const expected = regexEmail.test(accountname)
+        ? await getPasswordByEmail(accountname)
+        : await getPasswordByUsername(accountname);
+    // bcrypt.compare sur une chaîne vide renvoie false : pas de court-circuit
+    // qui permettrait de distinguer "compte inexistant" de "mauvais mot de passe".
+    return await comparePassword(password, expected);
+};
+
+const usernameExist = async (name : string) : Promise<boolean> => {
+    try {
+        return (await User.findOne().where("username").equals(name)) !== null;
+    } catch (error) {
+        console.error("Erreur lors de la recherche par username", error);
+        return false;
     }
 };
 
-const usernameExist = async (name : string) => {
+const emailExist = async (mail : string) : Promise<boolean> => {
     try {
-        const retour = await User.findOne().where("username").equals(name);
-        if (retour) {
-            return true ;
-        } else {
-            return false;
-        }
+        // Le champ s'appelle "email" dans le schéma : chercher sur "mail"
+        // renvoyait toujours null, donc aucun doublon n'était jamais détecté.
+        return (await User.findOne().where("email").equals(mail)) !== null;
     } catch (error) {
-        console.error(error)
+        console.error("Erreur lors de la recherche par email", error);
+        return false;
     }
 };
 
-const emailExist = async (mail : string) => {
+// Les 4 collections d'un utilisateur, toutes gérées de la même façon.
+type UserList = "questions" | "quizz" | "emissions" | "themes";
+
+const addToUserList = async (list : UserList, user_id : number, item_id : number) => {
     try {
-        const retour = await User.findOne().where("mail").equals(mail);
-        if (retour) {
-            return true ;
-        } else {
-            return false;
-        }
+        await User.updateOne({ user_id }, { $addToSet: { [list]: item_id } });
+        return { success : true };
     } catch (error) {
-        console.error(error)
+        console.error(`Erreur lors de l'ajout dans ${list} de l'utilisateur ${user_id}`, error);
+        return { success : false };
     }
 };
 
-const addQuizzToUser = async (user_id: number, quizz_id : number) => {
-    console.log(quizz_id, user_id);
+const removeFromUserList = async (list : UserList, user_id : number, item_id : number) => {
     try {
-        const updatedUser = await User.updateOne(
-            { user_id: user_id },
-            {$addToSet: {quizz: quizz_id}
-            });
-            console.log(updatedUser);
-        return ({success : true});
+        await User.updateOne({ user_id }, { $pull: { [list]: item_id } });
+        return { success : true };
     } catch (error) {
-        console.error("error lors de l'update du username");
+        console.error(`Erreur lors du retrait dans ${list} de l'utilisateur ${user_id}`, error);
+        return { success : false };
     }
 };
 
-const addQuestionToUser = async (user_id: number, question_id : number) => {
-    console.log(question_id, user_id);
-    try {
-        console.log("ça supprime un quizz au user");
-        const updatedUser = await User.updateOne(
-            { user_id: user_id },
-            {$addToSet: {questions: question_id}
-            });
-        return ({success : true});
-    } catch (error) {
-        console.error("error lors de l'update du username");
-    }
-};
+const addQuizzToUser = (user_id : number, quizz_id : number) => addToUserList("quizz", user_id, quizz_id);
+const addQuestionToUser = (user_id : number, question_id : number) => addToUserList("questions", user_id, question_id);
+const addEmissionToUser = (user_id : number, emission_id : number) => addToUserList("emissions", user_id, emission_id);
+const addThemeToUser = (user_id : number, theme_id : number) => addToUserList("themes", user_id, theme_id);
 
-const addEmissionToUser = async (user_id: number, emission_id : number) => {
-    console.log(emission_id, user_id);
-    try {
-        const updatedUser = await User.updateOne(
-            { user_id: user_id },
-            {$addToSet: {emissions: emission_id}
-            });
-            console.log(updatedUser);
-        return ({success : true});
-    } catch (error) {
-        console.error("error lors de l'update des émissions");
-    }   
-};
-
-const addThemeToUser = async (user_id: number, theme_id : number) => {
-    console.log(theme_id, user_id);
-    try {
-        const updatedUser = await User.updateOne(
-            { user_id: user_id },
-            {$addToSet: {themes: theme_id}
-            });
-            console.log(updatedUser);
-        return ({success : true});
-    } catch (error) {
-        console.error("error lors de l'update des thèmes");
-    }
-};
-
-const deleteQuestionFromUser = async (user_id : number, question_id : number) => {
-    try {
-        console.log("ça supprime une question au user");
-        const updatedUser =await User.updateOne(
-            {user_id : user_id},
-            {$pull: {questions: question_id}})
-        console.log(updatedUser);
-        return { success: true };
-    } catch (error) {
-        console.error("Erreur dans l'update des questions après la suppression d'un quizz", error);
-        return { success: false };
-    }
-};
-
-const deleteQuizzFromUser = async (user_id : number, quizz_id : number) => {
-    try {
-        const updatedUser = await User.updateOne(
-            {user_id : user_id},
-            {$pull: {quizz: quizz_id}})
-            console.log(updatedUser);
-        return { success: true };
-    } catch (error) {
-        console.error("Erreur dans l'update des questions après la suppression d'un quizz", error);
-        return { success: false };
-    }
-};
-
-const deleteEmissionFromUser = async (user_id : number, emission_id : number) => {
-    try {
-        const updatedUser = await User.updateOne(
-            {user_id : user_id},
-            {$pull: {emissions: emission_id}})
-            console.log(updatedUser);
-        return { success: true };
-    } catch (error) {
-        console.error("Erreur dans l'update des émissions après la suppression d'une émission", error);
-        return { success: false };
-    }
-};
-
-const deleteThemeFromUser = async (user_id : number, theme_id : number) => {
-    try {
-        const updatedUser = await User.updateOne(   
-            {user_id : user_id},
-            {$pull: {themes: theme_id}})
-            console.log(updatedUser);
-        return { success: true };
-    } catch (error) {
-        console.error("Erreur dans l'update des thèmes après la suppression d'un thème", error);
-        return { success: false };
-    }
-};
+const deleteQuizzFromUser = (user_id : number, quizz_id : number) => removeFromUserList("quizz", user_id, quizz_id);
+const deleteQuestionFromUser = (user_id : number, question_id : number) => removeFromUserList("questions", user_id, question_id);
+const deleteEmissionFromUser = (user_id : number, emission_id : number) => removeFromUserList("emissions", user_id, emission_id);
+const deleteThemeFromUser = (user_id : number, theme_id : number) => removeFromUserList("themes", user_id, theme_id);
 
 const getIdByEmail = async (mail : string) => {
     try {
@@ -279,8 +166,10 @@ const getIdByEmail = async (mail : string) => {
         if (retour){
             return {id : retour.user_id, username : retour.username};
         }
+        return undefined;
     } catch (error) {
-        console.error(error);
+        console.error("erreur lors de la récupération de l'utilisateur par e-mail", error);
+        return undefined;
     }
 };
 
@@ -290,8 +179,10 @@ const getIdByUsername = async (username : string) => {
         if (retour){
             return retour.user_id;
         }
+        return undefined;
     } catch (error) {
-        console.error(error);
+        console.error("erreur lors de la récupération de l'utilisateur par pseudo", error);
+        return undefined;
     }
 };
 
