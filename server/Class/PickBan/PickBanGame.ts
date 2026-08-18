@@ -8,9 +8,11 @@ import {
     type PickBanRanking,
     type PickBanState,
 } from "../../../shared-types/pickban";
-import { filterQuestionsByForcedType, resolveDccMode, shuffledChoiceOrder, shuffledPairOrder, verify } from "../../GameFunction/threadHelper";
+import { filterQuestionsByForcedType, verify } from "../../GameFunction/threadHelper";
+import { enforceDccMode, sanitizeQuestionForBroadcast } from "../../GameFunction/questionSanitizer";
 import logger from "../../utils/logger";
 import { ForcedQuestionType, PickBanScoringConfig } from "../../../shared-types/scoring";
+import PhaseTimerEngine from "../PhaseTimerEngine";
 
 /** Duo formé en amont (étape TEAM_FORMATION) : les 2 usernames qui le composent. */
 export interface PickBanTeamInput {
@@ -88,8 +90,7 @@ function shuffle<T>(array: T[]): T[] {
  * thèmes disponibles. Ensuite, manche de questions où chacun choisit un de
  * ses thèmes et répond à toutes ses questions pour marquer des points.
  */
-export default class PickBanGame {
-    private phase: PickBanPhase = "waiting";
+export default class PickBanGame extends PhaseTimerEngine<PickBanPhase, PickBanRanking> {
     private themes: ServerTheme[] = [];
     private players: PBPlayer[] = [];
     private turnOrder: string[] = [];
@@ -111,16 +112,14 @@ export default class PickBanGame {
     /** Dernière réponse résolue, le temps de la pause "reveal" (arbitre uniquement) — sert à `overrideAnswer`. */
     private lastResolved: { username: string; given: unknown; correct: boolean; points: number } | null = null;
 
-    private phaseTimer?: NodeJS.Timeout;
-    private phaseEndsAt = 0;
-    private socketIdResolver: ((name: string) => string | undefined) | null = null;
-
     constructor(
-        private readonly roomId: string,
-        private readonly io: Server,
+        roomId: string,
+        io: Server,
         private readonly config: PickBanConfig,
         private readonly loadQuestions: QuestionLoader
-    ) {}
+    ) {
+        super(roomId, io, "waiting", { error: PICKBAN_EVENTS.error });
+    }
 
     // ---------------------------------------------------------------- cycle
 
@@ -592,18 +591,7 @@ export default class PickBanGame {
         this.broadcastState();
         this.io.to(this.roomId).emit(PICKBAN_EVENTS.finished, { ranking });
         logger.debug(`[pickban ${this.roomId}] partie terminée`);
-        this.onFinishedCallback?.(ranking);
-    }
-
-    private onFinishedCallback: ((ranking: PickBanRanking[]) => void) | null = null;
-
-    /** Permet à l'orchestrateur (Thread) de savoir quand passer à l'étape suivante. */
-    public onFinished(callback: (ranking: PickBanRanking[]) => void): void {
-        this.onFinishedCallback = callback;
-    }
-
-    public dispose(): void {
-        this.clearPhaseTimer();
+        this.finishWith(ranking);
     }
 
     // ------------------------------------------------------------- diffusion
@@ -641,7 +629,7 @@ export default class PickBanGame {
                     : null,
             draftAction: this.phase === "draft" ? this.draftAction : undefined,
             forcedGiveTarget: this.phase === "draft" && this.draftAction === "give" ? this.forcedGiveTarget() : undefined,
-            remainingMs: this.phaseEndsAt > 0 ? Math.max(0, this.phaseEndsAt - Date.now()) : undefined,
+            remainingMs: this.remainingMs(),
         };
     }
 
@@ -663,25 +651,12 @@ export default class PickBanGame {
     }
 
     private sanitizeQuestion(question: any): any {
-        const { answer, answers, truth, ...safe } = question?.toObject?.() ?? question ?? {};
-        if (safe.mode === "DCC") {
-            safe.forcedDccMode = resolveDccMode(`${this.roomId}:${safe.question_id}:dccmode`, this.config.forcedType);
-        }
-        if (safe.mode === "QCM" || safe.mode === "DCC") {
-            safe.choiceOrder = shuffledChoiceOrder(`${this.roomId}:${safe.question_id}`);
-        }
-        if (safe.mode === "DCC") {
-            const duoPair = shuffledPairOrder(`${this.roomId}:${safe.question_id}:duo`, answer, safe.duo);
-            safe.duoChoices = duoPair.map((id: number) => ({ id, value: safe.carre?.[`ans${id}`] }));
-        }
-        return safe;
+        return sanitizeQuestionForBroadcast(question, { roomId: this.roomId, forcedType: this.config.forcedType });
     }
 
     /** Le serveur impose le sous-mode DCC (Carré/Cash, jamais laissé au choix du joueur). */
     private enforceDccMode(question: any, given: unknown): unknown {
-        if (question?.mode !== "DCC" || !given || typeof given !== "object") return given;
-        const forcedDccMode = resolveDccMode(`${this.roomId}:${question.question_id}:dccmode`, this.config.forcedType);
-        return forcedDccMode ? { ...given, mode: forcedDccMode } : given;
+        return enforceDccMode(question, given, { roomId: this.roomId, forcedType: this.config.forcedType });
     }
 
     /** Bonne réponse à une question DCC : la valeur dépend du sous-mode joué (Cash/Carré/Duo). */
@@ -700,10 +675,6 @@ export default class PickBanGame {
         }
     }
 
-    private emitError(message: string): void {
-        this.io.to(this.roomId).emit(PICKBAN_EVENTS.error, { message });
-    }
-
     private emitErrorTo(username: string, message: string): void {
         this.emitTo(username, PICKBAN_EVENTS.error, { message });
     }
@@ -713,42 +684,14 @@ export default class PickBanGame {
      * avec un username comme `sendStateTo`), soit un id d'équipe (mode duo,
      * `currentPlayerName()`) — auquel cas les 2 membres reçoivent l'envoi :
      * n'importe lequel des deux doit pouvoir voir la question complète.
+     * Surcharge le comportement générique de `PhaseTimerEngine.emitTo`, qui ne
+     * connaît pas la notion d'équipe.
      */
-    private emitTo(identity: string, event: string, payload: unknown): void {
+    protected override emitTo(identity: string, event: string, payload: unknown): void {
         const team = this.config.teams?.find((t) => t.id === identity);
         const targets = team ? team.members : [identity];
         for (const name of targets) {
-            const socketId = this.socketIdResolver?.(name);
-            if (socketId) {
-                this.io.to(socketId).emit(event, payload);
-            }
+            super.emitTo(name, event, payload);
         }
-    }
-
-    public setSocketIdResolver(resolver: (name: string) => string | undefined): void {
-        this.socketIdResolver = resolver;
-    }
-
-    // --------------------------------------------------------------- timers
-
-    private startPhaseTimer(durationMs: number, onEnd: () => void): void {
-        this.clearPhaseTimer();
-        this.phaseEndsAt = Date.now() + durationMs;
-        this.phaseTimer = setTimeout(() => {
-            this.phaseEndsAt = 0;
-            onEnd();
-        }, durationMs);
-    }
-
-    private clearPhaseTimer(): void {
-        if (this.phaseTimer) {
-            clearTimeout(this.phaseTimer);
-            this.phaseTimer = undefined;
-        }
-        this.phaseEndsAt = 0;
-    }
-
-    public getPhase(): PickBanPhase {
-        return this.phase;
     }
 }

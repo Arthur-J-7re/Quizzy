@@ -7,9 +7,11 @@ import {
     type TimerRanking,
     type TimerState,
 } from "../../../shared-types/timer";
-import { filterQuestionsByForcedType, resolveDccMode, shuffledChoiceOrder, shuffledPairOrder, verify } from "../../GameFunction/threadHelper";
+import { filterQuestionsByForcedType, verify } from "../../GameFunction/threadHelper";
+import { enforceDccMode, sanitizeQuestionForBroadcast } from "../../GameFunction/questionSanitizer";
 import logger from "../../utils/logger";
 import { ForcedQuestionType, TimerScoringConfig } from "../../../shared-types/scoring";
+import PhaseTimerEngine from "../PhaseTimerEngine";
 
 /** Thème minimal nécessaire à la construction d'un tour. */
 export interface TimerThemeInput {
@@ -83,8 +85,7 @@ function shuffle<T>(array: T[]): T[] {
  * qui épuise son thème avant la fin du temps reboucle sur ses erreurs jusqu'à
  * ce qu'il les trouve, ou que le temps soit écoulé.
  */
-export default class TimerGame {
-    private phase: TimerPhase = "waiting";
+export default class TimerGame extends PhaseTimerEngine<TimerPhase, TimerRanking> {
     private players: TimerPlayer[] = [];
     private turnOrder: string[] = [];
     private currentTurnIndex = -1;
@@ -97,11 +98,6 @@ export default class TimerGame {
     private currentTurnAnswered = 0;
     private currentTurnPoints = 0;
 
-    private phaseTimer?: NodeJS.Timeout;
-    private phaseEndsAt = 0;
-    private socketIdResolver: ((name: string) => string | undefined) | null = null;
-    private onFinishedCallback: ((ranking: TimerRanking[]) => void) | null = null;
-
     // --------------------------------------------------------- mode équipe
     /** Indices (dans turnOrder) de manche 1 déjà résolus par un claimTurn. */
     private resolvedTeamStarts = new Set<number>();
@@ -111,11 +107,13 @@ export default class TimerGame {
     private playerStreaks = new Map<string, number>();
 
     constructor(
-        private readonly roomId: string,
-        private readonly io: Server,
+        roomId: string,
+        io: Server,
         private readonly config: TimerConfig,
         private readonly loadQuestions: QuestionLoader
-    ) {}
+    ) {
+        super(roomId, io, "waiting", { error: TIMER_EVENTS.error });
+    }
 
     // ---------------------------------------------------------------- cycle
 
@@ -472,16 +470,7 @@ export default class TimerGame {
         this.broadcastState();
         this.io.to(this.roomId).emit(TIMER_EVENTS.finished, { ranking });
         logger.debug(`[timer ${this.roomId}] partie terminée`);
-        this.onFinishedCallback?.(ranking);
-    }
-
-    /** Permet à l'orchestrateur (Thread) de savoir quand passer à l'étape suivante. */
-    public onFinished(callback: (ranking: TimerRanking[]) => void): void {
-        this.onFinishedCallback = callback;
-    }
-
-    public dispose(): void {
-        this.clearPhaseTimer();
+        this.finishWith(ranking);
     }
 
     // ------------------------------------------------------------- diffusion
@@ -506,7 +495,7 @@ export default class TimerGame {
             players,
             currentPlayer: this.phase === "turn" ? this.currentPlayer()?.name ?? null : null,
             currentTurnCorrectCount: this.currentTurnCorrectCount,
-            remainingMs: this.phaseEndsAt > 0 ? Math.max(0, this.phaseEndsAt - Date.now()) : undefined,
+            remainingMs: this.remainingMs(),
             awaitingDuoMembers,
         };
     }
@@ -556,25 +545,12 @@ export default class TimerGame {
 
     /** Retire la bonne réponse avant d'envoyer la question au joueur actif. */
     private sanitizeQuestion(question: any): any {
-        const { answer, answers, truth, ...safe } = question?.toObject?.() ?? question ?? {};
-        if (safe.mode === "DCC") {
-            safe.forcedDccMode = resolveDccMode(`${this.roomId}:${safe.question_id}:dccmode`, this.config.forcedType);
-        }
-        if (safe.mode === "QCM" || safe.mode === "DCC") {
-            safe.choiceOrder = shuffledChoiceOrder(`${this.roomId}:${safe.question_id}`);
-        }
-        if (safe.mode === "DCC") {
-            const duoPair = shuffledPairOrder(`${this.roomId}:${safe.question_id}:duo`, answer, safe.duo);
-            safe.duoChoices = duoPair.map((id: number) => ({ id, value: safe.carre?.[`ans${id}`] }));
-        }
-        return safe;
+        return sanitizeQuestionForBroadcast(question, { roomId: this.roomId, forcedType: this.config.forcedType });
     }
 
     /** Le serveur impose le sous-mode DCC (Carré/Cash, jamais laissé au choix du joueur). */
     private enforceDccMode(question: any, given: unknown): unknown {
-        if (question?.mode !== "DCC" || !given || typeof given !== "object") return given;
-        const forcedDccMode = resolveDccMode(`${this.roomId}:${question.question_id}:dccmode`, this.config.forcedType);
-        return forcedDccMode ? { ...given, mode: forcedDccMode } : given;
+        return enforceDccMode(question, given, { roomId: this.roomId, forcedType: this.config.forcedType });
     }
 
     private currentPlayer(): TimerPlayer | null {
@@ -584,44 +560,5 @@ export default class TimerGame {
 
     private playerByName(name: string): TimerPlayer | null {
         return this.players.find((p) => p.name === name) ?? null;
-    }
-
-    protected emitError(message: string): void {
-        this.io.to(this.roomId).emit(TIMER_EVENTS.error, { message });
-    }
-
-    private emitTo(username: string, event: string, payload: unknown): void {
-        const socketId = this.socketIdResolver?.(username);
-        if (socketId) {
-            this.io.to(socketId).emit(event, payload);
-        }
-    }
-
-    /** Injecté par la Room, qui seule connaît la table joueur → socket. */
-    public setSocketIdResolver(resolver: (name: string) => string | undefined): void {
-        this.socketIdResolver = resolver;
-    }
-
-    // --------------------------------------------------------------- timers
-
-    private startPhaseTimer(durationMs: number, onEnd: () => void): void {
-        this.clearPhaseTimer();
-        this.phaseEndsAt = Date.now() + durationMs;
-        this.phaseTimer = setTimeout(() => {
-            this.phaseEndsAt = 0;
-            onEnd();
-        }, durationMs);
-    }
-
-    private clearPhaseTimer(): void {
-        if (this.phaseTimer) {
-            clearTimeout(this.phaseTimer);
-            this.phaseTimer = undefined;
-        }
-        this.phaseEndsAt = 0;
-    }
-
-    public getPhase(): TimerPhase {
-        return this.phase;
     }
 }

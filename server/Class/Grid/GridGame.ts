@@ -11,9 +11,11 @@ import {
     type GridRanking,
     type GridState,
 } from "../../../shared-types/grid";
-import { filterQuestionsByForcedType, resolveDccMode, shuffledChoiceOrder, shuffledPairOrder, verify } from "../../GameFunction/threadHelper";
+import { filterQuestionsByForcedType, verify } from "../../GameFunction/threadHelper";
+import { enforceDccMode, sanitizeQuestionForBroadcast } from "../../GameFunction/questionSanitizer";
 import logger from "../../utils/logger";
 import { BaseScoringConfig, ForcedQuestionType } from "../../../shared-types/scoring";
+import PhaseTimerEngine from "../PhaseTimerEngine";
 
 /** Thème minimal nécessaire à la construction d'une grille. */
 export interface GridThemeInput {
@@ -85,8 +87,7 @@ export function shuffle<T>(array: T[]): T[] {
     return array;
 }
 
-export default class GridGame {
-    private phase: GridPhase = "waiting";
+export default class GridGame extends PhaseTimerEngine<GridPhase, GridRanking> {
     private cells: ServerCell[] = [];
     private players: GridPlayer[] = [];
     private turnOrder: string[] = [];
@@ -98,15 +99,15 @@ export default class GridGame {
     private pendingCell: ServerCell | null = null;
     /** Dernière case résolue, le temps de la pause "reveal" (arbitre uniquement) — sert à `overrideAnswer`. */
     private lastResolved: { cell: ServerCell; username: string; given: unknown } | null = null;
-    private phaseTimer?: NodeJS.Timeout;
-    private phaseEndsAt = 0;
 
     constructor(
-        private readonly roomId: string,
-        private readonly io: Server,
+        roomId: string,
+        io: Server,
         private readonly config: GridConfig,
         private readonly loadQuestions: QuestionLoader
-    ) {}
+    ) {
+        super(roomId, io, "waiting", { error: GRID_EVENTS.error });
+    }
 
     // ---------------------------------------------------------------- cycle
 
@@ -460,18 +461,7 @@ export default class GridGame {
         this.broadcastState();
         this.io.to(this.roomId).emit(GRID_EVENTS.finished, { ranking });
         logger.debug(`[grid ${this.roomId}] partie terminée`);
-        this.onFinishedCallback?.(ranking);
-    }
-
-    private onFinishedCallback: ((ranking: GridRanking[]) => void) | null = null;
-
-    /** Permet à l'orchestrateur (Thread) de savoir quand passer à l'étape suivante. */
-    public onFinished(callback: (ranking: GridRanking[]) => void): void {
-        this.onFinishedCallback = callback;
-    }
-
-    public dispose(): void {
-        this.clearPhaseTimer();
+        this.finishWith(ranking);
     }
 
     // ------------------------------------------------------------- diffusion
@@ -518,7 +508,7 @@ export default class GridGame {
             currentPlayer: this.phase === "playing" || this.phase === "answering" || this.phase === "reveal"
                 ? this.currentPlayerName()
                 : null,
-            remainingMs: this.phaseEndsAt > 0 ? Math.max(0, this.phaseEndsAt - Date.now()) : undefined,
+            remainingMs: this.remainingMs(),
         };
     }
 
@@ -542,74 +532,15 @@ export default class GridGame {
 
     /** Retire la bonne réponse avant d'envoyer la question au joueur. */
     private sanitizeQuestion(question: any): any {
-        const { answer, answers, truth, ...safe } = question?.toObject?.() ?? question ?? {};
-        if (safe.mode === "DCC") {
-            safe.forcedDccMode = resolveDccMode(`${this.roomId}:${safe.question_id}:dccmode`, this.config.forcedType);
-        }
-        if (safe.mode === "QCM" || safe.mode === "DCC") {
-            safe.choiceOrder = shuffledChoiceOrder(`${this.roomId}:${safe.question_id}`);
-        }
-        if (safe.mode === "DCC") {
-            const duoPair = shuffledPairOrder(`${this.roomId}:${safe.question_id}:duo`, answer, safe.duo);
-            safe.duoChoices = duoPair.map((id: number) => ({ id, value: safe.carre?.[`ans${id}`] }));
-        }
-        return safe;
+        return sanitizeQuestionForBroadcast(question, { roomId: this.roomId, forcedType: this.config.forcedType });
     }
 
     /** Le serveur impose le sous-mode DCC (Carré/Cash, jamais laissé au choix du joueur). */
     private enforceDccMode(question: any, given: unknown): unknown {
-        if (question?.mode !== "DCC" || !given || typeof given !== "object") return given;
-        const forcedDccMode = resolveDccMode(`${this.roomId}:${question.question_id}:dccmode`, this.config.forcedType);
-        return forcedDccMode ? { ...given, mode: forcedDccMode } : given;
-    }
-
-    protected emitError(message: string): void {
-        this.io.to(this.roomId).emit(GRID_EVENTS.error, { message });
+        return enforceDccMode(question, given, { roomId: this.roomId, forcedType: this.config.forcedType });
     }
 
     private emitErrorTo(username: string, message: string): void {
         this.emitTo(username, GRID_EVENTS.error, { message });
-    }
-
-    /** Émission ciblée : on résout le socket du joueur par son nom. */
-    private emitTo(username: string, event: string, payload: unknown): void {
-        const socketId = this.socketIdOf(username);
-        if (socketId) {
-            this.io.to(socketId).emit(event, payload);
-        }
-    }
-
-    private socketIdResolver: ((name: string) => string | undefined) | null = null;
-
-    /** Injecté par la Room, qui seule connaît la table joueur → socket. */
-    public setSocketIdResolver(resolver: (name: string) => string | undefined): void {
-        this.socketIdResolver = resolver;
-    }
-
-    private socketIdOf(username: string): string | undefined {
-        return this.socketIdResolver?.(username);
-    }
-
-    // --------------------------------------------------------------- timers
-
-    private startPhaseTimer(durationMs: number, onEnd: () => void): void {
-        this.clearPhaseTimer();
-        this.phaseEndsAt = Date.now() + durationMs;
-        this.phaseTimer = setTimeout(() => {
-            this.phaseEndsAt = 0;
-            onEnd();
-        }, durationMs);
-    }
-
-    private clearPhaseTimer(): void {
-        if (this.phaseTimer) {
-            clearTimeout(this.phaseTimer);
-            this.phaseTimer = undefined;
-        }
-        this.phaseEndsAt = 0;
-    }
-
-    public getPhase(): GridPhase {
-        return this.phase;
     }
 }

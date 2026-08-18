@@ -7,9 +7,11 @@ import {
     type ListRanking,
     type ListState,
 } from "../../../shared-types/list";
-import { filterQuestionsByForcedType, resolveDccMode, shuffledChoiceOrder, shuffledPairOrder, verify } from "../../GameFunction/threadHelper";
+import { filterQuestionsByForcedType, verify } from "../../GameFunction/threadHelper";
+import { enforceDccMode, sanitizeQuestionForBroadcast } from "../../GameFunction/questionSanitizer";
 import logger from "../../utils/logger";
 import { BaseScoringConfig, ForcedQuestionType } from "../../../shared-types/scoring";
+import PhaseTimerEngine from "../PhaseTimerEngine";
 
 export interface ListConfig {
     questions: number[];
@@ -41,25 +43,21 @@ const REVEAL_DURATION_MS = 4000;
  * passe à la suivante dès que tout le monde a répondu, ou au bout du temps
  * imparti pour les retardataires.
  */
-export default class ListGame {
-    private phase: ListPhase = "waiting";
+export default class ListGame extends PhaseTimerEngine<ListPhase, ListRanking> {
     private players: ListPlayer[] = [];
     private questionIds: number[] = [];
     private currentIndex = -1;
     private questionsById = new Map<number, any>();
     private answers = new Map<string, { given: unknown; correct: boolean }>();
 
-    private phaseTimer?: NodeJS.Timeout;
-    private phaseEndsAt = 0;
-    private socketIdResolver: ((name: string) => string | undefined) | null = null;
-    private onFinishedCallback: ((ranking: ListRanking[]) => void) | null = null;
-
     constructor(
-        private readonly roomId: string,
-        private readonly io: Server,
+        roomId: string,
+        io: Server,
         private readonly config: ListConfig,
         private readonly loadQuestions: QuestionLoader
-    ) {}
+    ) {
+        super(roomId, io, "waiting", { error: LIST_EVENTS.error });
+    }
 
     // ---------------------------------------------------------------- cycle
 
@@ -248,16 +246,7 @@ export default class ListGame {
         this.broadcastState();
         this.io.to(this.roomId).emit(LIST_EVENTS.finished, { ranking });
         logger.debug(`[list ${this.roomId}] partie terminée`);
-        this.onFinishedCallback?.(ranking);
-    }
-
-    /** Permet à l'orchestrateur (Thread) de savoir quand passer à l'étape suivante. */
-    public onFinished(callback: (ranking: ListRanking[]) => void): void {
-        this.onFinishedCallback = callback;
-    }
-
-    public dispose(): void {
-        this.clearPhaseTimer();
+        this.finishWith(ranking);
     }
 
     // ------------------------------------------------------------- diffusion
@@ -270,7 +259,7 @@ export default class ListGame {
             total: this.questionIds.length,
             players,
             answeredNames: [...this.answers.keys()],
-            remainingMs: this.phaseEndsAt > 0 ? Math.max(0, this.phaseEndsAt - Date.now()) : undefined,
+            remainingMs: this.remainingMs(),
         };
     }
 
@@ -290,63 +279,11 @@ export default class ListGame {
 
     /** Retire la bonne réponse avant de diffuser la question à tous. */
     private sanitizeQuestion(question: any): any {
-        const { answer, answers, truth, ...safe } = question?.toObject?.() ?? question ?? {};
-        if (safe.mode === "DCC") {
-            safe.forcedDccMode = resolveDccMode(`${this.roomId}:${safe.question_id}:dccmode`, this.config.forcedType);
-        }
-        if (safe.mode === "QCM" || safe.mode === "DCC") {
-            safe.choiceOrder = shuffledChoiceOrder(`${this.roomId}:${safe.question_id}`);
-        }
-        if (safe.mode === "DCC") {
-            const duoPair = shuffledPairOrder(`${this.roomId}:${safe.question_id}:duo`, answer, safe.duo);
-            safe.duoChoices = duoPair.map((id: number) => ({ id, value: safe.carre?.[`ans${id}`] }));
-        }
-        return safe;
+        return sanitizeQuestionForBroadcast(question, { roomId: this.roomId, forcedType: this.config.forcedType });
     }
 
     /** Le serveur impose le sous-mode DCC (Carré/Cash, jamais laissé au choix du joueur). */
     private enforceDccMode(question: any, given: unknown): unknown {
-        if (question?.mode !== "DCC" || !given || typeof given !== "object") return given;
-        const forcedDccMode = resolveDccMode(`${this.roomId}:${question.question_id}:dccmode`, this.config.forcedType);
-        return forcedDccMode ? { ...given, mode: forcedDccMode } : given;
-    }
-
-    private emitError(message: string): void {
-        this.io.to(this.roomId).emit(LIST_EVENTS.error, { message });
-    }
-
-    private emitTo(username: string, event: string, payload: unknown): void {
-        const socketId = this.socketIdResolver?.(username);
-        if (socketId) {
-            this.io.to(socketId).emit(event, payload);
-        }
-    }
-
-    /** Injecté par la Room, qui seule connaît la table joueur → socket. */
-    public setSocketIdResolver(resolver: (name: string) => string | undefined): void {
-        this.socketIdResolver = resolver;
-    }
-
-    // --------------------------------------------------------------- timers
-
-    private startPhaseTimer(durationMs: number, onEnd: () => void): void {
-        this.clearPhaseTimer();
-        this.phaseEndsAt = Date.now() + durationMs;
-        this.phaseTimer = setTimeout(() => {
-            this.phaseEndsAt = 0;
-            onEnd();
-        }, durationMs);
-    }
-
-    private clearPhaseTimer(): void {
-        if (this.phaseTimer) {
-            clearTimeout(this.phaseTimer);
-            this.phaseTimer = undefined;
-        }
-        this.phaseEndsAt = 0;
-    }
-
-    public getPhase(): ListPhase {
-        return this.phase;
+        return enforceDccMode(question, given, { roomId: this.roomId, forcedType: this.config.forcedType });
     }
 }
