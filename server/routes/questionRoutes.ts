@@ -78,7 +78,7 @@ routes.get(
       .map((id) => Number(id.trim()))
       .filter((id) => Number.isFinite(id));
     const questions = await questionManager.getQuestionsByIds(ids);
-    res.json(questions.filter((q: any) => q.creator === userId || q.private === false));
+    res.json(questions.filter((q: any) => q.creator === userId || q.status === "approved"));
   })
 );
 
@@ -140,6 +140,22 @@ routes.delete(
     const retour = await questionManager.deleteQuestion(question_id);
     if (retour.success) {
       await userManager.deleteQuestionFromUser(userId, question_id);
+    }
+    res.json(retour);
+  })
+);
+
+// Réservé au créateur : demande la publication d'une question private/rejected (cf. ROADMAP.md, Phase 2).
+routes.post(
+  "/:question_id/request-publication",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const question_id = Number(req.params.question_id);
+    await ownsQuestion(userId, question_id);
+    const retour = await questionManager.requestPublication(question_id);
+    if (!retour.success) {
+      throw new HttpError(400, retour.message ?? "La demande de publication a échoué.");
     }
     res.json(retour);
   })

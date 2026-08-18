@@ -13,6 +13,7 @@ import { getForcedQuestionTypeOptions } from "../../tools/props/Props";
 import { getQuestionModeLabel } from "../../tools/text/text";
 import { useQuestionPicker } from "../../tools/hooks/useQuestionPicker";
 import QuestionPicker from "../../component/QuestionPicker/QuestionPicker";
+import PublicationBlockedNotice from "../../component/PublicationStatus/PublicationBlockedNotice";
 
 
 export function QuizzCreation () {
@@ -58,6 +59,20 @@ export function QuizzCreation () {
     const [title, setTitle] = useState(quizz?.title || "");
 
     const [isPrivate, setPrivate] = useState(quizz?.private ?? true);
+    // Cf. ROADMAP.md, Phase 3 : la publication demandée peut rester bloquée
+    // si des questions référencées ne sont pas approuvées.
+    const [blockedCount, setBlockedCount] = useState(0);
+    useEffect(() => {
+        if (isPrivate || !quizz?.quizz_id) {
+            setBlockedCount(0);
+            return;
+        }
+        let cancelled = false;
+        makeRequest(`/quizz/${quizz.quizz_id}/publication-status`)
+            .then((status) => { if (!cancelled) setBlockedCount(status.blockedCount ?? 0); })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, [isPrivate, quizz?.quizz_id]);
     const [answerSeconds, setAnswerSeconds] = useState(quizz?.answerDurationMs ? quizz.answerDurationMs / 1000 : 20);
     const [forcedType, setForcedType] = useState(quizz?.forcedType || "ALL");
     const [correctPoints, setCorrectPoints] = useState(quizz?.scoring?.correctPoints ?? 1);
@@ -270,6 +285,7 @@ export function QuizzCreation () {
                         onClick={() => changePrivate()}
                     />
                 </label>
+                <PublicationBlockedNotice blockedCount={blockedCount} entityLabel="quizz" />
                 <label className="quizzSliderLabel" id="answerDurationLabel">
                     Temps de réponse par question : {answerSeconds} s
                     <Slider

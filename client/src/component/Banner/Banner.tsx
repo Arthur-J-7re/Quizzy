@@ -6,6 +6,7 @@ import logo from "../../assets/Image/logo/logoV1.png"
 import './Banner.css'
 import ProfileMenu from '../ProfilMenu/ProfilMenu';
 import CreateMenu from '../CreateMenu/CreateMenu';
+import NotificationBell from '../NotificationBell/NotificationBell';
 
 
 
@@ -22,7 +23,10 @@ export function Banner () {
             <div className='menuButtonContainer'>
                 <CreateMenu/>
                 {(auth && auth.user) ? (
-                    <ProfileMenu />
+                    <>
+                        <NotificationBell />
+                        <ProfileMenu />
+                    </>
                 ) : (
                     <Button 
                         variant="contained" 

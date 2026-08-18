@@ -7,6 +7,7 @@ import getIdFromReq from "../utils/getIdFromReq";
 import asyncHandler from "../utils/asyncHandler";
 import assertOwner from "../utils/assertOwner";
 import { HttpError } from "../utils/errorHandler";
+import { isQuizzEffectivelyPublic } from "../function/publicationStatus";
 
 const routes = Router();
 
@@ -34,7 +35,22 @@ routes.get(
       .map((id) => Number(id.trim()))
       .filter((id) => Number.isFinite(id));
     const quizzes = await quizzManager.getQuizzByIds(ids);
-    res.json(quizzes.filter((q: any) => q.creator === userId || q.private === false));
+    const visible = await Promise.all(quizzes.map(async (q: any) =>
+      q.creator === userId || (q.private === false && await isQuizzEffectivelyPublic(q))
+    ));
+    res.json(quizzes.filter((_: any, i: number) => visible[i]));
+  })
+);
+
+// Réservé à l'écran d'édition du créateur : pourquoi son quizz "public" ne l'est pas encore vraiment (cf. ROADMAP.md, Phase 3).
+routes.get(
+  "/:id/publication-status",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const quizz_id = Number(req.params.id);
+    await ownsQuizz(userId, quizz_id);
+    res.json(await quizzManager.getPublicationStatus(quizz_id));
   })
 );
 

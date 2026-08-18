@@ -1,0 +1,136 @@
+.messagesLayout {
+    display: flex;
+    gap: var(--spacing-lg, 24px);
+    align-items: flex-start;
+}
+
+.messagesSidebar {
+    flex: 1 1 35%;
+    min-width: 0;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.messagesThread {
+    flex: 1 1 65%;
+    position: sticky;
+    top: var(--spacing-md, 20px);
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.messagesSearch,
+.messagesComposer {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.messagesSearch input,
+.messagesComposer input {
+    flex: 1;
+    /* Sans ça, un input dans un flex container ne rétrécit jamais en dessous
+       de sa largeur intrinsèque : le bouton "Chercher"/"Envoyer" déborde du
+       panneau au lieu de se caler à côté. */
+    min-width: 0;
+    padding: 8px 12px;
+    border-radius: var(--radius-md, 8px);
+    border: 1px solid var(--border-color, #ddd);
+}
+
+.messagesSearchResults,
+.messagesPending ul,
+.messagesFriendList {
+    list-style: none;
+    margin: 0 0 16px 0;
+    padding: 0;
+}
+
+.messagesSearchResults li,
+.messagesPending li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+}
+
+.messagesFriendItem {
+    padding: 10px;
+    border-radius: var(--radius-md, 8px);
+    cursor: pointer;
+}
+
+.messagesFriendItem:hover {
+    background: #f5f5f8;
+}
+
+.messagesFriendItem.active {
+    background: #f0efff;
+}
+
+.messagesFriendName {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.messagesFriendPreview {
+    font-size: 0.85em;
+    color: var(--text-secondary, #666);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.messagesUnreadBadge {
+    background: #e53935;
+    color: white;
+    border-radius: 999px;
+    font-size: 0.75em;
+    padding: 1px 7px;
+}
+
+.messagesEmpty {
+    color: var(--text-secondary, #666);
+}
+
+.messagesThreadList {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.messagesBubble {
+    align-self: flex-start;
+    background: #f0f0f4;
+    border-radius: 12px;
+    padding: 8px 14px;
+    max-width: 70%;
+}
+
+.messagesBubble.mine {
+    align-self: flex-end;
+    background: var(--primary-color, #5a54e8);
+    color: white;
+}
+
+@media (max-width: 900px) {
+    .messagesLayout {
+        flex-direction: column;
+    }
+    .messagesThread {
+        position: static;
+        width: 100%;
+    }
+}

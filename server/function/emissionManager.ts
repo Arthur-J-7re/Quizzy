@@ -1,5 +1,6 @@
 import EmissionModel from "../Collection/emission";
 import logger from "../utils/logger";
+import { isEmissionEffectivelyPublic, getEmissionBlockingCount } from "./publicationStatus";
 
 const create = async (data : any) => {
     try {
@@ -99,12 +100,23 @@ const getCreatorOfEmission = async (id: String | number) => {
 
 const getPublicEmissions = async () => {
     try {
-        const emissions = await EmissionModel.find({private: false}).lean();
-        return emissions;
+        const candidates = await EmissionModel.find({private: false}).lean();
+        const flags = await Promise.all(candidates.map((e) => isEmissionEffectivelyPublic(e)));
+        return candidates.filter((_, i) => flags[i]);
     } catch (error) {
         return [];
     }
 }
+
+/** Réservé à l'écran d'édition du créateur : pourquoi son émission "publique" ne l'est pas encore vraiment. */
+const getPublicationStatus = async (emission_id: number) => {
+    const emission = await EmissionModel.findOne({ emission_id }).lean();
+    if (!emission) return { effectivePublic: false, blockedCount: 0 };
+    return {
+        effectivePublic: await isEmissionEffectivelyPublic(emission),
+        blockedCount: await getEmissionBlockingCount(emission),
+    };
+};
 
 const getAvailableEmissions = async (id : number) => {
     try {
@@ -136,4 +148,5 @@ export default{
     getCreatorOfEmission,
     getPublicEmissions,
     getAvailableEmissions,
+    getPublicationStatus,
 }

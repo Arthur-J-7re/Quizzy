@@ -3,6 +3,14 @@ import { QuizzMode } from "../Interface/Quizz";
 import questionManager from "./questionManager";
 import { Socket } from 'socket.io';
 import logger from "../utils/logger";
+import { isQuizzEffectivelyPublic, getQuizzBlockingCount } from "./publicationStatus";
+import { cascadePrivatizeEmissionsUsingQuizz } from "./publicationCascade";
+
+/** Filtre applicatif : la cascade (cf. ROADMAP.md, Phase 3) ne peut pas s'exprimer en une seule requête Mongo à cause des thèmes embarqués. */
+const filterEffectivelyPublic = async (quizzes: any[]): Promise<any[]> => {
+    const flags = await Promise.all(quizzes.map((q) => isQuizzEffectivelyPublic(q)));
+    return quizzes.filter((_, i) => flags[i]);
+};
 
 const createQuizz = async ( data : any) => {
     switch (data.mode){
@@ -291,25 +299,25 @@ const updateQuizz = async (information : any) =>{
     logger.debug("on modifie le quizz");
     try {
         let quizzObj = information;
-        switch (information.mode){
-            case "LIST":
-                return updateListQuizzObj(quizzObj);
-                break;
-            case "GRID":
-                return updateGridQuizzObj(quizzObj);
-                break;
-            case "PICKANDBAN":
-                return updatePickAndBanQuizzObj(quizzObj);
-                break;
-            case "BIGBUCKET":
-                return updateBigBucketQuizzObj(quizzObj);
-                break;
-            case "TIMER":
-                return updateTimerQuizzObj(quizzObj);
-                break;
-            default:
-                return ({success:false})
+        const updateByMode: Record<string, (obj: any) => Promise<{ success: boolean }>> = {
+            LIST: updateListQuizzObj,
+            GRID: updateGridQuizzObj,
+            PICKANDBAN: updatePickAndBanQuizzObj,
+            BIGBUCKET: updateBigBucketQuizzObj,
+            TIMER: updateTimerQuizzObj,
+        };
+        const update = updateByMode[information.mode];
+        if (!update) {
+            return ({success:false});
         }
+        const retour = await update(quizzObj);
+        if (retour.success && quizzObj.private) {
+            // Privatisation manuelle : les émissions qui dépendaient de ce
+            // quizz public doivent repasser privées aussi (cf. ROADMAP.md,
+            // Phase 4) — no-op si rien n'en dépendait ou s'il était déjà privé.
+            await cascadePrivatizeEmissionsUsingQuizz([Number(quizzObj.quizz_id)]);
+        }
+        return retour;
     } catch (error){
         if (error instanceof Error) {
             console.error(error.message);
@@ -328,6 +336,10 @@ const deleteQuizz = async (quizzId : string | number) => {
         if (questionsToUpdate){
             await questionManager.handleDeletedQuizz(questionsToUpdate, Number(quizzId));
         }
+        // Toute émission publique dont une étape référençait ce quizz devient
+        // injouable immédiatement (résolu en direct au lancement, pas une
+        // copie figée) — cf. ROADMAP.md, Phase 4.
+        await cascadePrivatizeEmissionsUsingQuizz([Number(quizzId)]);
         return ({success : true});
     } catch (error) {
         console.error("error de la suprression du quizz : " + quizzId, error);
@@ -338,7 +350,10 @@ const deleteQuizz = async (quizzId : string | number) => {
 const handleDeletedQuestion = async (quizzIds: number[], question_id: number) => {
     try {
         await Promise.all(quizzIds.map(async (quizz_id: number) => {
-            await QuizzModel.updateOne(
+            // `questions` n'existe que sur le schéma discriminator LIST : passer
+            // par le modèle de base `QuizzModel` fait taire silencieusement le
+            // $pull (mode strict Mongoose, champ inconnu du schéma de base).
+            await ListQuizzModel.updateOne(
                 { quizz_id: quizz_id },
                 { $pull: { questions: question_id } }
             );
@@ -381,20 +396,15 @@ const getQuizzByCreator = async (id : number) => {
 
 const getAvailableQuizz = async (id ?: number ) => {
     try {
-        let retour;
         if (id) {
-            let quizzOfId = await  QuizzModel.find().where('creator').equals(Number(id));
-            retour  = await  QuizzModel.find().where('private').equals(false).where("creator").ne(id);
-
-            retour.forEach((quest) => {
-                quizzOfId.push(quest);
-                
-            })
+            const quizzOfId = await QuizzModel.find().where('creator').equals(Number(id));
+            const candidates = await QuizzModel.find().where('private').equals(false).where("creator").ne(id);
+            const publicOnes = await filterEffectivelyPublic(candidates);
+            quizzOfId.push(...publicOnes);
             return quizzOfId;
-        } else {
-            retour = await  QuizzModel.find().where('private').equals(false)
         }
-        return retour;
+        const candidates = await QuizzModel.find().where('private').equals(false);
+        return await filterEffectivelyPublic(candidates);
     } catch(e){
         console.error("erreur lors du fetch des questions available : ", e)
         return([])
@@ -403,12 +413,22 @@ const getAvailableQuizz = async (id ?: number ) => {
 
 const getPublicQuizz = async () => {
     try {
-        const retour = await  QuizzModel.find().where('private').equals(false);
-        return retour;
+        const candidates = await QuizzModel.find().where('private').equals(false);
+        return await filterEffectivelyPublic(candidates);
     }catch(e){
         console.error("erreur lors du fetch des questions public : ", e)
         return([])
     }
+};
+
+/** Réservé à l'écran d'édition du créateur : pourquoi son quizz "public" ne l'est pas encore vraiment. */
+const getPublicationStatus = async (id: number) => {
+    const quizz = await QuizzModel.findOne().where("quizz_id").equals(id);
+    if (!quizz) return { effectivePublic: false, blockedCount: 0 };
+    return {
+        effectivePublic: await isQuizzEffectivelyPublic(quizz),
+        blockedCount: await getQuizzBlockingCount(quizz),
+    };
 };
 
 /** Chargement en lot (ex: résoudre un quizz ouvert directement par son id, sans état de navigation). */
@@ -435,4 +455,5 @@ const getCreatorOfQuizz = async (id: String | number) => {
 
 export default{createQuizz,updateQuizz,deleteQuizz,
 handleDeletedQuestion, getQuestionsOfQuizz,getPublicQuizz,
-getQuizzByCreator, getAvailableQuizz, getQuizzByIds, getCreatorOfQuizz, getListQuizz, getGridQuizz, getPickAndBanQuizz, getTimerQuizz};
+getQuizzByCreator, getAvailableQuizz, getQuizzByIds, getCreatorOfQuizz, getListQuizz, getGridQuizz, getPickAndBanQuizz, getTimerQuizz,
+getPublicationStatus};

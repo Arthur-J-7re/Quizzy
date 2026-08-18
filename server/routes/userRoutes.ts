@@ -8,6 +8,17 @@ import { updateUsernameSchema } from "../validation/userSchemas";
 
 const routes = Router();
 
+// Utilisé pour trouver qui ajouter en ami (cf. ROADMAP.md, Phase 5).
+routes.get(
+  "/search",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const query = String(req.query.q ?? "");
+    res.json(await userManager.searchUsers(query, userId));
+  })
+);
+
 routes.put(
   "/updateUsername",
   token.verifyToken,

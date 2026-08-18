@@ -6,6 +6,7 @@ import getIdFromReq from "../utils/getIdFromReq";
 import asyncHandler from "../utils/asyncHandler";
 import assertOwner from "../utils/assertOwner";
 import { HttpError } from "../utils/errorHandler";
+import { isEmissionEffectivelyPublic } from "../function/publicationStatus";
 
 const routes = Router();
 
@@ -33,7 +34,22 @@ routes.get(
       .map((id) => Number(id.trim()))
       .filter((id) => Number.isFinite(id));
     const emissions = await emissionManager.getEmissionsByIds(ids);
-    res.json(emissions.filter((e: any) => e.creator === userId || e.private === false));
+    const visible = await Promise.all(emissions.map(async (e: any) =>
+      e.creator === userId || (e.private === false && await isEmissionEffectivelyPublic(e))
+    ));
+    res.json(emissions.filter((_: any, i: number) => visible[i]));
+  })
+);
+
+// Réservé à l'écran d'édition du créateur : pourquoi son émission "publique" ne l'est pas encore vraiment (cf. ROADMAP.md, Phase 3).
+routes.get(
+  "/:id/publication-status",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const emission_id = Number(req.params.id);
+    await ownsEmission(userId, emission_id);
+    res.json(await emissionManager.getPublicationStatus(emission_id));
   })
 );
 

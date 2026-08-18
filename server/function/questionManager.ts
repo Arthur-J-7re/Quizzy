@@ -6,7 +6,10 @@ import { QuestionMode } from '../Interface/Question';
 import { Socket } from 'socket.io';
 import quizzManager from './quizzManager';
 import tagManager from './tagManager';
+import notificationManager from './notificationManager';
+import { cascadeAfterQuestionsDeleted } from './publicationCascade';
 import logger from "../utils/logger";
+import type { QuestionStatus } from "../../shared-types/questionStatus";
 
 const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -21,6 +24,17 @@ const buildQuestionUpdate = (fields: Record<string, unknown>, folder_id?: number
     ...(folder_id == null ? { $unset: { folder_id: "" } } : {}),
 });
 
+/**
+ * Statut appliqué par un simple edit créateur (jamais choisi par le client) :
+ * une question déjà `approved` repasse en `pending` (toute édition doit être
+ * re-validée, pour empêcher de faire approuver un contenu anodin puis de le
+ * changer librement ensuite) ; les autres statuts ne bougent pas via un edit.
+ */
+const resolveStatusOnEdit = async (question_id: number): Promise<QuestionStatus> => {
+    const current = await QuestionModel.findOne().select("status").where("question_id").equals(question_id);
+    return current?.status === "approved" ? "pending" : ((current?.status as QuestionStatus | undefined) ?? "private");
+};
+
 const createQCMQuestion = async ( questionObj : any) =>{
     logger.debug(questionObj);
     try {
@@ -29,7 +43,7 @@ const createQCMQuestion = async ( questionObj : any) =>{
             tags: await tagManager.resolveTags(questionObj.tags ?? []),
             title: questionObj.title,
             level: questionObj.level,
-            private: questionObj.private,
+            status: "private",
             mode: QuestionMode.QCM,
             choices: questionObj.choices,
             answer: questionObj.answer,
@@ -53,7 +67,7 @@ const updateQCMQuestion = async ( information : any) =>{
             tags: await tagManager.resolveTags(questionObj.tags ?? []),
             title: questionObj.title,
             level: questionObj.level,
-            private: questionObj.private,
+            status: await resolveStatusOnEdit(information.question_id),
             mode: QuestionMode.QCM,
             choices: questionObj.choices,
             answer: questionObj.answer,
@@ -76,12 +90,12 @@ const createFreeQuestion = async( questionObj : any) => {
             tags: await tagManager.resolveTags(questionObj.tags ?? []),
             title: questionObj.title,
             level: questionObj.level,
-            private: questionObj.private,
+            status: "private",
             mode: QuestionMode.FREE,
             answers: questionObj.answers,
         });
         return({success : true, creator : newQuest.creator, question_id : newQuest.question_id});
-        
+
     } catch (error) {
         if (error instanceof Error) {
         console.error(error.message);
@@ -99,7 +113,7 @@ const updateFreeQuestion = async ( information : any) =>{
             tags: await tagManager.resolveTags(questionObj.tags ?? []),
             title: questionObj.title,
             level: questionObj.level,
-            private: questionObj.private,
+            status: await resolveStatusOnEdit(information.question_id),
             mode: QuestionMode.FREE,
             answers: questionObj.answers,
         }, questionObj.folder_id));
@@ -121,7 +135,7 @@ const createDCCQuestion = async( questionObj : any) => {
             tags: await tagManager.resolveTags(questionObj.tags ?? []),
             title: questionObj.title,
             level: questionObj.level,
-            private: questionObj.private,
+            status: "private",
             mode: QuestionMode.DCC,
             carre: questionObj.carre,
             duo: questionObj.duo,
@@ -129,8 +143,8 @@ const createDCCQuestion = async( questionObj : any) => {
             cash: questionObj.cash,
         });
         return({success : true, creator : newQuest.creator, question_id : newQuest.question_id});
-        
-            
+
+
     } catch (error) {
         if (error instanceof Error) {
             console.error(error.message);
@@ -149,7 +163,7 @@ const updateDCCQuestion = async ( information : any) =>{
             tags: await tagManager.resolveTags(questionObj.tags ?? []),
             title: questionObj.title,
             level: questionObj.level,
-            private: questionObj.private,
+            status: await resolveStatusOnEdit(information.question_id),
             mode: QuestionMode.DCC,
             carre: questionObj.carre,
             duo: questionObj.duo,
@@ -176,11 +190,11 @@ const createVFQuestion = async(questionObj : any) => {
             tags: await tagManager.resolveTags(questionObj.tags ?? []),
             title: questionObj.title,
             level: questionObj.level,
-            private: questionObj.private,
+            status: "private",
             mode: QuestionMode.VF,
             truth: questionObj.truth,
         });
-        return({success : true, creator : newQuest.creator, question_id : newQuest.question_id});  
+        return({success : true, creator : newQuest.creator, question_id : newQuest.question_id});
     } catch (error) {
         if (error instanceof Error) {
             console.error(error.message);
@@ -199,7 +213,7 @@ const updateVFQuestion = async ( information : any) =>{
             tags: await tagManager.resolveTags(questionObj.tags ?? []),
             title: questionObj.title,
             level: questionObj.level,
-            private: questionObj.private,
+            status: await resolveStatusOnEdit(information.question_id),
             mode: QuestionMode.VF,
             truth: questionObj.truth,
         }, questionObj.folder_id));
@@ -221,6 +235,11 @@ const deleteQuestion = async (question_id: string | number) => {
         if (quizzToUpdate){
             await quizzManager.handleDeletedQuestion(quizzToUpdate, Number(question_id));
         }
+        // Nettoie aussi les références mortes que handleDeletedQuestion ne
+        // couvre pas (thèmes, thèmes embarqués, pool neutre Grid) et
+        // repasse en privé + notifie tout ce qui en devient injouable
+        // (cf. ROADMAP.md, Phase 4).
+        await cascadeAfterQuestionsDeleted([Number(question_id)]);
         return ({success : true});
     } catch (error) {
         console.error("error de la suprression du quizz : " + question_id, error);
@@ -310,7 +329,7 @@ const getQuestionsByIds = async (ids : number[]) => {
 const getAvailableQuestions = async (id : number)=>{
     try {
         let questOfId = await QuestionModel.find().where('creator').equals(Number(id));
-        let retour  = await QuestionModel.find().where('private').equals(false).where("creator").ne(id);
+        let retour  = await QuestionModel.find().where('status').equals('approved').where("creator").ne(id);
         retour.forEach((quest) => {
             questOfId.push(quest);
 
@@ -345,10 +364,10 @@ const getFilteredQuestions = async (userId: number, query: QuestionSearchQuery) 
         if (query.scope === "mine") {
             filter.creator = userId;
         } else if (query.scope === "public") {
-            filter.private = false;
+            filter.status = "approved";
             filter.creator = { $ne: userId };
         } else {
-            filter.$or = [{ creator: userId }, { private: false }];
+            filter.$or = [{ creator: userId }, { status: "approved" }];
         }
 
         if (query.folder_id === "none") {
@@ -391,11 +410,120 @@ const getFilteredQuestions = async (userId: number, query: QuestionSearchQuery) 
 
 const getPublicQuestions = async () => {
     try {
-        const retour = await QuestionModel.find().where('private').equals(false);
+        const retour = await QuestionModel.find().where('status').equals('approved');
         return await attachTagNames(retour);
     } catch (error) {
         console.error("erreur lors de la récupération des questions publiques", error);
         return [];
+    }
+};
+
+export interface BacklogQuery {
+    mode?: string;
+    tags?: string[];
+    skip?: number;
+    limit?: number;
+}
+
+/** Backlog de modération (cf. ROADMAP.md, Phase 2) : questions en attente d'un admin, même forme paginée que getFilteredQuestions. */
+const getPendingBacklog = async (query: BacklogQuery) => {
+    try {
+        const filter: Record<string, unknown> = { status: "pending" };
+
+        if (query.tags?.length) {
+            const tagIds = await tagManager.lookupTagIds(query.tags);
+            if (tagIds.length < new Set(query.tags.map((t) => t.trim().toUpperCase())).size) {
+                return { items: [], total: 0 };
+            }
+            filter.tags = { $all: tagIds };
+        }
+        if (query.mode) {
+            filter.mode = query.mode;
+        }
+
+        const skip = query.skip ?? 0;
+        const limit = Math.min(query.limit ?? 50, 200);
+
+        const [items, total] = await Promise.all([
+            QuestionModel.find(filter).skip(skip).limit(limit),
+            QuestionModel.countDocuments(filter),
+        ]);
+        return { items: await attachTagNames(items), total };
+    } catch (error) {
+        logger.error("erreur lors de la récupération du backlog de modération", error);
+        return { items: [], total: 0 };
+    }
+};
+
+/**
+ * Demande de publication du créateur : private/rejected -> pending. La
+ * propriété est vérifiée côté route (assertOwner), comme update/delete.
+ */
+const requestPublication = async (question_id: number) => {
+    try {
+        const question = await QuestionModel.findOne().where("question_id").equals(question_id);
+        if (!question) {
+            return { success: false, message: "Cette question n'existe pas." };
+        }
+        if (question.status !== "private" && question.status !== "rejected") {
+            return { success: false, message: "Cette question ne peut pas être soumise dans son état actuel." };
+        }
+        await QuestionModel.updateOne(
+            { question_id },
+            { $set: { status: "pending" }, $unset: { rejectionReason: "" } }
+        );
+        return { success: true };
+    } catch (error) {
+        console.error("erreur lors de la demande de publication", error);
+        return { success: false };
+    }
+};
+
+/**
+ * Approbation admin : passe la question en `approved`, avec d'éventuelles
+ * corrections (orthographe, tags, réponses...) appliquées au passage —
+ * `edits` porte les mêmes champs qu'un update créateur (title/level/tags et
+ * les champs propres au mode), tous optionnels.
+ */
+const approveQuestion = async (question_id: number, edits: Record<string, unknown> = {}) => {
+    try {
+        const question = await QuestionModel.findOne().select("creator title").where("question_id").equals(question_id);
+        const fields: Record<string, unknown> = { ...edits, status: "approved" };
+        if (Array.isArray(edits.tags)) {
+            fields.tags = await tagManager.resolveTags(edits.tags as string[]);
+        }
+        await QuestionModel.updateOne({ question_id }, { $set: fields, $unset: { rejectionReason: "" } });
+        if (question) {
+            const title = (edits.title as string | undefined) ?? question.title;
+            await notificationManager.create(
+                question.creator,
+                "question_approved",
+                `Votre question "${title}" a été approuvée et est maintenant publique.`
+            );
+        }
+        return { success: true };
+    } catch (error) {
+        console.error("erreur lors de l'approbation de la question", error);
+        return { success: false };
+    }
+};
+
+/** Refus admin : motif obligatoire, affiché au créateur (cf. QuestionCreationForm). */
+const rejectQuestion = async (question_id: number, reason: string) => {
+    try {
+        const question = await QuestionModel.findOne().select("creator title").where("question_id").equals(question_id);
+        await QuestionModel.updateOne({ question_id }, { $set: { status: "rejected", rejectionReason: reason } });
+        if (question) {
+            await notificationManager.create(
+                question.creator,
+                "question_rejected",
+                `Votre question "${question.title}" a été refusée. Motif : ${reason}`
+            );
+        }
+        return { success: true };
+    } catch (error) {
+        console.error("erreur lors du refus de la question", error);
+        return { success: false };
     }
 };
 
@@ -414,11 +542,12 @@ const getCreatorOfQuestion = async (id: String | number) => {
     }
 }
 
-export default {update, createQCMQuestion,updateQCMQuestion, 
-createFreeQuestion, updateFreeQuestion, createDCCQuestion, 
-updateDCCQuestion, createVFQuestion, updateVFQuestion, 
+export default {update, createQCMQuestion,updateQCMQuestion,
+createFreeQuestion, updateFreeQuestion, createDCCQuestion,
+updateDCCQuestion, createVFQuestion, updateVFQuestion,
 deleteQuestion, handleDeletedQuizz, addQuizzToQuestion,
 getQuestionByCreator, getQuestionById, getQuestionsByIds, getAvailableQuestions,
 getFilteredQuestions,
-getPublicQuestions,getQuizzOfQuestion, getCreatorOfQuestion
+getPublicQuestions,getQuizzOfQuestion, getCreatorOfQuestion,
+getPendingBacklog, requestPublication, approveQuestion, rejectQuestion
 };

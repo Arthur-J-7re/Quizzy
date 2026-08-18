@@ -11,6 +11,7 @@ import { getForcedQuestionTypeOptions } from "../../tools/props/Props";
 import { useQuestionPicker } from "../../tools/hooks/useQuestionPicker";
 import { useEntityByIdResolver } from "../../tools/hooks/useEntityByIdResolver";
 import QuestionPicker from "../../component/QuestionPicker/QuestionPicker";
+import PublicationBlockedNotice from "../../component/PublicationStatus/PublicationBlockedNotice";
 import "../CommonCss.css";
 import "../../component/Card/Card.css";
 import "./GridQuizzForm.css";
@@ -60,6 +61,20 @@ function GridQuizzCreationForm({ existingQuizz, isModifying }: { existingQuizz: 
 
     const [title, setTitle] = useState(existingQuizz?.title || "");
     const [isPrivate, setPrivate] = useState<boolean>(existingQuizz?.private ?? true);
+    // Cf. ROADMAP.md, Phase 3 : la publication demandée peut rester bloquée
+    // si des questions référencées ne sont pas approuvées.
+    const [blockedCount, setBlockedCount] = useState(0);
+    useEffect(() => {
+        if (isPrivate || !existingQuizz?.quizz_id) {
+            setBlockedCount(0);
+            return;
+        }
+        let cancelled = false;
+        makeRequest(`/quizz/${existingQuizz.quizz_id}/publication-status`)
+            .then((status) => { if (!cancelled) setBlockedCount(status.blockedCount ?? 0); })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, [isPrivate, existingQuizz?.quizz_id]);
     const [width, setWidth] = useState(existingQuizz?.width || 5);
     const [height, setHeight] = useState(existingQuizz?.height || 4);
     const [cellsPerTheme, setCellsPerTheme] = useState(existingQuizz?.cellsPerTheme || 3);
@@ -233,6 +248,7 @@ function GridQuizzCreationForm({ existingQuizz, isModifying }: { existingQuizz: 
                         Privé
                         <Switch checked={isPrivate} onChange={() => setPrivate((p) => !p)} />
                     </label>
+                    <PublicationBlockedNotice blockedCount={blockedCount} entityLabel="quizz" />
                 </section>
 
                 <section className="gridSection">

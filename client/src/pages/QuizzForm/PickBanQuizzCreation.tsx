@@ -9,6 +9,7 @@ import makeRequest, { tryRequest } from "../../tools/requestScheme";
 import Toast from "../../tools/toast/toast";
 import { getForcedQuestionTypeOptions } from "../../tools/props/Props";
 import { useEntityByIdResolver } from "../../tools/hooks/useEntityByIdResolver";
+import PublicationBlockedNotice from "../../component/PublicationStatus/PublicationBlockedNotice";
 import "../CommonCss.css";
 import "./PickBanQuizzForm.css";
 
@@ -61,6 +62,20 @@ function PickBanQuizzCreationForm({ existingQuizz, isModifying }: { existingQuiz
 
     const [title, setTitle] = useState(existingQuizz?.title || "");
     const [isPrivate, setPrivate] = useState<boolean>(existingQuizz?.private ?? true);
+    // Cf. ROADMAP.md, Phase 3 : la publication demandée peut rester bloquée
+    // si des questions référencées ne sont pas approuvées.
+    const [blockedCount, setBlockedCount] = useState(0);
+    useEffect(() => {
+        if (isPrivate || !existingQuizz?.quizz_id) {
+            setBlockedCount(0);
+            return;
+        }
+        let cancelled = false;
+        makeRequest(`/quizz/${existingQuizz.quizz_id}/publication-status`)
+            .then((status) => { if (!cancelled) setBlockedCount(status.blockedCount ?? 0); })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, [isPrivate, existingQuizz?.quizz_id]);
     const [columns, setColumns] = useState(existingQuizz?.columns || 6);
     const [draftSeconds, setDraftSeconds] = useState(existingQuizz?.draftTurnDurationMs ? existingQuizz.draftTurnDurationMs / 1000 : 20);
     const [answerSeconds, setAnswerSeconds] = useState(existingQuizz?.answerDurationMs ? existingQuizz.answerDurationMs / 1000 : 20);
@@ -216,6 +231,7 @@ function PickBanQuizzCreationForm({ existingQuizz, isModifying }: { existingQuiz
                         Privé
                         <Switch checked={isPrivate} onChange={() => setPrivate((p) => !p)} />
                     </label>
+                    <PublicationBlockedNotice blockedCount={blockedCount} entityLabel="quizz" />
                     <label className="pbInlineLabel">
                         Autoriser le bannissement (manche "Ban" entre Pick et Give)
                         <Switch checked={allowBan} onChange={() => setAllowBan((p) => !p)} />

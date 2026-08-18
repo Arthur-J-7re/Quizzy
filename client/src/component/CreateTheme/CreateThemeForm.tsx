@@ -1,13 +1,15 @@
 import GetTags from "../Tags/Tags";
 import PrivateButton from "../PrivateButton/PrivateButton";
+import PublicationBlockedNotice from "../PublicationStatus/PublicationBlockedNotice";
 import { Button, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Banner } from "../Banner/Banner";
 import Toast from "../../tools/toast/toast";
 import { getThemeFolderOptions } from "../../tools/props/Props";
 import { getQuestionModeLabel } from "../../tools/text/text";
 import { useQuestionPicker, useSelectedQuestionsCache } from "../../tools/hooks/useQuestionPicker";
 import QuestionPicker from "../QuestionPicker/QuestionPicker";
+import makeRequest from "../../tools/requestScheme";
 import "../../pages/CommonCss.css";
 import "../../pages/ThemeCreation/theme.css";
 import "../../pages/QuizzForm/QuizzForm.css";
@@ -33,6 +35,21 @@ export default function CreateThemeForm(
     }
 ) {
     const isModifying = deleteTheme != null;
+
+    // Cf. ROADMAP.md, Phase 3 : la publication demandée par le créateur peut
+    // rester bloquée si des questions référencées ne sont pas approuvées.
+    const [blockedCount, setBlockedCount] = useState(0);
+    useEffect(() => {
+        if (theme.private || !theme.theme_id) {
+            setBlockedCount(0);
+            return;
+        }
+        let cancelled = false;
+        makeRequest(`/theme/${theme.theme_id}/publication-status`)
+            .then((status) => { if (!cancelled) setBlockedCount(status.blockedCount ?? 0); })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, [theme.private, theme.theme_id]);
 
     const picker = useQuestionPicker();
     const { cache, merge } = useSelectedQuestionsCache(theme.questions);
@@ -72,6 +89,7 @@ export default function CreateThemeForm(
                         fullWidth
                     />
                     <PrivateButton entity={theme} setEntity={setTheme} />
+                    <PublicationBlockedNotice blockedCount={blockedCount} entityLabel="thème" />
                     <FormControl size="small" className="themeFolderSelect">
                         <InputLabel shrink>Dossier</InputLabel>
                         <Select

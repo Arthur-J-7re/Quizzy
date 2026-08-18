@@ -1,6 +1,7 @@
 import { get } from "mongoose";
 import { ThemeModel } from "../Collection/theme";
 import logger from "../utils/logger";
+import { isThemeEffectivelyPublic, getThemeBlockingCount } from "./publicationStatus";
 
 const create = async (data : any) =>{
     logger.debug("tentative de création de theme avec la data : ", data);
@@ -78,17 +79,28 @@ const getThemeByCreator = async (creator_id : number, min : number, folder?: str
 
 const getPublicThemes = async (min : number) => {
     try {
-        const themes = await ThemeModel.find({
+        const candidates = await ThemeModel.find({
             private: false,
             $expr: {
                 $gte: [{ $size: "$questions" }, min]
             }
         });
-        return themes;
+        const flags = await Promise.all(candidates.map((t) => isThemeEffectivelyPublic(t)));
+        return candidates.filter((_, i) => flags[i]);
     } catch (error) {
         return [];
     }
 }
+
+/** Réservé à l'écran d'édition du créateur : pourquoi son thème "public" ne l'est pas encore vraiment. */
+const getPublicationStatus = async (theme_id: number) => {
+    const theme = await ThemeModel.findOne().where("theme_id").equals(theme_id);
+    if (!theme) return { effectivePublic: false, blockedCount: 0 };
+    return {
+        effectivePublic: await isThemeEffectivelyPublic(theme),
+        blockedCount: await getThemeBlockingCount(theme),
+    };
+};
 
 const getAvailableThemes = async (id: number, min : number) => {
     try {
@@ -142,4 +154,5 @@ export default{
     getCreatorOfTheme,
     getPublicThemes,
     getAvailableThemes,
+    getPublicationStatus,
 }

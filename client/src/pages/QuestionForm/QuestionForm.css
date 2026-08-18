@@ -37,6 +37,48 @@
     margin: var(--spacing-md, 20px) 0;
 }
 
+.questionStatusRow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.questionStatusBadge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.questionStatusBadge.status-private {
+    background: #e6e4fb;
+    color: var(--primary-dark, #4038c9);
+}
+
+.questionStatusBadge.status-pending {
+    background: #fff3cd;
+    color: #8a6500;
+}
+
+.questionStatusBadge.status-approved {
+    background: #d4f7dc;
+    color: #1c7a3c;
+}
+
+.questionStatusBadge.status-rejected {
+    background: #fbdada;
+    color: #a02525;
+}
+
+.questionRejectionReason {
+    color: #a02525;
+    text-align: center;
+    max-width: 500px;
+}
+
 .selectedMode,.notSelectedMode{
     color: #fff !important;
     border-radius: 0 !important;

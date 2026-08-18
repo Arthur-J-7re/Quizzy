@@ -1,6 +1,6 @@
 import { useState, useEffect} from 'react';
 import Button from '@mui/material/Button';
-import { MenuItem, Select, Switch } from '@mui/material';
+import { MenuItem, Select } from '@mui/material';
 import { CreateQCMForm } from '../../component/CreateQuestion/CreateQcmForm';
 import { CreateFreeForm } from '../../component/CreateQuestion/CreateFreeForm';
 import { CreateDCCForm } from '../../component/CreateQuestion/CreateDccForm';
@@ -14,7 +14,12 @@ import "../CommonCss.css";
 import "./QuestionForm.css"
 import makeRequest from '../../tools/requestScheme';
 
-
+const QUESTION_STATUS_LABELS: Record<string, string> = {
+    private: "Privée",
+    pending: "En attente de modération",
+    approved: "Publique (validée)",
+    rejected: "Refusée",
+};
 
 export function QuestionCreationForm () {
     const location = useLocation();
@@ -41,7 +46,10 @@ export function QuestionCreationForm () {
     const [level,setLevel] = useState(_question?.level || 1);
     const [goodNews, setGoodNews] = useState(false);
     const [tags, setTags] = useState<string[]>(_question?.tags || []);
-    const [isPrivate, setPrivate] = useState(_question?.private ?? true);
+    // Statut de modération (cf. ROADMAP.md, Phase 2) : jamais choisi ici, une
+    // question démarre toujours "private" et ne devient publique qu'après
+    // validation admin — cf. le bloc "Demander la publication" plus bas.
+    const [status, setStatus] = useState<string>(_question?.status ?? "private");
     const [carre, setCarre] = useState(_question?.carre || _question?.choices || {ans1 : "", ans2 : "", ans3: "", ans4: ""});
     const [answers, setAnswers] = useState<string[]>(_question?.cash ||_question?.answers || []);
     const [truth, setTruth] = useState(_question?.truth);
@@ -57,16 +65,16 @@ export function QuestionCreationForm () {
         setTitle(_question.title || "");
         setLevel(_question.level || 1);
         setTags(_question.tags || []);
-        setPrivate(_question.private ?? true);
+        setStatus(_question.status ?? "private");
         setCarre(_question.carre || _question.choices || { ans1: "", ans2: "", ans3: "", ans4: "" });
         setAnswers(_question.cash || _question.answers || []);
         setTruth(_question.truth);
     }, [_question]);
 
-    const [freeData, setFreeData] = useState({creator : user_id,mode : "FREE",title: title,level:level, tags: tags, private:isPrivate, answers: answers});
-    const [dccData, setDccData] = useState({creator : user_id,mode : "DCC",title: title,level:level, tags: tags, private: isPrivate, carre: carre, duo: _question?.duo ||2, answer: _question?.answer ||1, cash: answers});
-    const [qcmData, setQcmData] = useState({creator : user_id,mode : "QCM",title: title,level:level, tags: tags, private: isPrivate, choices: carre, answer: _question?.answer || 1});
-    const [vfData, setVfData] = useState({creator : user_id,mode : "VF",title: title, level:level,tags: tags, private: isPrivate, truth: truth});
+    const [freeData, setFreeData] = useState({creator : user_id,mode : "FREE",title: title,level:level, tags: tags, answers: answers});
+    const [dccData, setDccData] = useState({creator : user_id,mode : "DCC",title: title,level:level, tags: tags, carre: carre, duo: _question?.duo ||2, answer: _question?.answer ||1, cash: answers});
+    const [qcmData, setQcmData] = useState({creator : user_id,mode : "QCM",title: title,level:level, tags: tags, choices: carre, answer: _question?.answer || 1});
+    const [vfData, setVfData] = useState({creator : user_id,mode : "VF",title: title, level:level,tags: tags, truth: truth});
 
     const [messageInfo, setMessageInfo] = useState("");
     const [showMessage, setShowMessage] = useState(false);
@@ -99,25 +107,18 @@ export function QuestionCreationForm () {
         }
     };
 
-    const resetDuo = (nombre : number) => {
-        if (dccData.duo == nombre){
-            if (nombre == 1){
-                setDccData({...dccData, duo : 2});
-            } else {
-                setDccData({...dccData, duo : 1});
-            }
-        }
-    }
-    
     const removeTag = (tagToRemove : string) => {
         setTags(tags.filter(tag => tag !== tagToRemove));  
     };
 
-    const changePrivate = () =>{
-        setPrivate(!isPrivate);
-    };
-
     const endTask = () => {navigate(-1)};
+
+    const requestPublication = async () => {
+        const response = await makeRequest(`/question/${_question.question_id}/request-publication`, "POST");
+        if (response.success) {
+            setStatus("pending");
+        }
+    };
 
     useEffect(() => {
         setQcmData(prev => ({
@@ -126,7 +127,6 @@ export function QuestionCreationForm () {
             level:level,
             tags: tags,
             choices: carre,
-            private: isPrivate
         }));
         setFreeData(prev => ({
             ...prev,
@@ -134,7 +134,6 @@ export function QuestionCreationForm () {
             level:level,
             tags: tags,
             answers:answers,
-            private: isPrivate
         }));
         setDccData(prev => ({
             ...prev,
@@ -143,17 +142,15 @@ export function QuestionCreationForm () {
             tags: tags,
             carre: carre,
             cash:answers,
-            private: isPrivate
         }));
         setVfData(prev => ({
             ...prev,
             title: title,
             level:level,
             tags: tags,
-            private: isPrivate
         }));
-        
-    }, [title, tags, carre, isPrivate, answers, mode, level]);
+
+    }, [title, tags, carre, answers, mode, level]);
 
     useEffect(() =>{
         if (dccData.duo==dccData.answer){
@@ -212,56 +209,46 @@ export function QuestionCreationForm () {
     const renderContent = () => {
         switch (mode) {
             case "QCM":
-                return <CreateQCMForm 
+                return <CreateQCMForm
                 question_id={questionId}
                 endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
-                title={title} setTitle={setTitle} 
-                isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
-                tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
-                carre={carre} setCarre={setCarre} 
+                tags={tags} addTag={addTag} removeTag={removeTag}
+                carre={carre} setCarre={setCarre}
                 qcmData={qcmData} setQcmData={setQcmData} />;
             case "FREE":
-                return <CreateFreeForm 
+                return <CreateFreeForm
                 question_id={questionId}
                 endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
-                title={title} setTitle={setTitle} 
-                isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
-                tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
-                answers={answers} setAnswers={setAnswers} addAnswer={addAnswer} removeAnswer={removeAnswer}
-                freeData={freeData} setFreeData={setFreeData} />;
+                tags={tags} addTag={addTag} removeTag={removeTag}
+                answers={answers} addAnswer={addAnswer} removeAnswer={removeAnswer}
+                freeData={freeData} />;
             case "DCC":
-                return <CreateDCCForm 
+                return <CreateDCCForm
                 question_id={questionId}
                 endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
-                title={title} setTitle={setTitle} 
-                isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
-                tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag}
-                answers={answers} setAnswers={setAnswers} addAnswer={addAnswer} removeAnswer={removeAnswer} 
-                carre={carre} setCarre={setCarre} 
-                duoContain={duoContain} manageDuo={manageDuo} resetDuo={resetDuo}
+                tags={tags} addTag={addTag} removeTag={removeTag}
+                answers={answers} addAnswer={addAnswer} removeAnswer={removeAnswer}
+                carre={carre} setCarre={setCarre}
+                duoContain={duoContain} manageDuo={manageDuo}
                 dccData={dccData} setDccData={setDccData} />;
             case "VF":
                 return <CreateVfForm
                 question_id={questionId}
                 endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
-                title={title} setTitle={setTitle} 
-                isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
-                tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag} 
+                tags={tags} addTag={addTag} removeTag={removeTag}
                 truth={truth} setTruth={setTruth}
-                vfData={vfData} setVfData={setVfData} />;
+                vfData={vfData} />;
             default:
-                return <CreateQCMForm 
+                return <CreateQCMForm
                 question_id={questionId}
                 endTask={endTask}
                 setMessageInfo={setMessageInfo} setShowMessage={setShowMessage}
-                title={title} setTitle={setTitle} 
-                isPrivate = {isPrivate} setPrivate={setPrivate} changePrivate={changePrivate}
-                tags={tags} setTags={setTags} addTag={addTag} removeTag={removeTag}
-                carre={carre} setCarre={setCarre} 
+                tags={tags} addTag={addTag} removeTag={removeTag}
+                carre={carre} setCarre={setCarre}
                 qcmData={qcmData} setQcmData={setQcmData} />;
           }
     };
@@ -326,16 +313,17 @@ export function QuestionCreationForm () {
                         required
                     />
                 </div>
-                <div className='privateswitch'>
-                    <label className='questionCreation-label' onClick={() => setPrivate(false)}>Question public</label>
-                    <Switch
-                        type='checkboxe'
-                        checked={isPrivate}
-                        className='isPrivate'
-                        onClick={() => changePrivate()}
-                    />
-                    <label className='questionCreation-label' onClick={() => setPrivate(true)}>Question privée</label>
-                </div>
+                {_question && (
+                    <div className='questionStatusRow'>
+                        <span className={`questionStatusBadge status-${status}`}>{QUESTION_STATUS_LABELS[status] ?? status}</span>
+                        {status === "rejected" && _question.rejectionReason && (
+                            <p className='questionRejectionReason'>Motif du refus : {_question.rejectionReason}</p>
+                        )}
+                        {(status === "private" || status === "rejected") && (
+                            <Button className='Button' onClick={() => requestPublication()}>Demander la publication</Button>
+                        )}
+                    </div>
+                )}
                 <div className="levelSelectRow">
                     <label className="questionCreation-label" id="difficulty-level-label">Difficulté</label>
                     <Select

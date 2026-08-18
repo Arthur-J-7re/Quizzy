@@ -1,0 +1,44 @@
+.adminBacklogLayout {
+    display: flex;
+    gap: var(--spacing-lg, 24px);
+    align-items: flex-start;
+}
+
+.adminBacklogList {
+    flex: 1 1 60%;
+    min-width: 0;
+}
+
+.adminBacklogReview {
+    flex: 1 1 40%;
+    position: sticky;
+    top: var(--spacing-md, 20px);
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.adminBacklogActions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.adminBacklogRejectRow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+@media (max-width: 900px) {
+    .adminBacklogLayout {
+        flex-direction: column;
+    }
+    .adminBacklogReview {
+        position: static;
+        width: 100%;
+    }
+}

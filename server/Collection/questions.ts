@@ -2,6 +2,7 @@ import mongoose from "../db";
 import { Document } from "mongoose";
 import { QuestionMode } from "../Interface/Question";
 import { Question } from "../Interface/Question";
+import { QUESTION_STATUS_VALUES } from "../../shared-types/questionStatus";
 const AutoIncrement = require("mongoose-sequence")(mongoose);
 
 
@@ -20,7 +21,8 @@ const QuestionSchema = new mongoose.Schema<QuestionDocument>({
     creator: { type: Number, required: true },
     mode: { type: String, enum: Object.values(QuestionMode), required: true },
     title: { type: String, required: true },
-    private: { type: Boolean, required: true },
+    status: { type: String, enum: QUESTION_STATUS_VALUES, default: "private" },
+    rejectionReason: { type: String },
     quizz: { type: [Number], default: [] },
     playlist: { type: [Number], default: [] },
     level: Number,
@@ -32,6 +34,7 @@ const QuestionSchema = new mongoose.Schema<QuestionDocument>({
     // directement ici (harmonisation de casse SPORT/sport/Sport -> un seul tag).
     tags: { type: [Number], default: [] },
     folder_id: { type: Number, required: false },
+    createdAt: { type: Date, default: Date.now },
 });
 
 QuestionSchema.plugin(AutoIncrement, { inc_field: "question_id" });

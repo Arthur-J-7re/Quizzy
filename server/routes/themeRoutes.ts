@@ -6,6 +6,7 @@ import getIdFromReq from "../utils/getIdFromReq";
 import asyncHandler from "../utils/asyncHandler";
 import assertOwner from "../utils/assertOwner";
 import { HttpError } from "../utils/errorHandler";
+import { isThemeEffectivelyPublic } from "../function/publicationStatus";
 
 const routes = Router();
 
@@ -36,7 +37,22 @@ routes.get(
       .map((id) => Number(id.trim()))
       .filter((id) => Number.isFinite(id));
     const themes = await themeManager.getThemesByIds(ids);
-    res.json(themes.filter((t: any) => t.creator === userId || t.private === false));
+    const visible = await Promise.all(themes.map(async (t: any) =>
+      t.creator === userId || (t.private === false && await isThemeEffectivelyPublic(t))
+    ));
+    res.json(themes.filter((_: any, i: number) => visible[i]));
+  })
+);
+
+// Réservé à l'écran d'édition du créateur : pourquoi son thème "public" ne l'est pas encore vraiment (cf. ROADMAP.md, Phase 3).
+routes.get(
+  "/:id/publication-status",
+  token.verifyToken,
+  asyncHandler(async (req, res) => {
+    const userId = getIdFromReq(req);
+    const theme_id = Number(req.params.id);
+    await ownsTheme(userId, theme_id);
+    res.json(await themeManager.getPublicationStatus(theme_id));
   })
 );
 

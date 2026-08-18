@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only ./index.ts",
     "migrate:tags": "ts-node-dev --transpile-only ./scripts/migrateQuestionTags.ts",
+    "migrate:status": "ts-node-dev --transpile-only ./scripts/migratePrivateToStatus.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "start": "node dist/server/index.js",

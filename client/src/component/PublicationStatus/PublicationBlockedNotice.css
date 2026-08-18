@@ -1,0 +1,9 @@
+.publicationBlockedNotice {
+    color: #a02525;
+    background: #fbdada;
+    border-radius: var(--radius-md, 12px);
+    padding: 8px 14px;
+    text-align: center;
+    max-width: 500px;
+    margin: 8px auto;
+}

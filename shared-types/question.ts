@@ -1,3 +1,5 @@
+import type { QuestionStatus } from "./questionStatus";
+
 export enum Mode {
     QCM = "QCM",
     FREE = "FREE",
@@ -18,7 +20,10 @@ export interface IQuestionBase {
   creator: number;
   mode: Mode;
   title: string;
-  private: boolean;
+  status: QuestionStatus;
+  // Motif du dernier refus admin (cf. shared-types/questionStatus.ts) : posé
+  // sur "rejected", effacé dès qu'une nouvelle demande de publication part.
+  rejectionReason?: string;
   quizz: number[];
   playlist: number[];
   level?: number;
@@ -29,6 +34,9 @@ export interface IQuestionBase {
   // Absent = "sans dossier" (défaut). Dossier libre, à plat, propre à
   // chaque créateur (cf. shared-types/folder.ts).
   folder_id?: number;
+  // Absent sur les documents créés avant la Phase 6 (pas de backfill) :
+  // ceux-ci n'apparaissent simplement pas dans le flux d'activité récente.
+  createdAt?: Date;
 }
 
 export interface IQCMQuestion extends IQuestionBase {

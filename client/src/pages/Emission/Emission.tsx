@@ -8,6 +8,7 @@ import Toast from "../../tools/toast/toast";
 import { StepForm } from "../../component/StepForm/StepForm";
 import makeRequest from "../../tools/requestScheme";
 import { useEntityByIdResolver } from "../../tools/hooks/useEntityByIdResolver";
+import PublicationBlockedNotice from "../../component/PublicationStatus/PublicationBlockedNotice";
 import "../CommonCss.css";
 import "./emission.css";
 import {Step} from "../../tools/type/Step"
@@ -108,12 +109,28 @@ function EmissionCreationForm({ existingEmission, isModifying }: { existingEmiss
   const [emission] = useState(
     existingEmission || {
       title: "",
-      Private: false,
       questions: [],
       tags: [],
     }
   );
   const [title, setTitle] = useState(emission?.title || "");
+
+  // Pas de contrôle "Privé" avant Phase 3 (ROADMAP.md) : une émission créée
+  // ou modifiée via ce formulaire restait donc toujours privée, quoi qu'on
+  // fasse — `private` n'était même pas envoyé à la création.
+  const [isPrivate, setPrivate] = useState<boolean>(existingEmission?.private ?? true);
+  const [blockedCount, setBlockedCount] = useState(0);
+  useEffect(() => {
+    if (isPrivate || !emission?.emission_id) {
+      setBlockedCount(0);
+      return;
+    }
+    let cancelled = false;
+    makeRequest(`/emission/${emission.emission_id}/publication-status`)
+      .then((status) => { if (!cancelled) setBlockedCount(status.blockedCount ?? 0); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [isPrivate, emission?.emission_id]);
 
   // Options générales : décidées une fois pour toute l'émission, avant de
   // décrire son déroulé épreuve par épreuve.
@@ -245,7 +262,7 @@ function EmissionCreationForm({ existingEmission, isModifying }: { existingEmiss
         // existante n'était jamais mise à jour, une nouvelle était créée.
         const response = await makeRequest("/emission/update", "PUT", {
           emission_id: emission.emission_id,
-          data: { title, steps, options, private: emission.private ?? true },
+          data: { title, steps, options, private: isPrivate },
         });
         if (response.success) {
           endTask("Émission mise à jour avec succès");
@@ -260,6 +277,7 @@ function EmissionCreationForm({ existingEmission, isModifying }: { existingEmiss
           title,
           steps,
           options,
+          private: isPrivate,
         });
         if (response.success) {
           endTask("Émission créée avec succès");
@@ -316,6 +334,11 @@ function EmissionCreationForm({ existingEmission, isModifying }: { existingEmiss
             </label>
 
             <label className="emissionInlineLabel">
+              Privé
+              <Switch checked={isPrivate} onChange={() => setPrivate((p: boolean) => !p)} />
+            </label>
+
+            <label className="emissionInlineLabel">
               Jeu par équipes
               <Switch checked={teams} onChange={() => setTeams((t: boolean) => !t)} />
             </label>
@@ -336,6 +359,7 @@ function EmissionCreationForm({ existingEmission, isModifying }: { existingEmiss
               />
             </label>
           </div>
+          <PublicationBlockedNotice blockedCount={blockedCount} entityLabel="émission" />
           {playerThemeEnabled && (
             <p className="emissionHint">
               Activez « étape dynamique » sur chaque épreuve Grid ou Timer qui doit

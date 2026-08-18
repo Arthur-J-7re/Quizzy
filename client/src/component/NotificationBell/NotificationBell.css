@@ -1,0 +1,40 @@
+.notificationBellButton {
+    color: inherit;
+}
+
+.notificationMenu .MuiPaper-root {
+    max-width: 360px;
+}
+
+.notificationItem {
+    /* MUI injecte sa propre classe avec white-space: nowrap sur MenuItem,
+       qui l'emporte sur cette règle dans la cascade sans !important. */
+    white-space: normal !important;
+    max-width: 340px;
+    font-size: 0.9em;
+}
+
+.notificationItem.unread {
+    font-weight: 600;
+    background: #f0efff;
+}
+
+.notificationMarkAll {
+    justify-content: center;
+    color: var(--primary-color, #5a54e8);
+    font-weight: 600;
+}
+
+.notificationFriendRequest {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    white-space: normal;
+}
+
+.notificationFriendRequestActions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
