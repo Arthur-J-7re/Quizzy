@@ -8,6 +8,7 @@ import quizzManager from './quizzManager';
 import tagManager from './tagManager';
 import notificationManager from './notificationManager';
 import { cascadeAfterQuestionsDeleted } from './publicationCascade';
+import { createEntityQueryHelpers } from './entityQueryHelpers';
 import logger from "../utils/logger";
 import type { QuestionStatus } from "../../shared-types/questionStatus";
 
@@ -309,36 +310,25 @@ const attachTagNames = async (docs: any[]) => {
     }));
 };
 
-const getQuestionByCreator =async (id : number) => {
-    const retour = await QuestionModel.find().where('creator').equals(Number(id));
-    return await attachTagNames(retour);
-};
+const {
+    getByCreator: getQuestionByCreator,
+    getAvailable: getAvailableQuestions,
+    getPublic: getPublicQuestions,
+    getByIds: getQuestionsByIds,
+    getCreatorOf: getCreatorOfQuestion,
+} = createEntityQueryHelpers({
+    model: QuestionModel,
+    idField: "question_id",
+    entityLabel: "questions",
+    // Pas de cascade ici (contrairement à quizz/thème/émission) : le statut
+    // "approved" est la seule condition de visibilité publique d'une question.
+    publicFilter: { status: "approved" },
+    postProcess: attachTagNames,
+});
 
 const getQuestionById = async (id : number) => {
     const retour = await QuestionModel.findOne().where("question_id").equals(id);
     return retour;
-}
-
-/** Chargement en lot, utilisé par les modes de jeu pour préparer une manche. */
-const getQuestionsByIds = async (ids : number[]) => {
-    if (ids.length === 0) return [];
-    const retour = await QuestionModel.find().where("question_id").in(ids);
-    return await attachTagNames(retour);
-};
-
-const getAvailableQuestions = async (id : number)=>{
-    try {
-        let questOfId = await QuestionModel.find().where('creator').equals(Number(id));
-        let retour  = await QuestionModel.find().where('status').equals('approved').where("creator").ne(id);
-        retour.forEach((quest) => {
-            questOfId.push(quest);
-
-        })
-        return await attachTagNames(questOfId);
-    } catch (error){
-        console.error("erreur lors de la récupération des questions disponibles", error);
-        return [];
-    }
 }
 
 export interface QuestionSearchQuery {
@@ -405,16 +395,6 @@ const getFilteredQuestions = async (userId: number, query: QuestionSearchQuery) 
     } catch (error) {
         logger.error("erreur lors de la recherche de questions", error);
         return { items: [], total: 0 };
-    }
-};
-
-const getPublicQuestions = async () => {
-    try {
-        const retour = await QuestionModel.find().where('status').equals('approved');
-        return await attachTagNames(retour);
-    } catch (error) {
-        console.error("erreur lors de la récupération des questions publiques", error);
-        return [];
     }
 };
 
@@ -531,16 +511,6 @@ const getQuizzOfQuestion = async (id : number) => {
     const retour = await QuestionModel.findOne().where("question_id").equals(id);
     return retour?.quizz;
 };
-
-const getCreatorOfQuestion = async (id: String | number) => {
-    try {
-        const retour = await QuestionModel.findOne().select("creator").where('question_id').equals(id);
-        return retour?.creator;
-    } catch (error) {
-        console.error("erreur lors de la récupération du créateur", error);
-        return undefined;
-    }
-}
 
 export default {update, createQCMQuestion,updateQCMQuestion,
 createFreeQuestion, updateFreeQuestion, createDCCQuestion,

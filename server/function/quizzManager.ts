@@ -5,12 +5,22 @@ import { Socket } from 'socket.io';
 import logger from "../utils/logger";
 import { isQuizzEffectivelyPublic, getQuizzBlockingCount } from "./publicationStatus";
 import { cascadePrivatizeEmissionsUsingQuizz } from "./publicationCascade";
+import { createEntityQueryHelpers } from "./entityQueryHelpers";
 
-/** Filtre applicatif : la cascade (cf. ROADMAP.md, Phase 3) ne peut pas s'exprimer en une seule requête Mongo à cause des thèmes embarqués. */
-const filterEffectivelyPublic = async (quizzes: any[]): Promise<any[]> => {
-    const flags = await Promise.all(quizzes.map((q) => isQuizzEffectivelyPublic(q)));
-    return quizzes.filter((_, i) => flags[i]);
-};
+const {
+    getByCreator: getQuizzByCreator,
+    getAvailable: getAvailableQuizz,
+    getPublic: getPublicQuizz,
+    getByIds: getQuizzByIds,
+    getCreatorOf: getCreatorOfQuizz,
+    getPublicationStatus,
+} = createEntityQueryHelpers({
+    model: QuizzModel,
+    idField: "quizz_id",
+    entityLabel: "quizz",
+    isEffectivelyPublic: isQuizzEffectivelyPublic,
+    getBlockingCount: getQuizzBlockingCount,
+});
 
 const createQuizz = async ( data : any) => {
     switch (data.mode){
@@ -388,70 +398,6 @@ const getGridQuizz = async (id : number) => {
 const getPickAndBanQuizz = async (id : number) => {
     return await PickAndBanQuizzModel.findOne().where("quizz_id").equals(id);
 };
-
-const getQuizzByCreator = async (id : number) => {
-    const retour = await  QuizzModel.find().where("creator").equals(id);
-    return retour;
-};
-
-const getAvailableQuizz = async (id ?: number ) => {
-    try {
-        if (id) {
-            const quizzOfId = await QuizzModel.find().where('creator').equals(Number(id));
-            const candidates = await QuizzModel.find().where('private').equals(false).where("creator").ne(id);
-            const publicOnes = await filterEffectivelyPublic(candidates);
-            quizzOfId.push(...publicOnes);
-            return quizzOfId;
-        }
-        const candidates = await QuizzModel.find().where('private').equals(false);
-        return await filterEffectivelyPublic(candidates);
-    } catch(e){
-        console.error("erreur lors du fetch des questions available : ", e)
-        return([])
-    }
-};
-
-const getPublicQuizz = async () => {
-    try {
-        const candidates = await QuizzModel.find().where('private').equals(false);
-        return await filterEffectivelyPublic(candidates);
-    }catch(e){
-        console.error("erreur lors du fetch des questions public : ", e)
-        return([])
-    }
-};
-
-/** Réservé à l'écran d'édition du créateur : pourquoi son quizz "public" ne l'est pas encore vraiment. */
-const getPublicationStatus = async (id: number) => {
-    const quizz = await QuizzModel.findOne().where("quizz_id").equals(id);
-    if (!quizz) return { effectivePublic: false, blockedCount: 0 };
-    return {
-        effectivePublic: await isQuizzEffectivelyPublic(quizz),
-        blockedCount: await getQuizzBlockingCount(quizz),
-    };
-};
-
-/** Chargement en lot (ex: résoudre un quizz ouvert directement par son id, sans état de navigation). */
-const getQuizzByIds = async (ids: number[]) => {
-    if (ids.length === 0) return [];
-    try {
-        return await QuizzModel.find({ quizz_id: { $in: ids } });
-    } catch (error) {
-        console.error("erreur lors de la récupération des quizz par ids", error);
-        return [];
-    }
-};
-
-const getCreatorOfQuizz = async (id: String | number) => {
-    try {
-        const retour = await  QuizzModel.findOne().where('quizz_id').equals(id);
-        return retour?.creator;
-    } catch (error) {
-        console.error("erreur lors de la récupération du créateur", error);
-        return undefined;
-    }
-}
-
 
 export default{createQuizz,updateQuizz,deleteQuizz,
 handleDeletedQuestion, getQuestionsOfQuizz,getPublicQuizz,
