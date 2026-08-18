@@ -2,6 +2,7 @@ import User from "../Collection/user"
 import {hashPassword, comparePassword} from '../utils/encryptPassword';
 import { signUserToken } from '../utils/jwt';
 import type { LoginInput, RegisterInput } from "../validation/userSchemas";
+import type { UserRole } from "../../shared-types/user";
 
 const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -12,7 +13,7 @@ const BAD_CREDENTIALS = "Mauvais mot de passe ou identifiant.";
 export interface AuthResult {
     success: boolean;
     message?: string;
-    data?: { id: number; token: string; username: string };
+    data?: { id: number; token: string; username: string; role: UserRole };
 }
 
 const login = async (data : LoginInput) : Promise<AuthResult> => {
@@ -37,7 +38,7 @@ const loginEmail = async (data : LoginInput) : Promise<AuthResult> => {
     // Username undefined pour toute connexion par e-mail.
     return {
         success : true,
-        data : {id : userInfo.id, token : signUserToken(userInfo.id), username : userInfo.username ?? ""}
+        data : {id : userInfo.id, token : signUserToken(userInfo.id), username : userInfo.username ?? "", role : userInfo.role ?? "user"}
     };
 };
 
@@ -48,13 +49,13 @@ const loginUsername = async (data : LoginInput) : Promise<AuthResult> => {
     if (!(await match(data.username, data.password))){
         return {success : false, message : BAD_CREDENTIALS};
     }
-    const id = await getIdByUsername(data.username);
-    if (!id){
+    const userInfo = await getIdByUsername(data.username);
+    if (!userInfo?.id){
         return {success : false, message : BAD_CREDENTIALS};
     }
     return {
         success : true,
-        data : {id : id, token : signUserToken(id), username : data.username}
+        data : {id : userInfo.id, token : signUserToken(userInfo.id), username : data.username, role : userInfo.role ?? "user"}
     };
 };
 
@@ -76,7 +77,7 @@ const register = async (data : RegisterInput) : Promise<AuthResult> => {
         if (id === null || id === undefined){
             return {success : false, message : "La création du compte a échoué."};
         }
-        return {success : true, data : {id : id, token : signUserToken(id), username : data.username}};
+        return {success : true, data : {id : id, token : signUserToken(id), username : data.username, role : (newUser.role as UserRole | undefined) ?? "user"}};
     } catch(error) {
         console.error("Erreur lors de la création du compte", error);
         // L'index unique de Mongo peut encore rejeter en cas de course entre
@@ -164,7 +165,7 @@ const getIdByEmail = async (mail : string) => {
     try {
         const retour = await User.findOne().where("email").equals(mail);
         if (retour){
-            return {id : retour.user_id, username : retour.username};
+            return {id : retour.user_id, username : retour.username, role : retour.role as UserRole | undefined};
         }
         return undefined;
     } catch (error) {
@@ -175,13 +176,71 @@ const getIdByEmail = async (mail : string) => {
 
 const getIdByUsername = async (username : string) => {
     try {
-        const retour = await User.findOne().select("user_id").where("username").equals(username);
+        const retour = await User.findOne().select("user_id role").where("username").equals(username);
         if (retour){
-            return retour.user_id;
+            return {id : retour.user_id, role : retour.role as UserRole | undefined};
         }
         return undefined;
     } catch (error) {
         console.error("erreur lors de la récupération de l'utilisateur par pseudo", error);
+        return undefined;
+    }
+};
+
+const getRole = async (user_id : number) : Promise<UserRole | undefined> => {
+    try {
+        const retour = await User.findOne().select("role").where("user_id").equals(user_id);
+        return (retour?.role as UserRole | undefined) ?? "user";
+    } catch (error) {
+        console.error("erreur lors de la récupération du rôle", error);
+        return undefined;
+    }
+};
+
+// Ne gère jamais "superadmin" : ce rôle ne se distribue que via le script de
+// bootstrap (cf. server/scripts/setSuperAdmin.ts), jamais via une route HTTP.
+const setRole = async (user_id : number, role : "user" | "admin") => {
+    try {
+        const retour = await User.updateOne({ user_id }, { $set: { role } });
+        if (retour.matchedCount === 0){
+            return { success : false, message : "Cet utilisateur n'existe pas." };
+        }
+        return { success : true };
+    } catch (error) {
+        console.error("erreur lors de la mise à jour du rôle", error);
+        return { success : false };
+    }
+};
+
+const listUsersByRole = async (role : UserRole) => {
+    try {
+        return await User.find().select("user_id username email role").where("role").equals(role);
+    } catch (error) {
+        console.error("erreur lors de la récupération des utilisateurs par rôle", error);
+        return [];
+    }
+};
+
+// Même recette que tagManager.searchTags : regex échappée + limite basse.
+const searchUsers = async (query : string, excludeUserId : number) => {
+    try {
+        const safe = query.trim();
+        if (!safe) return [];
+        const regex = new RegExp(safe.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+        return await User.find({ username: regex, user_id: { $ne: excludeUserId } })
+            .select("user_id username").limit(10);
+    } catch (error) {
+        console.error("erreur lors de la recherche d'utilisateurs", error);
+        return [];
+    }
+};
+
+const getUsernameById = async (user_id : number) : Promise<string | undefined> => {
+    try {
+        const retour = await User.findOne().select("username").where("user_id").equals(user_id);
+        return retour?.username ?? undefined;
+    } catch (error) {
+        console.error("erreur lors de la récupération du username", error);
         return undefined;
     }
 };
@@ -210,5 +269,6 @@ const getPasswordByUsername = async (username : string): Promise<string> => {
 export default {login, register, updateUsername, match,
 usernameExist, emailExist, addQuestionToUser, addQuizzToUser,
 addEmissionToUser, addThemeToUser, deleteQuestionFromUser, deleteQuizzFromUser,
-deleteEmissionFromUser, deleteThemeFromUser, getIdByEmail, 
-getIdByUsername, getPasswordByEmail, getPasswordByUsername};
+deleteEmissionFromUser, deleteThemeFromUser, getIdByEmail,
+getIdByUsername, getPasswordByEmail, getPasswordByUsername,
+getRole, setRole, listUsersByRole, searchUsers, getUsernameById};

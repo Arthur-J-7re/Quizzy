@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, ReactNode } from "react";
+import type { UserRole } from "shared-types";
 
 // Définition du type User
 interface User {
@@ -6,6 +7,7 @@ interface User {
   Username: string;
   currentRoom : string;
   token: string;
+  role: UserRole;
 }
 
 // Définition du type pour le contexte d'authentification

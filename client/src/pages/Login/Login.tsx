@@ -27,7 +27,7 @@ export function Login () {
         try {
             const retour = await makeRequest(url, "POST", body);
             const data = retour.data;
-            auth?.login({id : data.id, Username : data.username, currentRoom : "", token : data.token});
+            auth?.login({id : data.id, Username : data.username, currentRoom : "", token : data.token, role : data.role});
             navigate("/");
         } catch (err) {
             // ApiError porte le message du serveur (identifiants invalides,
