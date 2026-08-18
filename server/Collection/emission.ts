@@ -18,6 +18,7 @@ const EmissionSchema = new mongoose.Schema({
         hostModeEnabled: { type: Boolean, default: false },
     },
     steps : [StepSchema],
+    createdAt: { type: Date, default: Date.now },
 });
 
 EmissionSchema.plugin(AutoIncrement, { inc_field: 'emission_id' });

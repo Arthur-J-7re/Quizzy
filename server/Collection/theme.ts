@@ -16,6 +16,11 @@ export const ThemeSchema = new mongoose.Schema({
     // Facet de filtre fixe, purement indicatif (cf. shared-types/theme.ts) :
     // absent = "sans dossier".
     folder: { type: String, enum: THEME_FOLDER_VALUES, required: false },
+    // Ce schéma est aussi embarqué comme sous-document dans les quizz Grid/
+    // PickAndBan/BigBucket/Timer (quizz.ts) : sur une copie embarquée, cette
+    // date représente le moment de l'embarquement, pas celle du thème de
+    // bibliothèque d'origine — comportement attendu, pas un bug.
+    createdAt: { type: Date, default: Date.now },
 });
 
 ThemeSchema.plugin(AutoIncrement, { inc_field: 'theme_id' });

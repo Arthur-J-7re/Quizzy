@@ -21,6 +21,10 @@ import PlayRoutes from './PlayRoutes.tsx'
 import { EmissionCreation } from './pages/Emission/Emission.tsx';
 import { QrShare } from './pages/QrShare/QrShare.tsx';
 import { ErrorBoundary } from './component/ErrorBoundary/ErrorBoundary.tsx';
+import { QuestionBacklog } from './pages/Admin/QuestionBacklog.tsx';
+import { Messages } from './pages/Messages/Messages.tsx';
+import { Dashboard } from './pages/Admin/Dashboard.tsx';
+import { AdminUsers } from './pages/Admin/AdminUsers.tsx';
 
 
 createRoot(document.getElementById('root')!).render(
@@ -59,6 +63,10 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/modify-an-emission/:emission_id" element={<EmissionCreation/>}/>
         <Route path="/modify-account" element={<AccountUpdate/>}/>
         <Route path="/qr-temp" element={<QrShare/>}/>
+        <Route path="/admin/backlog" element={<QuestionBacklog/>}/>
+        <Route path="/messages" element={<Messages/>}/>
+        <Route path="/admin/dashboard" element={<Dashboard/>}/>
+        <Route path="/admin/users" element={<AdminUsers/>}/>
         <Route path="/play/*" element={<PlayRoutes/>}/>
       </Routes>
     </Router>

@@ -1,0 +1,42 @@
+.adminUsersSearch {
+    display: flex;
+    gap: 8px;
+    max-width: 480px;
+    margin-bottom: 12px;
+}
+
+.adminUsersSearch input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    border-radius: var(--radius-md, 8px);
+    border: 1px solid var(--border-color, #ddd);
+}
+
+.adminUsersMessage {
+    color: var(--danger-color);
+}
+
+.adminUsersList {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    max-width: 480px;
+}
+
+.adminUsersList li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.adminUsersRole {
+    color: var(--text-light);
+    font-size: 0.85em;
+}
+
+.adminUsersEmpty {
+    color: var(--text-light);
+}

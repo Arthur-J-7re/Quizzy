@@ -1,0 +1,93 @@
+.dashboardTiles {
+    /* .profilBlock (profil.css) est un flex column avec align-items:center :
+       sans largeur explicite, cette grille se réduit au strict minimum
+       (une seule colonne) au lieu de s'étaler sur l'espace disponible. */
+    width: 100%;
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-lg, 24px);
+    margin: 16px 0 32px;
+}
+
+.dashboardTile {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-lg, 24px);
+}
+
+.dashboardTile h3 {
+    margin: 0 0 8px;
+    font-size: 1em;
+    color: var(--text-medium);
+}
+
+.dashboardTileTotal {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--primary-color);
+}
+
+.dashboardTile ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9em;
+    color: var(--text-medium);
+}
+
+.dashboardTileLink {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.dashboardTileLink span {
+    font-size: 0.9em;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.dashboardActivityList {
+    width: 100%;
+    max-width: 1100px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.dashboardActivityList li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.dashboardActivityType {
+    font-size: 0.8em;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--bg-light);
+    color: var(--primary-color);
+    white-space: nowrap;
+}
+
+.dashboardActivityLabel {
+    flex: 1;
+}
+
+.dashboardActivityDate {
+    font-size: 0.85em;
+    color: var(--text-light);
+    white-space: nowrap;
+}
+
+.dashboardEmpty {
+    color: var(--text-light);
+    border-bottom: none !important;
+}

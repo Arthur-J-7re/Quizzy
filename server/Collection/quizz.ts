@@ -12,7 +12,8 @@ const QuizzSchema = new mongoose.Schema({
     mode: { type: String, enum: Object.values(QuizzMode), required: true },
     played :{type: Number, default : 0},
     best_players : {type:[Number],default : []},
-    tags :{type : [String], default : []} 
+    tags :{type : [String], default : []},
+    createdAt: { type: Date, default: Date.now },
 });
 
 QuizzSchema.plugin(AutoIncrement, { inc_field: 'quizz_id' });
