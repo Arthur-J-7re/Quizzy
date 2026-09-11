@@ -2,6 +2,7 @@ import { Router } from "express";
 import questionManager from "../function/questionManager";
 import token from "../utils/jwt";
 import requireRole from "../utils/requireRole";
+import getIdFromReq from "../utils/getIdFromReq";
 import asyncHandler from "../utils/asyncHandler";
 import { HttpError } from "../utils/errorHandler";
 import { rejectQuestionSchema } from "../validation/questionModerationSchemas";
@@ -55,6 +56,32 @@ routes.put(
       throw new HttpError(500, "Le refus de la question a échoué.");
     }
     res.json(retour);
+  })
+);
+
+routes.put(
+  "/:id/claim",
+  asyncHandler(async (req, res) => {
+    const question_id = Number(req.params.id);
+    if (!Number.isFinite(question_id)) {
+      throw new HttpError(400, "Identifiant de question invalide.");
+    }
+    const retour = await questionManager.claimQuestionReview(question_id, getIdFromReq(req));
+    if (!retour.success) {
+      throw new HttpError(409, retour.message ?? "Impossible de prendre cette question en review.");
+    }
+    res.json(retour);
+  })
+);
+
+routes.put(
+  "/:id/release",
+  asyncHandler(async (req, res) => {
+    const question_id = Number(req.params.id);
+    if (!Number.isFinite(question_id)) {
+      throw new HttpError(400, "Identifiant de question invalide.");
+    }
+    res.json(await questionManager.releaseQuestionReview(question_id));
   })
 );
 

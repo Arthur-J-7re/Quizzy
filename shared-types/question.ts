@@ -24,6 +24,12 @@ export interface IQuestionBase {
   // Motif du dernier refus admin (cf. shared-types/questionStatus.ts) : posé
   // sur "rejected", effacé dès qu'une nouvelle demande de publication part.
   rejectionReason?: string;
+  // Auto-assignation en modération : un admin "prend" une question pour
+  // signaler aux autres qu'elle est en cours de review (cf. ROADMAP.md,
+  // Phase 2). Pas un verrou dur : informatif, n'importe quel admin peut
+  // relâcher ou approuver/rejeter quand même.
+  reviewingBy?: number;
+  reviewingAt?: Date;
   quizz: number[];
   playlist: number[];
   level?: number;

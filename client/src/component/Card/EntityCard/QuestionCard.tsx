@@ -16,10 +16,14 @@ class QuestionCard extends Card {
     private question;
 
     constructor(question : any, action : any, owner : number, selected : boolean = false, href? : string, draggableEnabled : boolean = false){
+        // "en review par X" (backlog de modération, cf. QuestionBacklog) prime
+        // sur le statut : c'est l'info actionnable pour un autre admin qui
+        // parcourt la liste.
+        const reviewSuffix = question.reviewingBy != null ? ` · en review par ${question.reviewingByUsername ?? "un admin"}` : "";
         super(question.title, action,
             owner === question.creator,
             question.status !== "approved",
-            getQuestionModeLabel(question.mode) + (STATUS_SUFFIX[question.status] ?? ""),
+            getQuestionModeLabel(question.mode) + (reviewSuffix || (STATUS_SUFFIX[question.status] ?? "")),
             question.mode, selected, href, draggableEnabled
         )
         this.question = question;

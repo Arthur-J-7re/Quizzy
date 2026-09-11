@@ -6,6 +6,7 @@ import { QuestionMode } from '../Interface/Question';
 import { Socket } from 'socket.io';
 import quizzManager from './quizzManager';
 import tagManager from './tagManager';
+import userManager from './userManager';
 import notificationManager from './notificationManager';
 import { cascadeAfterQuestionsDeleted } from './publicationCascade';
 import { createEntityQueryHelpers } from './entityQueryHelpers';
@@ -428,10 +429,52 @@ const getPendingBacklog = async (query: BacklogQuery) => {
             QuestionModel.find(filter).skip(skip).limit(limit),
             QuestionModel.countDocuments(filter),
         ]);
-        return { items: await attachTagNames(items), total };
+        return { items: await attachReviewerNames(await attachTagNames(items)), total };
     } catch (error) {
         logger.error("erreur lors de la récupération du backlog de modération", error);
         return { items: [], total: 0 };
+    }
+};
+
+/** Affichage du backlog : "en review par X" plutôt qu'un id brut côté client. */
+const attachReviewerNames = async (docs: any[]) => {
+    const reviewerIds = [...new Set(docs.map((d) => d.reviewingBy).filter((id) => id != null))];
+    const names = new Map(
+        await Promise.all(reviewerIds.map(async (id) => [id, await userManager.getUsernameById(id)] as const))
+    );
+    return docs.map((doc) => (doc.reviewingBy != null ? { ...doc, reviewingByUsername: names.get(doc.reviewingBy) } : doc));
+};
+
+/**
+ * Auto-assignation en modération (cf. ROADMAP.md) : informatif seulement,
+ * n'empêche pas un autre admin d'approuver/rejeter quand même — évite juste
+ * que deux admins commencent une review en double sans le savoir.
+ */
+const claimQuestionReview = async (question_id: number, admin_id: number) => {
+    try {
+        const question = await QuestionModel.findOne().select("reviewingBy").where("question_id").equals(question_id);
+        if (!question) {
+            return { success: false, message: "Cette question n'existe pas." };
+        }
+        if (question.reviewingBy != null && question.reviewingBy !== admin_id) {
+            const username = await userManager.getUsernameById(question.reviewingBy);
+            return { success: false, message: `Déjà en review par ${username ?? "un autre admin"}.` };
+        }
+        await QuestionModel.updateOne({ question_id }, { $set: { reviewingBy: admin_id, reviewingAt: new Date() } });
+        return { success: true };
+    } catch (error) {
+        console.error("erreur lors de la prise en review de la question", error);
+        return { success: false };
+    }
+};
+
+const releaseQuestionReview = async (question_id: number) => {
+    try {
+        await QuestionModel.updateOne({ question_id }, { $unset: { reviewingBy: "", reviewingAt: "" } });
+        return { success: true };
+    } catch (error) {
+        console.error("erreur lors de la libération de la review de la question", error);
+        return { success: false };
     }
 };
 
@@ -465,20 +508,33 @@ const requestPublication = async (question_id: number) => {
  * `edits` porte les mêmes champs qu'un update créateur (title/level/tags et
  * les champs propres au mode), tous optionnels.
  */
+/** `choices`/`answer`/`carre`/`cash`/`truth`... ne vivent que sur les discriminators (cf. Collection/questions.ts) : un update via le modèle de base `QuestionModel` les droppe silencieusement (mode strict Mongoose, champs inconnus du schéma de base). */
+const MODEL_BY_MODE: Record<string, typeof QCMModel> = {
+    QCM: QCMModel,
+    FREE: FreeModel,
+    DCC: DCCModel,
+    VF: VFModel,
+};
+
 const approveQuestion = async (question_id: number, edits: Record<string, unknown> = {}) => {
     try {
-        const question = await QuestionModel.findOne().select("creator title").where("question_id").equals(question_id);
+        const question = await QuestionModel.findOne().select("creator title mode").where("question_id").equals(question_id);
         const fields: Record<string, unknown> = { ...edits, status: "approved" };
         if (Array.isArray(edits.tags)) {
             fields.tags = await tagManager.resolveTags(edits.tags as string[]);
         }
-        await QuestionModel.updateOne({ question_id }, { $set: fields, $unset: { rejectionReason: "" } });
+        const Model = (question && MODEL_BY_MODE[question.mode]) || QuestionModel;
+        await Model.updateOne(
+            { question_id },
+            { $set: fields, $unset: { rejectionReason: "", reviewingBy: "", reviewingAt: "" } }
+        );
         if (question) {
             const title = (edits.title as string | undefined) ?? question.title;
             await notificationManager.create(
                 question.creator,
                 "question_approved",
-                `Votre question "${title}" a été approuvée et est maintenant publique.`
+                `Votre question "${title}" a été approuvée et est maintenant publique.`,
+                { payload: { question_id } }
             );
         }
         return { success: true };
@@ -492,12 +548,16 @@ const approveQuestion = async (question_id: number, edits: Record<string, unknow
 const rejectQuestion = async (question_id: number, reason: string) => {
     try {
         const question = await QuestionModel.findOne().select("creator title").where("question_id").equals(question_id);
-        await QuestionModel.updateOne({ question_id }, { $set: { status: "rejected", rejectionReason: reason } });
+        await QuestionModel.updateOne(
+            { question_id },
+            { $set: { status: "rejected", rejectionReason: reason }, $unset: { reviewingBy: "", reviewingAt: "" } }
+        );
         if (question) {
             await notificationManager.create(
                 question.creator,
                 "question_rejected",
-                `Votre question "${question.title}" a été refusée. Motif : ${reason}`
+                `Votre question "${question.title}" a été refusée. Motif : ${reason}`,
+                { payload: { question_id } }
             );
         }
         return { success: true };
@@ -519,5 +579,6 @@ deleteQuestion, handleDeletedQuizz, addQuizzToQuestion,
 getQuestionByCreator, getQuestionById, getQuestionsByIds, getAvailableQuestions,
 getFilteredQuestions,
 getPublicQuestions,getQuizzOfQuestion, getCreatorOfQuestion,
-getPendingBacklog, requestPublication, approveQuestion, rejectQuestion
+getPendingBacklog, requestPublication, approveQuestion, rejectQuestion,
+claimQuestionReview, releaseQuestionReview
 };

@@ -23,6 +23,8 @@ const QuestionSchema = new mongoose.Schema<QuestionDocument>({
     title: { type: String, required: true },
     status: { type: String, enum: QUESTION_STATUS_VALUES, default: "private" },
     rejectionReason: { type: String },
+    reviewingBy: { type: Number },
+    reviewingAt: { type: Date },
     quizz: { type: [Number], default: [] },
     playlist: { type: [Number], default: [] },
     level: Number,

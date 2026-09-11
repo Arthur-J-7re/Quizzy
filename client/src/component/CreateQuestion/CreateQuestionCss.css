@@ -41,6 +41,7 @@ input[type="checkbox"]:checked {
 .tagSpanDispencer{
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 8px;
     width: 100%;
     max-width: 100%;
@@ -76,12 +77,35 @@ input[type="checkbox"].custom-checkbox:checked::after {
 }
 
 /* Layouts */
-.carre, .privateswitch, .headerAns {
+.privateswitch, .headerAns {
     display: flex;
     justify-content: center;
     align-items: baseline;
     flex-wrap: wrap;
     max-width: 100%;
+}
+
+/* Grille 2x2 fixe pour les 4 réponses (QcmChoiceGrid), plutôt qu'un flex-wrap
+   dont le nombre de colonnes dépend de la largeur du conteneur — sur un
+   conteneur large (ex. le modal du backlog admin), 3 colonnes de 320px
+   tenaient encore, donnant 3 réponses sur la première ligne et la 4e seule
+   sur la suivante. Le `<h3>` d'instructions (CreateQcmForm/CreateDccForm)
+   reste un enfant direct de `.carre` : il doit occuper les deux colonnes. */
+.carre {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 100%;
+}
+
+.carre > .questionCreationIndication {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+    .carre {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Le Switch MUI n'a pas de descendante : aligné sur la ligne de base du texte
@@ -132,16 +156,11 @@ input[type="checkbox"].custom-checkbox:checked::after {
     margin-bottom: 16px;
 }
 
-/* Largeur fixe plutôt que 40% du conteneur : sur un .formContainer large,
-   une colonne à 40% laisse un vide énorme entre le label et la case "duo"
-   (poussée à droite par .duoCheckbox), qui semble alors flotter toute seule
-   loin du texte. À largeur fixe, ce vide reste raisonnable, et sur un écran
-   étroit les deux colonnes passent naturellement à la ligne (flex-wrap). */
+/* Une cellule de la grille 2x2 de .carre : plus de largeur/marge propres,
+   l'espacement vient du `gap` de la grille parente. */
 .answerQcm {
     display: flex;
-    flex: 0 1 320px;
     flex-direction: column;
-    margin: 10px;
     max-width: 100%;
 }
 
