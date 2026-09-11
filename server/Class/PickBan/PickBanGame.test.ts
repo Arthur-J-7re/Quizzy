@@ -146,22 +146,38 @@ describe("PickBanGame", () => {
             expect(state.currentPlayer).toBe(second);
         });
 
-        it("give attribue le thème à l'autre joueur, pas à soi-même", () => {
-            game.draftGive(first, 10, second);
-            const theme = lastState().themes.find((t) => t.theme_id === 10)!;
-            expect(theme.owner).toBe(second);
-        });
+        it("give attribue le thème à la cible imposée par le roulement, jamais à soi-même", async () => {
+            const noBanConfig: PickBanConfig = { ...config, allowBan: false };
+            const g = new PickBanGame("room1", io, noBanConfig, async (ids) =>
+                ids.map((i) => questions[i]).filter(Boolean)
+            );
+            g.setSocketIdResolver((name) => `socket-${name}`);
+            const gState = () => {
+                const states = emissions.filter((e) => e.event === "pickban:state");
+                return states[states.length - 1].payload as PickBanState;
+            };
+            await g.start(["alice", "bob"]);
+            const gFirst: string = gState().currentPlayer!;
+            const gSecond = gFirst === "alice" ? "bob" : "alice";
 
-        it("refuse de se donner un thème à soi-même", () => {
-            game.draftGive(first, 10, first);
-            expect(eventsOf("pickban:error")[0].payload.message).toContain("vous-même");
-            expect(lastState().themes.find((t) => t.theme_id === 10)!.status).toBe("available");
+            // Manche "pick" (allowBan désactivé, donc pick -> give directement) :
+            // chacun pick un thème, puis c'est la manche "give" qui reprend au 1er joueur.
+            g.draftPick(gFirst, 10);
+            g.draftPick(gSecond, 20);
+            g.draftGive(gFirst, 30);
+
+            const theme = gState().themes.find((t) => t.theme_id === 30)!;
+            expect(theme.owner).toBe(gSecond);
+            expect(theme.owner).not.toBe(gFirst);
+            g.dispose();
         });
 
         it("ban rend le thème indisponible pour le reste de la partie", () => {
             game.draftPick(first, 10);
-            game.draftBan(second, 20);
-            const theme = lastState().themes.find((t) => t.theme_id === 20)!;
+            game.draftPick(second, 20);
+            // Manche "pick" terminée pour les 2 joueurs -> manche "ban", le tour repart sur `first`.
+            game.draftBan(first, 30);
+            const theme = lastState().themes.find((t) => t.theme_id === 30)!;
             expect(theme.status).toBe("banned");
             expect(theme.owner).toBeNull();
         });
@@ -192,42 +208,79 @@ describe("PickBanGame", () => {
     });
 
     describe("phase de jeu", () => {
-        let owner: string;
-        let other: string;
+        // 4 thèmes de 2 questions, allowBan désactivé : la manche "pick" (1
+        // thème chacun) enchaîne directement sur une manche "give" (sans ban),
+        // où chacun donne son thème restant à l'autre (cible forcée, jamais
+        // soi-même) — les 2 joueurs finissent avec 2 thèmes chacun, de façon
+        // déterministe quel que soit l'ordre de passage tiré au hasard.
+        const jeuQuestionIds = [1, 2, 3, 4, 5, 6, 7, 8];
+        const jeuQuestions: Record<number, any> = Object.fromEntries(
+            jeuQuestionIds.map((id) => [
+                id,
+                { question_id: id, mode: "QCM", title: `Question ${id}`, choices: { ans1: "a", ans2: "b", ans3: "c", ans4: "d" }, answer: 2 },
+            ])
+        );
+        const jeuConfig: PickBanConfig = {
+            columns: 4,
+            draftTurnDurationMs: 5000,
+            answerDurationMs: 3000,
+            allowBan: false,
+            themes: [
+                { theme_id: 10, title: "Cinéma", questions: [1, 2] },
+                { theme_id: 20, title: "Histoire", questions: [3, 4] },
+                { theme_id: 30, title: "Sport", questions: [5, 6] },
+                { theme_id: 40, title: "Musique", questions: [7, 8] },
+            ],
+        };
+
+        let jeuGame: PickBanGame;
+        let first: string;
+        let second: string;
 
         beforeEach(async () => {
-            await game.start(["alice", "bob"]);
-            const first = lastState().currentPlayer!;
-            const second = first === "alice" ? "bob" : "alice";
-            // alice (ou bob, selon l'ordre tiré) prend 2 thèmes, l'autre 1.
-            game.draftPick(first, 10);
-            game.draftPick(second, 20);
-            game.draftPick(first, 30);
-            owner = first;
-            other = second;
+            jeuGame = new PickBanGame("room1", io, jeuConfig, async (ids) =>
+                ids.map((i) => jeuQuestions[i]).filter(Boolean)
+            );
+            jeuGame.setSocketIdResolver((name) => `socket-${name}`);
+
+            await jeuGame.start(["alice", "bob"]);
+            first = lastState().currentPlayer!; // turnOrder[0]
+            second = first === "alice" ? "bob" : "alice";
+
+            // Manche "pick" : chacun prend un thème.
+            jeuGame.draftPick(first, 10);
+            jeuGame.draftPick(second, 20);
+            // Manche "give" (pas de ban) : chacun donne son thème restant à
+            // l'autre (cible forcée) -> first finit avec {10,40}, second avec {20,30}.
+            jeuGame.draftGive(first, 30);
+            jeuGame.draftGive(second, 40);
+        });
+
+        afterEach(() => {
+            jeuGame.dispose();
         });
 
         it("le propriétaire choisit un de ses thèmes et reçoit ses questions", () => {
             const state = lastState();
             expect(state.phase).toBe("playing");
-            expect(state.currentPlayer).toBe(owner);
+            expect(state.currentPlayer).toBe(first);
 
-            game.choose(owner, 10);
-            const toPlayer = eventsOf("pickban:question").find((e) => e.target === `socket-${owner}`);
+            jeuGame.choose(first, 10);
+            const toPlayer = eventsOf("pickban:question").find((e) => e.target === `socket-${first}`);
             expect(toPlayer!.payload.question).toBeDefined();
             expect(toPlayer!.payload.question.answer).toBeUndefined();
             expect(toPlayer!.payload.questionsTotal).toBe(2);
         });
 
         it("refuse de choisir un thème qu'on ne possède pas", () => {
-            game.choose(owner, 20);
+            jeuGame.choose(first, 20);
             expect(eventsOf("pickban:error")[0].payload.message).toBe("Vous ne pouvez pas choisir ce thème.");
         });
 
         it("enchaîne toutes les questions du thème puis marque les points cumulés", () => {
-            game.choose(owner, 10);
-            game.answer(owner, 2); // bonne réponse (Q1)
-            game.answer(owner, 4); // mauvaise réponse (Q2)
+            jeuGame.choose(first, 10);
+            jeuGame.answer(first, 2); // bonne réponse (Q1)
+            jeuGame.answer(first, 4); // mauvaise réponse (Q2)
 
             const complete = eventsOf("pickban:themeComplete")[0].payload;
             expect(complete.correctCount).toBe(1);
@@ -235,36 +288,36 @@ describe("PickBanGame", () => {
             expect(complete.pointsEarned).toBe(1);
 
             const state = lastState();
-            expect(state.players.find((p) => p.name === owner)!.score).toBe(1);
+            expect(state.players.find((p) => p.name === first)!.score).toBe(1);
             expect(state.themes.find((t) => t.theme_id === 10)!.played).toBe(true);
         });
 
         it("passe la main après un thème complété", () => {
-            game.choose(owner, 10);
-            game.answer(owner, 2);
-            game.answer(owner, 2);
+            jeuGame.choose(first, 10);
+            jeuGame.answer(first, 2);
+            jeuGame.answer(first, 2);
 
-            expect(lastState().currentPlayer).toBe(other);
+            expect(lastState().currentPlayer).toBe(second);
         });
 
         it("revient au premier joueur pour son deuxième thème après le tour de l'autre", () => {
-            game.choose(owner, 10);
-            game.answer(owner, 2);
-            game.answer(owner, 2);
+            jeuGame.choose(first, 10);
+            jeuGame.answer(first, 2);
+            jeuGame.answer(first, 2);
 
-            game.choose(other, 20);
-            game.answer(other, 2);
-            game.answer(other, 2);
+            jeuGame.choose(second, 20);
+            jeuGame.answer(second, 2);
+            jeuGame.answer(second, 2);
 
-            // `other` n'a plus de thème : le tour doit revenir à `owner` pour son
-            // deuxième thème (30), sans jamais rester bloqué sur `other`.
-            expect(lastState().currentPlayer).toBe(owner);
+            // `second` a encore un thème (30) inachevé, mais le tour alterne
+            // strictement : il doit revenir à `first` pour son deuxième thème (40).
+            expect(lastState().currentPlayer).toBe(first);
         });
 
         it("compte une non-réponse dans le temps imparti comme une erreur", () => {
             vi.useFakeTimers();
-            game.choose(owner, 10);
-            vi.advanceTimersByTime(config.answerDurationMs + 10);
+            jeuGame.choose(first, 10);
+            vi.advanceTimersByTime(jeuConfig.answerDurationMs + 10);
 
             const result = eventsOf("pickban:result")[0].payload;
             expect(result.correct).toBe(false);
@@ -272,23 +325,27 @@ describe("PickBanGame", () => {
         });
 
         it("termine la partie et classe les joueurs quand tous les thèmes sont joués", () => {
-            // owner possède 2 thèmes (10 et 30) de 2 questions chacun : 400 pts
-            // si tout est juste. other n'a que le thème 20, tout faux : 0 pt.
-            game.choose(owner, 10);
-            game.answer(owner, 2);
-            game.answer(owner, 2);
+            // first (10, 40) répond juste partout : 4 pts. second (20, 30) répond
+            // faux partout : 0 pt.
+            jeuGame.choose(first, 10);
+            jeuGame.answer(first, 2);
+            jeuGame.answer(first, 2);
 
-            game.choose(other, 20);
-            game.answer(other, 4);
-            game.answer(other, 4);
+            jeuGame.choose(second, 20);
+            jeuGame.answer(second, 4);
+            jeuGame.answer(second, 4);
 
-            game.choose(owner, 30);
-            game.answer(owner, 2);
-            game.answer(owner, 2);
+            jeuGame.choose(first, 40);
+            jeuGame.answer(first, 2);
+            jeuGame.answer(first, 2);
+
+            jeuGame.choose(second, 30);
+            jeuGame.answer(second, 4);
+            jeuGame.answer(second, 4);
 
             const finished = eventsOf("pickban:finished").at(-1)!.payload;
             expect(finished.ranking).toHaveLength(2);
-            expect(finished.ranking[0].name).toBe(owner);
+            expect(finished.ranking[0].name).toBe(first);
             expect(finished.ranking[0].score).toBe(4);
             expect(finished.ranking[1].score).toBe(0);
             expect(lastState().phase).toBe("finished");
