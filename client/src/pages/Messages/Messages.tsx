@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@mui/material";
 import { Banner } from "../../component/Banner/Banner";
 import { AuthContext } from "../../context/authentContext";
@@ -6,6 +7,24 @@ import makeRequest from "../../tools/requestScheme";
 import "../CommonCss.css";
 import "../Profil/profil.css";
 import "./Messages.css";
+
+interface NotificationItem {
+    notification_id: number;
+    type: string;
+    message: string;
+    read: boolean;
+    createdAt: string;
+    payload?: { question_id?: number };
+}
+
+type NotificationFilter = "all" | "moderation" | "publication" | "friends";
+
+const FILTERS: { key: NotificationFilter; label: string; types: string[] }[] = [
+    { key: "all", label: "Toutes", types: [] },
+    { key: "moderation", label: "Modération", types: ["question_approved", "question_rejected"] },
+    { key: "publication", label: "Publication", types: ["entity_unpublished"] },
+    { key: "friends", label: "Amis", types: ["friend_request", "friend_accepted"] },
+];
 
 interface Friend {
     user_id: number;
@@ -39,6 +58,13 @@ interface Message {
 export function Messages() {
     const auth = useContext(AuthContext);
     const myId = Number(auth?.user?.id);
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get("tab") === "notifications" ? "notifications" : "chat";
+
+    const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+    const [notifFilter, setNotifFilter] = useState<NotificationFilter>("all");
+    const [unreadOnly, setUnreadOnly] = useState(false);
 
     const [friends, setFriends] = useState<Friend[]>([]);
     const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -64,6 +90,46 @@ export function Messages() {
             console.error("Erreur lors du chargement de la messagerie", e);
         }
     }, []);
+
+    const loadNotifications = useCallback(async () => {
+        try {
+            const retour = await makeRequest("/notification");
+            setNotifications(retour.items ?? []);
+        } catch (e) {
+            console.error("Erreur lors du chargement des notifications", e);
+        }
+    }, []);
+
+    useEffect(() => { if (auth?.user && activeTab === "notifications") loadNotifications(); }, [auth?.user, activeTab, loadNotifications]);
+
+    const setActiveTab = (tab: "chat" | "notifications") => {
+        setSearchParams(tab === "notifications" ? { tab } : {});
+    };
+
+    const markNotificationRead = async (notification_id: number) => {
+        await makeRequest(`/notification/${notification_id}/read`, "PUT");
+        setNotifications((prev) => prev.map((n) => (n.notification_id === notification_id ? { ...n, read: true } : n)));
+    };
+
+    const markAllNotificationsRead = async () => {
+        await makeRequest("/notification/read-all", "PUT");
+        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    };
+
+    const openNotification = (n: NotificationItem) => {
+        if (!n.read) markNotificationRead(n.notification_id);
+        if ((n.type === "question_approved" || n.type === "question_rejected") && n.payload?.question_id) {
+            navigate(`/modify-a-question/${n.payload.question_id}`);
+        }
+    };
+
+    const visibleNotifications = notifications.filter((n) => {
+        const filter = FILTERS.find((f) => f.key === notifFilter);
+        if (filter && filter.types.length > 0 && !filter.types.includes(n.type)) return false;
+        if (unreadOnly && n.read) return false;
+        return true;
+    });
+    const notifUnreadCount = notifications.filter((n) => !n.read).length;
 
     useEffect(() => { if (auth?.user) loadSidebar(); }, [auth?.user, loadSidebar]);
 
@@ -138,6 +204,59 @@ export function Messages() {
             <Banner />
             <div className="profilBlock">
                 <h1>Messages</h1>
+                <div className="messagesTabs">
+                    <button
+                        className={`messagesTab${activeTab === "chat" ? " active" : ""}`}
+                        onClick={() => setActiveTab("chat")}
+                    >
+                        Discussions
+                    </button>
+                    <button
+                        className={`messagesTab${activeTab === "notifications" ? " active" : ""}`}
+                        onClick={() => setActiveTab("notifications")}
+                    >
+                        Notifications
+                    </button>
+                </div>
+
+                {activeTab === "notifications" ? (
+                    <div className="notificationsPage">
+                        <div className="notificationsToolbar">
+                            <div className="notificationsFilters">
+                                {FILTERS.map((f) => (
+                                    <button
+                                        key={f.key}
+                                        className={`notificationsFilterChip${notifFilter === f.key ? " active" : ""}`}
+                                        onClick={() => setNotifFilter(f.key)}
+                                    >
+                                        {f.label}
+                                    </button>
+                                ))}
+                            </div>
+                            <label className="notificationsUnreadToggle">
+                                <input type="checkbox" checked={unreadOnly} onChange={(e) => setUnreadOnly(e.target.checked)} />
+                                Non lues seulement
+                            </label>
+                            {notifUnreadCount > 0 && (
+                                <Button size="small" onClick={markAllNotificationsRead}>Tout marquer comme lu</Button>
+                            )}
+                        </div>
+
+                        {visibleNotifications.length === 0 && <p className="messagesEmpty">Aucune notification.</p>}
+                        <ul className="notificationsList">
+                            {visibleNotifications.map((n) => (
+                                <li
+                                    key={n.notification_id}
+                                    className={`notificationsListItem${n.read ? "" : " unread"}`}
+                                    onClick={() => openNotification(n)}
+                                >
+                                    <span className="notificationsListMessage">{n.message}</span>
+                                    <span className="notificationsListDate">{new Date(n.createdAt).toLocaleString()}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ) : (
                 <div className="messagesLayout">
                     <div className="messagesSidebar">
                         <div className="messagesSearch">
@@ -228,6 +347,7 @@ export function Messages() {
                         )}
                     </div>
                 </div>
+                )}
             </div>
         </div>
     );

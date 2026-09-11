@@ -19,10 +19,22 @@
     background: #f0efff;
 }
 
+.notificationPreviewText {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.notificationViewAll,
 .notificationMarkAll {
     justify-content: center;
     color: var(--primary-color, #5a54e8);
     font-weight: 600;
+}
+
+.notificationViewAll {
+    border-top: 1px solid var(--border-color, #eee);
 }
 
 .notificationFriendRequest {
