@@ -1,4 +1,4 @@
-import { Button, Slider, Switch, TextField } from "@mui/material";
+import { Button, MenuItem, Select, Slider, Switch, TextField } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { Banner } from "../../component/Banner/Banner";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -12,6 +12,7 @@ import PublicationBlockedNotice from "../../component/PublicationStatus/Publicat
 import "../CommonCss.css";
 import "./emission.css";
 import {Step} from "../../tools/type/Step"
+import { EMISSION_BLUEPRINTS, recalcStepCounts } from "shared-types";
 
 const DEFAULT_STEP: Step = {
   name: "",
@@ -27,49 +28,6 @@ const DEFAULT_STEP: Step = {
 // Pas de réglage dans l'UI pour choisir une autre taille : toujours des duos
 // (cf. StepForm.tsx et Thread.startTeamFormation côté serveur).
 const TEAM_SIZE = 2;
-
-/**
- * Recalcule Entrées/Sorties de haut en bas à chaque changement : `outputCount`
- * reste le choix du MJ (juste capé à `inputCount`, forcé à `inputCount` sur
- * une étape TEAM_FORMATION puisqu'elle n'élimine personne), `inputCount` est
- * toujours dérivé de la sortie de l'étape précédente.
- *
- * Une étape TEAM_FORMATION puis un "dissoudre les équipes" font basculer
- * l'unité de comptage entre joueurs et équipes : dès que des équipes sont
- * actives, le classement que renvoie le serveur est par équipe (une entrée =
- * un duo, cf. Thread.finalizeStep/applyStepElimination), donc les nombres
- * affichés doivent l'être aussi, sans quoi "Sorties" ne veut plus rien dire.
- */
-const recalcStepCounts = (steps: Step[], numberOfPlayers: number): Step[] => {
-  const result = steps.map((s) => ({ ...s }));
-  let teamsActive = false;
-
-  for (let i = 0; i < result.length; i++) {
-    const s = result[i];
-    if (i === 0) s.inputCount = numberOfPlayers;
-
-    if (s.mode === "TEAM_FORMATION") {
-      s.outputCount = s.inputCount;
-    } else {
-      if (s.outputCount > s.inputCount) s.outputCount = s.inputCount;
-      if (s.outputCount < 1) s.outputCount = 1;
-    }
-
-    const enteringTeams = teamsActive;
-    if (s.mode === "TEAM_FORMATION") teamsActive = true;
-    if (s.dissolveTeamsAfter) teamsActive = false;
-
-    if (i + 1 < result.length) {
-      const teamSize = s.teamSize ?? TEAM_SIZE;
-      let nextInput = s.outputCount;
-      if (!enteringTeams && teamsActive) nextInput = Math.max(1, Math.floor(nextInput / teamSize));
-      else if (enteringTeams && !teamsActive) nextInput = nextInput * teamSize;
-      result[i + 1].inputCount = nextInput;
-    }
-  }
-
-  return result;
-};
 
 /**
  * Résout l'émission existante (état de navigation, ou repli par id via
@@ -143,6 +101,24 @@ function EmissionCreationForm({ existingEmission, isModifying }: { existingEmiss
   const [steps, setSteps] = useState<Step[]>(
     emission?.steps?.length ? emission.steps : [DEFAULT_STEP]
   );
+
+  // Un blueprint ne fait que préremplir title/options/steps une fois choisi :
+  // le résultat reste une émission normale, librement éditable ensuite (pas
+  // de mode figé, cf. ROADMAP.md, backlog "Blueprints d'émission"). Réservé
+  // à la création : appliquer un blueprint sur une émission déjà construite
+  // écraserait silencieusement le travail en cours.
+  const [blueprintId, setBlueprintId] = useState("");
+  const applyBlueprint = (id: string) => {
+    setBlueprintId(id);
+    const blueprint = EMISSION_BLUEPRINTS.find((b) => b.id === id);
+    if (!blueprint) return;
+    if (!title.trim()) setTitle(blueprint.label);
+    setNumberOfPlayers(blueprint.numberOfPlayers);
+    setTeams(blueprint.options.teams);
+    setPlayerThemeEnabled(blueprint.options.playerThemeEnabled);
+    setHostModeEnabled(blueprint.options.hostModeEnabled);
+    setSteps(recalcStepCounts(blueprint.steps, blueprint.numberOfPlayers));
+  };
 
   // Des équipes existent à l'entrée d'une étape si une étape TEAM_FORMATION a
   // tourné plus tôt dans le déroulé et qu'aucun "dissoudre les équipes" ne
@@ -315,6 +291,30 @@ function EmissionCreationForm({ existingEmission, isModifying }: { existingEmiss
         <p className="emissionCreationIntro">
             Enchaînez plusieurs épreuves (quizz classique, Grid, Pick & Ban, Timer) au sein d'une même émission.
         </p>
+
+        {!isModifying && (
+          <section className="emissionSection">
+            <h2>Modèle</h2>
+            <Select
+              className="emissionBlueprintSelect"
+              value={blueprintId}
+              displayEmpty
+              fullWidth
+              onChange={(e) => applyBlueprint(e.target.value)}
+            >
+              <MenuItem value="">Vierge (construire le déroulé étape par étape)</MenuItem>
+              {EMISSION_BLUEPRINTS.map((b) => (
+                <MenuItem key={b.id} value={b.id}>{b.label}</MenuItem>
+              ))}
+            </Select>
+            {blueprintId && (
+              <p className="emissionHint">
+                {EMISSION_BLUEPRINTS.find((b) => b.id === blueprintId)?.description}
+                {" "}Les étapes ci-dessous restent modifiables comme d'habitude — il ne reste qu'à choisir un quizz par épreuve.
+              </p>
+            )}
+          </section>
+        )}
 
         <section className="emissionSection">
           <h2>Options générales</h2>
